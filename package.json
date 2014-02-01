@@ -5,6 +5,16 @@
   "dependencies": {
     "express": "~3.2.6",
     "express-hbs": "~0.7.8",
-    "request": "~2.33.0"
+    "request": "~2.33.0",
+    "passport": "~0.2.0",
+    "passport-local": "~0.1.6",
+    "passport-google-oauth": "~0.1.5",
+    "mongoose": "~3.8.6",
+    "bcrypt-nodejs": "0.0.3",
+    "express-flash": "0.0.2",
+    "express-validator": "~1.0.1",
+    "connect-mongo": "~0.4.0",
+    "underscore": "~1.5.2",
+    "mongoose-simpletimestamps": "~1.0.0"
   }
 }

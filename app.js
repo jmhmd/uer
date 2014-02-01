@@ -1,15 +1,43 @@
+'use strict';
 /**
  * Module dependencies
  */
 
 var express = require('express'),
-	routes = require('./routes'),
-	api = require('./routes/api'),
+	MongoStore = require('connect-mongo')(express),
+	flash = require('express-flash'),
+	mongoose = require('mongoose'),
+	passport = require('passport'),
+	expressValidator = require('express-validator'),
 	http = require('http'),
 	path = require('path'),
 	hbs = require('express-hbs')
 
 var app = module.exports = express()
+
+/**
+ *  Load Routes
+ */
+var userCtrl = require('./routes/user'),
+	apiCtrl = require('./routes/api'),
+	appCtrl = require('./routes/app')
+
+
+/**
+ * API keys + Passport configuration.
+ */
+
+var secrets = require('./config/secrets'),
+	passportConf = require('./config/passport')
+
+/**
+ * Mongoose configuration.
+ */
+
+mongoose.connect(secrets.db);
+mongoose.connection.on('error', function() {
+	console.log('✗ MongoDB Connection Error. Please make sure MongoDB is running.'.red)
+})
 
 
 /**
@@ -25,7 +53,23 @@ app.set('view engine', 'hbs')
 app.set('views', __dirname + '/views')
 app.use(express.logger('dev'))
 app.use(express.bodyParser())
+app.use(expressValidator())
 app.use(express.methodOverride())
+app.use(express.session({
+	secret: 'rads call practice',
+	store: new MongoStore({
+		db: mongoose.connection.db,
+		auto_reconnect: true
+	})
+}))
+app.use(passport.initialize())
+app.use(passport.session())
+// make logged in user object available to templates
+app.use(function(req, res, next) {
+	res.locals.user = req.user
+	next()
+})
+app.use(flash())
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(app.router)
 
@@ -40,20 +84,47 @@ if (app.get('env') === 'production') {
 }
 
 
+////////////
+// Routes //
+////////////
+
 /**
- * Routes
+ * JSON API
+ */
+app.get('/api/loadStudy/:studyId', apiCtrl.loadStudy)
+app.post('/api/saveStudy/:studyId', apiCtrl.saveStudy)
+
+
+/**
+ * APP ROUTES
  */
 
-// serve index and view partials
-app.get('/', routes.index)
-app.get('/partials/:name', routes.partials)
+// User account
+app.get('/login', userCtrl.getLogin)
+app.post('/login', userCtrl.postLogin)
+app.get('/logout', userCtrl.logout)
+app.get('/signup', userCtrl.getSignup)
+app.post('/signup', userCtrl.postSignup)
 
-// JSON API
-app.get('/api/name', api.name)
+// App navigation
+app.get('/', appCtrl.index)
+app.get('/quiz/:quizId', appCtrl.showQuiz)
+app.get('/quiz/:quizId/:questionId', appCtrl.showQuestion)
+app.get('/quiz/:quizId/results', appCtrl.showResults)
 
-// redirect all others to the index (HTML5 history)
+// Partials
+app.get('/partials/:partial', appCtrl.partials)
+
+
+/**
+ * OAuth routes for sign-in.
+ */
+
+app.get('/auth/google', passport.authenticate('google', { scope: 'profile email' }));
+app.get('/auth/google/callback', passport.authenticate('google', { successRedirect: '/', failureRedirect: '/login' }));
+
+// redirect all others to the index
 app.get('*', routes.index)
-
 
 /**
  * Start Server
