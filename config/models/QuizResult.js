@@ -1,5 +1,5 @@
 var mongoose = require('mongoose'),
-	simpleTimestamps = require( "mongoose-SimpleTimestamps" ).SimpleTimestamps
+	simpleTimestamps = require( 'mongoose-SimpleTimestamps').SimpleTimestamps
 
 var quizResultSchema = new mongoose.Schema({
 	user: {type: mongoose.Schema.Types.ObjectId, required: true},

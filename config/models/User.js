@@ -1,6 +1,6 @@
 var mongoose = require('mongoose'),
 	bcrypt = require('bcrypt-nodejs'),
-	simpleTimestamps = require( "mongoose-SimpleTimestamps" ).SimpleTimestamps
+	simpleTimestamps = require('mongoose-SimpleTimestamps').SimpleTimestamps
 
 var userSchema = new mongoose.Schema({
 	email: {
@@ -16,6 +16,8 @@ var userSchema = new mongoose.Schema({
 	},
 	
 	tokens: Array,
+
+	isAdmin: Boolean,
 
 	profile: {
 		name: {

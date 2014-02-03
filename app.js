@@ -20,7 +20,8 @@ var app = module.exports = express()
  */
 var userCtrl = require('./routes/user'),
 	apiCtrl = require('./routes/api'),
-	appCtrl = require('./routes/app')
+	homeCtrl = require('./routes/home'),
+	quizCtrl = require('./routes/quiz')
 
 
 /**
@@ -80,7 +81,11 @@ if (app.get('env') === 'development') {
 
 // production only
 if (app.get('env') === 'production') {
-	// TODO
+	// production error handling
+	app.use(function(err, req, res, next){
+		console.error(err.stack);
+		res.send(500, 'Something broke!');
+	})
 }
 
 
@@ -107,13 +112,13 @@ app.get('/signup', userCtrl.getSignup)
 app.post('/signup', userCtrl.postSignup)
 
 // App navigation
-app.get('/', appCtrl.index)
-app.get('/quiz/:quizId', appCtrl.showQuiz)
-app.get('/quiz/:quizId/:questionId', appCtrl.showQuestion)
-app.get('/quiz/:quizId/results', appCtrl.showResults)
+app.get('/', homeCtrl.index)
+app.get('/quiz/:quizId', quizCtrl.showQuiz)
+app.get('/quiz/:quizId/:questionId', quizCtrl.showQuestion)
+app.get('/quiz/:quizId/results', quizCtrl.showResults)
 
 // Partials
-app.get('/partials/:partial', appCtrl.partials)
+app.get('/partials/:partial', homeCtrl.partials)
 
 
 /**
