@@ -1,0 +1,102 @@
+
+
+body {
+	background-color: #000066;
+	margin: 0;
+	padding: 0;
+}
+
+
+/* CSS for the wavy header*/
+#bigwave {
+	position: relative;
+	display: inline-block;
+	width: 8%;
+	height: 100px;
+	background-color: white;
+	margin: -8px;
+	border-radius: 0 0 40% 80%;
+	z-index: 2;
+}
+
+#littlewave {
+	position: relative;
+	display: inline-block;
+	width: 5%;
+	height: 60px;
+	background-color: #003399;
+	top: -50px;
+	margin: -15px;
+	border: 15px solid #003399;
+	border-radius: 0 0 80% 60%;
+	z-index: 1;
+}
+
+#littlewaveend {
+	position: relative;
+	display: inline-block;
+	width: 4%;
+	height: 60px;
+	background-color: #003399;
+	top: -50px;
+	margin: -15px;
+	border: 15px solid #003399;
+	border-radius: 0 0 80% 60%;
+	z-index: 1;
+}
+
+
+
+
+#loginoptioncontainer {
+	display: block;
+	position: fixed;
+	height: 150px;
+	top: 70%;
+	left: 40%;
+}
+
+#gmaillogin, #otherlogin {
+	font-family: Arial, Verdana;
+	font-size: 16px;
+	color: #99FF00;
+	margin-top: 10px;
+	padding-left: 20px;
+	text-align: right;
+}
+
+.gmaillogin, .otherlogin {
+	
+}
+
+input {
+	margin-left: 5px;
+}
+
+#newaccount, #forgot {
+	display: inline-block;
+	border: 1px solid black;
+	padding: 6px;
+	font-size: 16px;
+	border-radius: 4px;
+	font-family: Arial, Verdana;
+	background-color: #000099;
+	color: #99FF00;
+	margin-left: 20px;
+	margin-top: 10px;
+}	
+
+#gmailloginbutton, #otherloginbutton {
+	display: inline-block;
+	border: 1px solid black;
+	padding: 6px;
+	font-size: 16px;
+	border-radius: 4px;
+	font-family: Arial, Verdana;
+	background-color: #000099;
+	color: #99FF00;
+}
+
+#gmailloginbutton:hover, #otherloginbutton:hover, #newaccount:hover, #forgot:hover {
+	background-color: #0000CC;
+}	
