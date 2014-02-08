@@ -5,7 +5,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var User = require('./models/User');
 var secrets = require('./secrets');
-var _ = require('lodash');
+var _ = require('underscore');
 
 passport.serializeUser(function(user, done) {
 	done(null, user.id);
@@ -48,7 +48,7 @@ passport.use(new GoogleStrategy(secrets.google, function(req, accessToken, refre
 			});
 			user.profile.name = user.profile.name || profile.displayName;
 			user.profile.gender = user.profile.gender || profile._json.gender;
-			user.profile.picture = user.profile.picture || profile._json.picture;
+			// user.profile.picture = user.profile.picture || profile._json.picture;
 			user.save(function(err) {
 				done(err, user);
 			});
@@ -67,7 +67,7 @@ passport.use(new GoogleStrategy(secrets.google, function(req, accessToken, refre
 			});
 			user.profile.name = profile.displayName;
 			user.profile.gender = profile._json.gender;
-			user.profile.picture = profile._json.picture;
+			// user.profile.picture = profile._json.picture;
 			user.save(function(err) {
 				done(err, user);
 			});

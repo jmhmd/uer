@@ -56,8 +56,9 @@ app.use(express.logger('dev'))
 app.use(express.bodyParser())
 app.use(expressValidator())
 app.use(express.methodOverride())
+app.use(express.cookieParser())
 app.use(express.session({
-	secret: 'rads call practice',
+	secret: secrets.sessionSecret,
 	store: new MongoStore({
 		db: mongoose.connection.db,
 		auto_reconnect: true
@@ -96,8 +97,8 @@ if (app.get('env') === 'production') {
 /**
  * JSON API
  */
-app.get('/api/loadStudy/:studyId', apiCtrl.loadStudy)
-app.post('/api/saveStudy/:studyId', apiCtrl.saveStudy)
+// app.get('/api/loadStudy/:studyId', apiCtrl.loadStudy)
+// app.post('/api/saveStudy/:studyId', apiCtrl.saveStudy)
 
 
 /**
@@ -129,7 +130,7 @@ app.get('/auth/google', passport.authenticate('google', { scope: 'profile email'
 app.get('/auth/google/callback', passport.authenticate('google', { successRedirect: '/', failureRedirect: '/login' }));
 
 // redirect all others to the index
-app.get('*', routes.index)
+app.get('*', homeCtrl.index)
 
 /**
  * Start Server
