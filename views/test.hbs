@@ -7,10 +7,18 @@ Logged in: {{user.email}}
 
 <script type="text/javascript">
 'use strict';
+
 // test loading a case from casefil.es
 
 $.get('http://localhost:8080/api/study/load/52960b463e31390f00000025', function(res){
 	if(res._id === '52960b463e31390f00000025'){ console.log('OK: study successfully loaded')}
 })
+
+// test getting s3 upload credentials
+
+$.get('http://localhost:8080/api/upload/getCredentials/call-practice', function(res){
+	if(res.s3Bucket === 'elasticbeanstalk-us-east-1-843279806438'){ console.log('OK: s3 creds returned')}
+})
+
 
 </script>
