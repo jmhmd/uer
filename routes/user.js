@@ -1,9 +1,11 @@
 'use strict';
 
-var mongoose = require('mongoose');
-var passport = require('passport');
-var _ = require('underscore');
-var User = require('../config/models/User');
+var mongoose = require('mongoose'),
+	passport = require('passport'),
+	_ = require('underscore'),
+	User = require('../config/models/User'),
+	request = require('request'),
+	casefiles = require('../config/secrets').casefiles
 
 /**
  * GET /login
@@ -213,6 +215,48 @@ exports.getOauthUnlink = function(req, res, next) {
 		});
 	});
 };
+
+/**
+ * POST /account/makeAdmin
+ * make a user an admin, must check with casefil.es to give upload access
+ */
+exports.makeAdmin = function(req, res, next){
+	var userId = req.params.userId
+
+	// pull user from db
+	User.findById(userId, function(err, user){
+		if (err){ return next(err) }
+
+		if (!user.email) { return next('User does not have email on file') }
+		
+		// try to associate this user with an account on casefil.es
+		request.post(casefiles.url + 'api/user/addToAffiliation',
+			{
+				email: user.email,
+				apikey: casefiles.apikey
+			},
+			function(err, response, body){
+				if (err){ return next(err) }
+
+				console.log(body)
+
+				// user successfully created, make admin
+				setAsAdmin(user)
+			})
+	})
+
+	function setAsAdmin(user){
+		if (user.isAdmin){
+			res.send(200, 'User already administrator')
+		} else {
+			user.isAdmin = true
+			user.save(function(err){
+				if (err){ return next(err) }
+				res.send(200, 'User set as administrator')
+			})
+		}
+	}
+}
 
 /**
  * GET /logout

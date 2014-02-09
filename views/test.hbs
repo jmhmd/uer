@@ -16,9 +16,20 @@ $.get('http://localhost:8080/api/study/load/52960b463e31390f00000025', function(
 
 // test getting s3 upload credentials
 
-$.get('http://localhost:8080/api/upload/getCredentials/call-practice', function(res){
+$.get('http://localhost:8080/api/upload/getCredentials?apikey=call-practice', function(res){
 	if(res.s3Bucket === 'elasticbeanstalk-us-east-1-843279806438'){ console.log('OK: s3 creds returned')}
 })
+
+$.post('http://localhost:8080/api/user/register', {
+		username: 'jmhmd',
+		password: 'hello'
+	})
+	.done(function(res){
+		console.log('FAIL: should not have successfully created the account')
+	})
+	.fail(function(err){
+		if(err.responseJSON.err.code === 11000){ console.log('OK: account found and not created')}
+	})
 
 
 </script>

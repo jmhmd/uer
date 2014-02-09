@@ -112,6 +112,7 @@ app.post('/login', userCtrl.postLogin)
 app.get('/logout', userCtrl.logout)
 app.get('/signup', userCtrl.getSignup)
 app.post('/signup', userCtrl.postSignup)
+app.post('/makeAdmin/:userId', passportConf.isAuthenticated, userCtrl.makeAdmin)
 
 // App navigation
 app.get('/', homeCtrl.index)
