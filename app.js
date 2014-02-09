@@ -21,7 +21,8 @@ var app = module.exports = express()
 var userCtrl = require('./routes/user'),
 	apiCtrl = require('./routes/api'),
 	homeCtrl = require('./routes/home'),
-	quizCtrl = require('./routes/quiz')
+	quizCtrl = require('./routes/quiz'),
+	testCtrl = require('./routes/test')
 
 
 /**
@@ -120,6 +121,9 @@ app.get('/quiz/:quizId/results', quizCtrl.showResults)
 
 // Partials
 app.get('/partials/:partial', homeCtrl.partials)
+
+// Tests
+app.get('/test', testCtrl.test)
 
 
 /**

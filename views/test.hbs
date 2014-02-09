@@ -1,0 +1,16 @@
+{{!< ./default_layout}}
+<h1> Test all the things! </h1>
+
+Logged in: {{user.email}}
+
+<a href="/login">Log in</a>
+
+<script type="text/javascript">
+'use strict';
+// test loading a case from casefil.es
+
+$.get('http://localhost:8080/api/study/load/52960b463e31390f00000025', function(res){
+	if(res._id === '52960b463e31390f00000025'){ console.log('OK: study successfully loaded')}
+})
+
+</script>
