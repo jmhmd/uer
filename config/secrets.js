@@ -14,7 +14,7 @@ module.exports = {
 
 var casefiles = {}
 
-if (app.get('env') === 'development'){
+if (process.env.NODE_ENV === 'development'){
 	casefiles.apikey = '52f7caabff074a371800000b'
 	casefiles.url = 'http://localhost:8080/'
 } else {
