@@ -8,6 +8,8 @@ Logged in: {{user.email}}
 <script type="text/javascript">
 'use strict';
 
+/*
+
 // test loading a case from casefil.es
 
 $.get('http://localhost:8080/api/study/load/52960b463e31390f00000025', function(res){
@@ -24,11 +26,21 @@ $.get('http://localhost:8080/api/upload/getCredentials?apikey=52f7caabff074a3718
 
 $.post('/makeAdmin', {userId: '52f6b898e426a9080ce53adf'})
 	.done(function(res){
-		if(res === 'User already administrator'){ console.log('OK: User already administrator') }
+		if(res === 'User already administrator' || 'User set as administrator'){ console.log('OK: User set as administrator') }
+		else { console.log('FAIL: ', res) }
 	})
 	.fail(function(err){
 		console.log('FAIL', err)
 	})
 
+*/
+
+$.post('/saveQuiz', {userId: '52f6b898e426a9080ce53adf'})
+	.done(function(res){
+		console.log(res)
+	})
+	.fail(function(err){
+		console.log('FAIL', err)
+	})
 
 </script>

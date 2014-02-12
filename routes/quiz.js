@@ -1,9 +1,13 @@
 'use strict';
 
-var mongoose = require('mongoose'),
+var util = require('util'),
+	mongoose = require('mongoose'),
 	Quiz = require('../config/models/Quiz'),
 	Question = require('../config/models/Question'),
-	QuizResult = require('../config/models/QuizResult')
+	QuizResult = require('../config/models/QuizResult'),
+	validator = require('validator'),
+	request = require('request'),
+	casefiles = require('../config/secrets').casefiles
 
 /**
  * show page for quiz overview (start)
@@ -71,4 +75,52 @@ exports.showResults = function(req, res, next){
 		// render template
 		res.render('quizResults', quizResult)
 	})
+}
+
+exports.saveQuiz = function(req, res){
+
+	/**
+	 * Validate case before trying to save
+	 */
+	
+	var errors, loopErrors = false
+
+	req.checkBody('diagnosis', 'Must include diagnosis').notEmpty()
+	req.checkBody('category', 'Must include category').notEmpty()
+
+	errors = req.validationErrors()
+
+	if (req.body.imageStacks.length > 0){
+		_.each(req.body.imageStacks, function(stack){
+			if (!validator.isLength(stack.modality, 1)){
+				if (!loopErrors){ loopErrors = [] }
+				loopErrors.push({param: 'modality', msg: 'modality required', value: stack.modality })
+			}
+		})
+	}
+	
+	if (errors || loopErrors) {
+		var message = 'There have been validation errors: ' + util.inspect(errors) + util.inspect(loopErrors)
+		res.send(400, message)
+		return
+	}
+
+	/**
+	 * Send case to casefiles
+	 */
+	
+	request.post({
+		url: casefiles.url + 'api/user/addToAffiliation', 
+		json: {
+			email: user.email,
+			apikey: casefiles.apikey
+		}},
+		function(err, response, body){
+			if (err){ return next(err) }
+
+			// user successfully created, make admin
+			setAsAdmin(user)
+		})
+
+	res.send(200, 'Quiz saved')
 }

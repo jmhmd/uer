@@ -114,7 +114,8 @@ app.get('/signup', userCtrl.getSignup)
 app.post('/signup', userCtrl.postSignup)
 
 // API
-app.post('/makeAdmin', passportConf.isAuthenticatedAPI, userCtrl.makeAdmin)
+app.post('/makeAdmin', passportConf.isAuthenticatedAPI, passportConf.isAdmin, userCtrl.makeAdmin)
+app.post('/saveQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuiz)
 
 // App navigation
 app.get('/', homeCtrl.index)

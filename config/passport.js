@@ -85,6 +85,11 @@ exports.isAuthenticatedAPI = function(req, res, next) {
 	res.send(401, 'Action not permitted')
 }
 
+exports.isAdmin = function(req, res, next) {
+	if (req.user.isAdmin){ return next() }
+	res.send(401, 'Must be administrator')
+}
+
 exports.isAuthorized = function(req, res, next) {
 	var provider = req.path.split('/').slice(-1)[0]
 	if (_.findWhere(req.user.tokens, {

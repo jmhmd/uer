@@ -224,8 +224,6 @@ exports.getOauthUnlink = function(req, res, next) {
 exports.makeAdmin = function(req, res, next){
 	var userId = req.params.userId || req.body.userId
 
-	console.log('userid:', userId)
-
 	// pull user from db
 	User.findById(userId, function(err, user){
 		if (err){ return next(err) }
@@ -241,8 +239,6 @@ exports.makeAdmin = function(req, res, next){
 				}},
 				function(err, response, body){
 					if (err){ return next(err) }
-
-					console.log(body)
 
 					// user successfully created, make admin
 					setAsAdmin(user)
