@@ -219,9 +219,12 @@ exports.getOauthUnlink = function(req, res, next) {
 /**
  * POST /account/makeAdmin
  * make a user an admin, must check with casefil.es to give upload access
+ * @return {Object} JSON response
  */
 exports.makeAdmin = function(req, res, next){
-	var userId = req.params.userId
+	var userId = req.params.userId || req.body.userId
+
+	console.log('userid:', userId)
 
 	// pull user from db
 	User.findById(userId, function(err, user){
@@ -230,19 +233,20 @@ exports.makeAdmin = function(req, res, next){
 		if (!user.email) { return next('User does not have email on file') }
 		
 		// try to associate this user with an account on casefil.es
-		request.post(casefiles.url + 'api/user/addToAffiliation',
-			{
-				email: user.email,
-				apikey: casefiles.apikey
-			},
-			function(err, response, body){
-				if (err){ return next(err) }
+		request.post({
+				url: casefiles.url + 'api/user/addToAffiliation', 
+				json: {
+					email: user.email,
+					apikey: casefiles.apikey
+				}},
+				function(err, response, body){
+					if (err){ return next(err) }
 
-				console.log(body)
+					console.log(body)
 
-				// user successfully created, make admin
-				setAsAdmin(user)
-			})
+					// user successfully created, make admin
+					setAsAdmin(user)
+				})
 	})
 
 	function setAsAdmin(user){

@@ -12,23 +12,22 @@ Logged in: {{user.email}}
 
 $.get('http://localhost:8080/api/study/load/52960b463e31390f00000025', function(res){
 	if(res._id === '52960b463e31390f00000025'){ console.log('OK: study successfully loaded')}
+	else { console.log('FAIL', res)}
 })
 
 // test getting s3 upload credentials
 
-$.get('http://localhost:8080/api/upload/getCredentials?apikey=call-practice', function(res){
+$.get('http://localhost:8080/api/upload/getCredentials?apikey=52f7caabff074a371800000b', function(res){
 	if(res.s3Bucket === 'elasticbeanstalk-us-east-1-843279806438'){ console.log('OK: s3 creds returned')}
+	else { console.log('FAIL', res)}
 })
 
-$.post('http://localhost:8080/api/user/register', {
-		username: 'jmhmd',
-		password: 'hello'
-	})
+$.post('/makeAdmin', {userId: '52f6b898e426a9080ce53adf'})
 	.done(function(res){
-		console.log('FAIL: should not have successfully created the account')
+		if(res === 'User already administrator'){ console.log('OK: User already administrator') }
 	})
 	.fail(function(err){
-		if(err.responseJSON.err.code === 11000){ console.log('OK: account found and not created')}
+		console.log('FAIL', err)
 	})
 
 

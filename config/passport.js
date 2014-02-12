@@ -76,14 +76,19 @@ passport.use(new GoogleStrategy(secrets.google, function(req, accessToken, refre
 }));
 
 exports.isAuthenticated = function(req, res, next) {
-	if (req.isAuthenticated()) return next();
-	res.redirect('/login');
-};
+	if (req.isAuthenticated()){ return next() }
+	res.redirect('/login')
+}
+
+exports.isAuthenticatedAPI = function(req, res, next) {
+	if (req.isAuthenticated()){ return next() }
+	res.send(401, 'Action not permitted')
+}
 
 exports.isAuthorized = function(req, res, next) {
-	var provider = req.path.split('/').slice(-1)[0];
+	var provider = req.path.split('/').slice(-1)[0]
 	if (_.findWhere(req.user.tokens, {
 		kind: provider
-	})) next();
-	else res.redirect('/auth/' + provider);
-};
+	})){ next() }
+	else{ res.redirect('/auth/' + provider) }
+}
