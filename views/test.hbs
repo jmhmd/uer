@@ -45,6 +45,7 @@ $.post('/makeAdmin', {userId: '52f6b898e426a9080ce53adf'})
 		console.log('FAIL', err)
 	})
 
+Dropzone.autoDiscover = false
 var dropzone = new Dropzone('.dropzone', {
 		url: '{{s3.s3URL}}',
 		maxFilesize: 100,
@@ -54,7 +55,7 @@ var dropzone = new Dropzone('.dropzone', {
 		dictDefaultMessage: '<div class="msg-primary">Drop files here to upload</div><div class="msg-secondary">(or click)</div>'
 	})
 	.on('addedfile', function(file){
-		$(file.previewElement).find('.data-dz-success-mark,.data-dz-error-mark').hide()
+		$(file.previewElement).find('.dz-success-mark,.dz-error-mark').hide()
 	})
 	.on('totaluploadprogress', function(total, totalBytes, totalBytesSent){
 		console.log(total)
@@ -63,11 +64,15 @@ var dropzone = new Dropzone('.dropzone', {
 		console.log('error: ', error)
 	})
 	.on('success', function(file, response){
+		response = response.split('Location')[1].slice(1, -2)
 		console.log(response)
-		$(file.previewElement).find('.data-dz-success-mark').html('<i class="icon-ok icon-white"></i>').show()
-
+		$(file.previewElement).find('.dz-success-mark').show()
 	})
 	.on('complete',function(){
+		if (this.getUploadingFiles().length > 0){
+			this.processQueue()
+			return false
+		}
 		console.log('complete')
 	})
 
