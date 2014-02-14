@@ -1,14 +1,26 @@
 {{!< ./default_layout}}
+
 <h1> Test all the things! </h1>
 
-Logged in: {{user.email}}
+<p>Logged in: {{user.email}}</p>
 
 <a href="/login">Log in</a>
+
+<form class="dropzone">
+	<input type="hidden" name="key" value="uploads/temp/${filename}">
+	<input type="hidden" name="AWSAccessKeyId" value="{{ s3.s3Key }}"> 
+	<input type="hidden" name="acl" value="public-read"> 
+	<input type="hidden" name="success_action_status" value="201">
+	<input type="hidden" name="policy" value="{{ s3.s3Policy64 }}">
+	<input type="hidden" name="signature" value="{{ s3.s3Signature }}">
+	<input type="hidden" name="Content-Type" value="image/jpeg">
+</form>
+
+<button id="uploadImages">Upload</button>
 
 <script type="text/javascript">
 'use strict';
 
-/*
 
 // test loading a case from casefil.es
 
@@ -33,14 +45,84 @@ $.post('/makeAdmin', {userId: '52f6b898e426a9080ce53adf'})
 		console.log('FAIL', err)
 	})
 
-*/
+var dropzone = new Dropzone('.dropzone', {
+		url: '{{s3.s3URL}}',
+		maxFilesize: 100,
+		paramName: 'file',
+		maxThumbnailFilesize: 5,
+		autoProcessQueue: false,
+		dictDefaultMessage: '<div class="msg-primary">Drop files here to upload</div><div class="msg-secondary">(or click)</div>'
+	})
+	.on('addedfile', function(file){
+		$(file.previewElement).find('.data-dz-success-mark,.data-dz-error-mark').hide()
+	})
+	.on('totaluploadprogress', function(total, totalBytes, totalBytesSent){
+		console.log(total)
+	})
+	.on('error', function(file, error){
+		console.log('error: ', error)
+	})
+	.on('success', function(file, response){
+		console.log(response)
+		$(file.previewElement).find('.data-dz-success-mark').html('<i class="icon-ok icon-white"></i>').show()
 
-$.post('/saveQuiz', {userId: '52f6b898e426a9080ce53adf'})
+	})
+	.on('complete',function(){
+		console.log('complete')
+	})
+
+$('#uploadImages').on('click', function(){
+	dropzone.processQueue()
+})
+
+/*$('#uploadImages').on('submit', function(e){
+	e.preventDefault()
+
+	var formData = new FormData(e.target),
+		onProgress = function(e){
+			console.log(e)
+		},
+		onSuccess = function(e){
+			console.log(e)
+		},
+		onError = function(e){
+			console.log(e)
+		}
+
+	$.ajax({
+		url: '{{s3.s3URL}}',
+		xhr: function() {  // Custom XMLHttpRequest
+			var myXhr = $.ajaxSettings.xhr();
+			if(myXhr.upload){ // Check if upload property exists
+				myXhr.upload.addEventListener('progress', onProgress, false); // For handling the progress of the upload
+			}
+			return myXhr;
+		},
+		success: onSuccess,
+		error: onError,
+		data: formData,
+		//Options to tell jQuery not to process data or worry about content-type.
+		cache: false,
+		contentType: false,
+		processData: false
+	})
+})*/
+
+/*$.post('/saveImages', images)
 	.done(function(res){
 		console.log(res)
 	})
 	.fail(function(err){
 		console.log('FAIL', err)
 	})
+
+var quiz
+$.post('/saveQuiz', {userId: '52f6b898e426a9080ce53adf'})
+	.done(function(res){
+		console.log(res)
+	})
+	.fail(function(err){
+		console.log('FAIL', err)
+	})*/
 
 </script>

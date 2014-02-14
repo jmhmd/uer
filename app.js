@@ -113,15 +113,17 @@ app.get('/logout', userCtrl.logout)
 app.get('/signup', userCtrl.getSignup)
 app.post('/signup', userCtrl.postSignup)
 
-// API
-app.post('/makeAdmin', passportConf.isAuthenticatedAPI, passportConf.isAdmin, userCtrl.makeAdmin)
-app.post('/saveQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuiz)
-
 // App navigation
 app.get('/', homeCtrl.index)
 app.get('/quiz/:quizId', quizCtrl.showQuiz)
 app.get('/quiz/:quizId/:questionId', quizCtrl.showQuestion)
 app.get('/quiz/:quizId/results', quizCtrl.showResults)
+
+// API
+app.post('/makeAdmin', passportConf.isAuthenticatedAPI, passportConf.isAdmin, userCtrl.makeAdmin)
+app.post('/saveQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuiz)
+app.post('/saveQuestion', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuestion)
+app.post('/saveImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveImages)
 
 // Partials
 app.get('/partials/:partial', homeCtrl.partials)

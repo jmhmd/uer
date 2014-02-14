@@ -79,6 +79,49 @@ exports.showResults = function(req, res, next){
 
 exports.saveQuiz = function(req, res){
 
+}
+
+exports.saveQuestion = function(req, res){
+	
+}
+
+/**
+ * Send images to casefiles as a study object
+ * @param  {Object} req.body:
+ *         	{
+ *         		diagnosis: String,
+ * 	        	category: String, // available categories: 
+													'Thoracic',
+													'Abdominal',
+													'Interventional',
+													'Breast',
+													'Musculoskeletal',
+													'Neuroradiology',
+													'Nuclear Medicine',
+													'Pediatric',
+													'Trauma',
+													'Other'
+				imageStacks: [ // array of objects, each object represents one series of images
+					{
+						label: String,
+						modality: String, // available modalities:
+																'CT',
+																'MRI',
+																'Ultrasound',
+																'Fluoroscopy',
+																'X-ray plain',
+																'Mammography',
+																'PET',
+																'SPECT',
+																'Other'
+						imagePaths: [] // array of image urls
+					}
+				]
+ *  		}
+ * @return {[type]}       [description]
+ */
+exports.saveImages = function(req, res){
+
 	/**
 	 * Validate case before trying to save
 	 */
@@ -91,10 +134,14 @@ exports.saveQuiz = function(req, res){
 	errors = req.validationErrors()
 
 	if (req.body.imageStacks.length > 0){
-		_.each(req.body.imageStacks, function(stack){
+		_.each(req.body.imageStacks, function(stack, i){
 			if (!validator.isLength(stack.modality, 1)){
 				if (!loopErrors){ loopErrors = [] }
 				loopErrors.push({param: 'modality', msg: 'modality required', value: stack.modality })
+			}
+			if (!stack.imagePaths.length > 0){
+				if (!loopErrors){ loopErrors = [] }
+				loopErrors.push({param: 'imageStacks['+i+'].imagePaths', msg: 'No images are included', value: stack.imagePaths })
 			}
 		})
 	}
@@ -109,18 +156,23 @@ exports.saveQuiz = function(req, res){
 	 * Send case to casefiles
 	 */
 	
+	console.log(req.body)
+	
 	request.post({
-		url: casefiles.url + 'api/user/addToAffiliation', 
-		json: {
-			email: user.email,
-			apikey: casefiles.apikey
-		}},
-		function(err, response, body){
-			if (err){ return next(err) }
+			url: casefiles.url + 'api/study/save',
+			json: {
+				email: req.user.email,
+				apikey: casefiles.apikey,
+				study: req.body
+			}
+		},
+		function(err, response, body) {
+			if (err) {
+				return res.send(500, err)
+			}
 
-			// user successfully created, make admin
-			setAsAdmin(user)
+			console.log(body)
 		})
 
-	res.send(200, 'Quiz saved')
+	res.send(200, 'Question saved')
 }
