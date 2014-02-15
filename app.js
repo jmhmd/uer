@@ -11,18 +11,10 @@ var express = require('express'),
 	expressValidator = require('express-validator'),
 	http = require('http'),
 	path = require('path'),
-	hbs = require('express-hbs')
+	hbs = require('express-hbs'),
+	fs = require('fs')
 
 var app = module.exports = express()
-
-/**
- *  Load Routes
- */
-var userCtrl = require('./routes/user'),
-	apiCtrl = require('./routes/api'),
-	homeCtrl = require('./routes/home'),
-	quizCtrl = require('./routes/quiz'),
-	testCtrl = require('./routes/test')
 
 
 /**
@@ -31,6 +23,7 @@ var userCtrl = require('./routes/user'),
 
 var secrets = require('./config/secrets'),
 	passportConf = require('./config/passport')
+
 
 /**
  * Mongoose configuration.
@@ -41,6 +34,19 @@ mongoose.connection.on('error', function() {
 	console.log('✗ MongoDB Connection Error. Please make sure MongoDB is running.'.red)
 })
 
+fs.readdirSync('./config/models').forEach(function(file) {
+	require('./config/models/' + file)
+})
+
+
+/**
+ *  Load Routes
+ */
+var userCtrl = require('./routes/user'),
+	apiCtrl = require('./routes/api'),
+	homeCtrl = require('./routes/home'),
+	quizCtrl = require('./routes/quiz'),
+	testCtrl = require('./routes/test')
 
 /**
  * Configuration
@@ -122,7 +128,7 @@ app.get('/quiz/:quizId/results', quizCtrl.showResults)
 // API
 app.post('/makeAdmin', passportConf.isAuthenticatedAPI, passportConf.isAdmin, userCtrl.makeAdmin)
 app.post('/saveQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuiz)
-app.post('/saveQuestion', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuestion)
+// app.post('/saveQuestion', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuestion)
 app.post('/saveImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveImages)
 
 // Partials

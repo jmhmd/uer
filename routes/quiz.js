@@ -1,10 +1,11 @@
 'use strict';
 
 var util = require('util'),
+	_ = require('underscore'),
 	mongoose = require('mongoose'),
-	Quiz = require('../config/models/Quiz'),
-	Question = require('../config/models/Question'),
-	QuizResult = require('../config/models/QuizResult'),
+	Quiz = mongoose.model('Quiz'),
+	Question = mongoose.model('Question'),
+	QuizResult = mongoose.model('QuizResult'),
 	validator = require('validator'),
 	request = require('request'),
 	casefiles = require('../config/secrets').casefiles
@@ -82,7 +83,7 @@ exports.saveQuiz = function(req, res){
 }
 
 exports.saveQuestion = function(req, res){
-	
+
 }
 
 /**
@@ -136,18 +137,18 @@ exports.saveImages = function(req, res){
 	if (req.body.imageStacks.length > 0){
 		_.each(req.body.imageStacks, function(stack, i){
 			if (!validator.isLength(stack.modality, 1)){
-				if (!loopErrors){ loopErrors = [] }
-				loopErrors.push({param: 'modality', msg: 'modality required', value: stack.modality })
+				if (!errors){ errors = [] }
+				errors.push({param: 'modality', msg: 'modality required', value: stack.modality })
 			}
-			if (!stack.imagePaths.length > 0){
-				if (!loopErrors){ loopErrors = [] }
-				loopErrors.push({param: 'imageStacks['+i+'].imagePaths', msg: 'No images are included', value: stack.imagePaths })
-			}
+			/*if (!stack.imagePaths || stack.imagePaths.length < 1){
+				if (!errors){ errors = [] }
+				errors.push({param: 'imageStacks['+i+'].imagePaths', msg: 'No images are included', value: stack.imagePaths })
+			}*/
 		})
 	}
 	
 	if (errors || loopErrors) {
-		var message = 'There have been validation errors: ' + util.inspect(errors) + util.inspect(loopErrors)
+		var message = 'There have been validation errors: ' + util.inspect(errors)
 		res.send(400, message)
 		return
 	}
@@ -171,8 +172,8 @@ exports.saveImages = function(req, res){
 				return res.send(500, err)
 			}
 
-			console.log(body)
-		})
+			console.log('result:', body, body._id)
 
-	res.send(200, 'Question saved')
+			res.send(200, 'Question saved')
+		})
 }

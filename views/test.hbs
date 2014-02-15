@@ -76,50 +76,35 @@ var dropzone = new Dropzone('.dropzone', {
 		console.log('complete')
 	})
 
+var images = {
+		diagnosis: 'testDiagnosis',
+		category: 'Thoracic',
+		imageStacks: [ // array of objects, each object represents one series of images
+			{
+				label: 'testLabel',
+				modality: 'CT',
+				imagePaths: [] // array of image urls
+			}
+		]
+	}
+
 $('#uploadImages').on('click', function(){
-	dropzone.processQueue()
+	// make sure images have id
+	if (images._id){
+		dropzone.processQueue()
+	} else {
+		// get container for images first
+		$.post('/saveImages', images)
+			.done(function(res){
+				console.log('response', res)
+			})
+			.fail(function(err){
+				console.log('FAIL', err)
+			})
+	}
 })
 
-/*$('#uploadImages').on('submit', function(e){
-	e.preventDefault()
-
-	var formData = new FormData(e.target),
-		onProgress = function(e){
-			console.log(e)
-		},
-		onSuccess = function(e){
-			console.log(e)
-		},
-		onError = function(e){
-			console.log(e)
-		}
-
-	$.ajax({
-		url: '{{s3.s3URL}}',
-		xhr: function() {  // Custom XMLHttpRequest
-			var myXhr = $.ajaxSettings.xhr();
-			if(myXhr.upload){ // Check if upload property exists
-				myXhr.upload.addEventListener('progress', onProgress, false); // For handling the progress of the upload
-			}
-			return myXhr;
-		},
-		success: onSuccess,
-		error: onError,
-		data: formData,
-		//Options to tell jQuery not to process data or worry about content-type.
-		cache: false,
-		contentType: false,
-		processData: false
-	})
-})*/
-
-/*$.post('/saveImages', images)
-	.done(function(res){
-		console.log(res)
-	})
-	.fail(function(err){
-		console.log('FAIL', err)
-	})
+/*
 
 var quiz
 $.post('/saveQuiz', {userId: '52f6b898e426a9080ce53adf'})

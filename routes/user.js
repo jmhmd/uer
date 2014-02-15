@@ -3,7 +3,7 @@
 var mongoose = require('mongoose'),
 	passport = require('passport'),
 	_ = require('underscore'),
-	User = require('../config/models/User'),
+	User = mongoose.model('User'),
 	request = require('request'),
 	casefiles = require('../config/secrets').casefiles
 
