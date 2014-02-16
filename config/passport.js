@@ -82,7 +82,7 @@ exports.isAuthenticated = function(req, res, next) {
 
 exports.isAuthenticatedAPI = function(req, res, next) {
 	if (req.isAuthenticated()){ return next() }
-	res.send(401, 'Action not permitted')
+	res.send(401, 'Action not permitted, must be logged in')
 }
 
 exports.isAdmin = function(req, res, next) {

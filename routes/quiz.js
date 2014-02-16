@@ -119,7 +119,6 @@ exports.saveQuestion = function(req, res){
 					}
 				]
  *  		}
- * @return {[type]}       [description]
  */
 exports.saveImages = function(req, res){
 
@@ -160,7 +159,7 @@ exports.saveImages = function(req, res){
 	console.log(req.body)
 	
 	request.post({
-			url: casefiles.url + 'api/study/save',
+			url: casefiles.url + 'api/client/saveStudy',
 			json: {
 				email: req.user.email,
 				apikey: casefiles.apikey,
@@ -174,6 +173,31 @@ exports.saveImages = function(req, res){
 
 			console.log('result:', body, body._id)
 
-			res.send(200, 'Question saved')
+			res.send(200, body)
+		})
+}
+
+/**
+ * Delete study from casefiles
+ * Required:
+ * body._id // id of study being removed
+ */
+exports.removeImages = function(req, res){
+	/**
+	 * Send case to casefiles
+	 */
+		
+	request.post({
+			url: casefiles.url + 'api/client/removeStudy',
+			json: {
+				apikey: casefiles.apikey,
+				studyId: req.body._id
+			}
+		},
+		function(err, response, body) {
+			if (err) {
+				return res.send(500, err)
+			}
+			res.send(200, body)
 		})
 }

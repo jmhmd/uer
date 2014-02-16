@@ -6,7 +6,7 @@ exports.test = function(req, res) {
 	// run whatever server side tests
 	
 	request.get({
-			url: 'http://localhost:8080/api/upload/getCredentials?apikey=52f7caabff074a371800000b',
+			url: 'http://localhost:8080/api/upload/getCredentials?apikey=52faa514a225b71d13000005',
 			json: true
 		},
 		function(err, response, body) {

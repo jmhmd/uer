@@ -130,6 +130,7 @@ app.post('/makeAdmin', passportConf.isAuthenticatedAPI, passportConf.isAdmin, us
 app.post('/saveQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuiz)
 // app.post('/saveQuestion', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuestion)
 app.post('/saveImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveImages)
+app.post('/removeImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeImages)
 
 // Partials
 app.get('/partials/:partial', homeCtrl.partials)

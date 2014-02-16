@@ -21,29 +21,94 @@
 <script type="text/javascript">
 'use strict';
 
+var apikey = '52faa514a225b71d13000005'
 
-// test loading a case from casefil.es
+
+/////////////////////////////////////////
+// test loading a case from casefil.es //
+/////////////////////////////////////////
 
 $.get('http://localhost:8080/api/study/load/52960b463e31390f00000025', function(res){
 	if(res._id === '52960b463e31390f00000025'){ console.log('OK: study successfully loaded')}
 	else { console.log('FAIL', res)}
 })
 
-// test getting s3 upload credentials
+////////////////////////////////////////
+// test getting s3 upload credentials //
+////////////////////////////////////////
 
-$.get('http://localhost:8080/api/upload/getCredentials?apikey=52f7caabff074a371800000b', function(res){
+$.get('http://localhost:8080/api/upload/getCredentials?apikey=' + apikey, function(res){
 	if(res.s3Bucket === 'elasticbeanstalk-us-east-1-843279806438'){ console.log('OK: s3 creds returned')}
 	else { console.log('FAIL', res)}
 })
 
-$.post('/makeAdmin', {userId: '52f6b898e426a9080ce53adf'})
+//////////////////////////////
+// test making a user admin //
+//////////////////////////////
+
+$.post('/makeAdmin', {userId: '52faa635be26e8ea12fb7adc'})
 	.done(function(res){
 		if(res === 'User already administrator' || 'User set as administrator'){ console.log('OK: User set as administrator') }
 		else { console.log('FAIL: ', res) }
 	})
 	.fail(function(err){
-		console.log('FAIL', err)
+		console.log('FAIL: ', err)
 	})
+
+/////////////////////////////////////
+// test creating/destroying a case //
+/////////////////////////////////////
+
+var images = {
+		diagnosis: 'testDiagnosis',
+		category: 'Thoracic',
+		imageStacks: [ // array of objects, each object represents one series of images
+			{
+				label: 'testLabel',
+				modality: 'CT',
+				imagePaths: [] // array of image urls
+			}
+		]
+	}
+
+$.post('/saveImages', images)
+	.done(function(res){
+		if (res._id){
+			console.log('OK: Case created - _id: ', res._id)
+
+			// destroy case
+			
+			$.post('/removeImages', res)
+				.done(function(res){
+					if (res === 'Study deleted'){
+						console.log('OK: Study deleted')
+					}
+				})
+				.fail(function(err){
+					console.log('FAIL: ', err)
+				})
+		}
+	})
+	.fail(function(err){
+		console.log('FAIL: ', err)
+	})
+
+
+$('#uploadImages').on('click', function(){
+	// make sure images have id
+	if (images._id){
+		dropzone.processQueue()
+	} else {
+		// get container for images first
+		$.post('/saveImages', images)
+			.done(function(res){
+				console.log('response: ', res)
+			})
+			.fail(function(err){
+				console.log('FAIL', err)
+			})
+	}
+})
 
 Dropzone.autoDiscover = false
 var dropzone = new Dropzone('.dropzone', {
@@ -76,33 +141,6 @@ var dropzone = new Dropzone('.dropzone', {
 		console.log('complete')
 	})
 
-var images = {
-		diagnosis: 'testDiagnosis',
-		category: 'Thoracic',
-		imageStacks: [ // array of objects, each object represents one series of images
-			{
-				label: 'testLabel',
-				modality: 'CT',
-				imagePaths: [] // array of image urls
-			}
-		]
-	}
-
-$('#uploadImages').on('click', function(){
-	// make sure images have id
-	if (images._id){
-		dropzone.processQueue()
-	} else {
-		// get container for images first
-		$.post('/saveImages', images)
-			.done(function(res){
-				console.log('response', res)
-			})
-			.fail(function(err){
-				console.log('FAIL', err)
-			})
-	}
-})
 
 /*
 

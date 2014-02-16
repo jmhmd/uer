@@ -226,9 +226,12 @@ exports.makeAdmin = function(req, res, next){
 
 	// pull user from db
 	User.findById(userId, function(err, user){
-		if (err){ return next(err) }
+		if (err){ 
+			console.log(err)
+			return next(err)
+		}
 
-		if (!user.email) { return next('User does not have email on file') }
+		if (!user || !user.email) { return res.send(400, 'User does not have email on file') }
 		
 		// try to associate this user with an account on casefil.es
 		request.post({
