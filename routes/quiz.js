@@ -78,12 +78,86 @@ exports.showResults = function(req, res, next){
 	})
 }
 
+var updateQuizObject = function(quiz, newQuiz){
+	quiz.title = newQuiz.title
+	quiz.difficulty = newQuiz.difficulty
+	quiz.questions = newQuiz.questions
+
+	return quiz
+}
+
+var updateQuestionObject = function(question, newQuestion){
+	question.stem = newQuestion.stem
+	question.answers = newQuestion.answers
+	question.category = newQuestion.category
+	question.studyId = newQuestion.studyId
+
+	return question
+}
+
 exports.saveQuiz = function(req, res){
 
+	/**
+	 * Updating an existing case
+	 */
+	if (req.body._id){
+
+		Quiz.findById(req.body._id, function(err, quiz){
+
+			quiz = updateQuizObject(quiz, req.body)
+
+			quiz.save(function(err){
+				if (err){ return res.send(500, err) }
+				res.send(200, "Quiz updated")
+			})
+		})
+	}
+
+	/**
+	 * Saving a new case
+	 */
+	else {
+		var	quiz = new Quiz(req.body);
+	
+		quiz.save(function(err){
+			if(err){
+				return res.send(500, err)
+			}
+			res.send(201, quiz)
+		})
+	}
 }
 
 exports.saveQuestion = function(req, res){
+	/**
+	 * Updating an existing question
+	 */
+	if (req.body._id){
 
+		Question.findById(req.body._id, function(err, question){
+
+			question = updateQuestionObject(question, req.body)
+
+			question.save(function(err){
+				if (err){ return res.send(500, err) }
+				res.send(200, "Question updated")
+			})
+		})
+	}
+
+	/**
+	 * Saving a new question
+	 */
+	else {
+		var	question = new Question(req.body);
+	
+		question.save(function(err){
+			if(err){
+				return res.send(500, err)
+			}
+			res.send(201, question)
+		})
+	}
 }
 
 /**
@@ -155,9 +229,7 @@ exports.saveImages = function(req, res){
 	/**
 	 * Send case to casefiles
 	 */
-	
-	console.log(req.body)
-	
+		
 	request.post({
 			url: casefiles.url + 'api/client/saveStudy',
 			json: {

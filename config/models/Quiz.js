@@ -3,7 +3,7 @@ var mongoose = require('mongoose'),
 
 var quizSchema = new mongoose.Schema({
 	title: {type: String, required: 'A title is required'},
-	difficulty: {type: String, required: true},
+	difficulty: {type: Number, required: 'Must select difficulty'},
 	questions: [{type: mongoose.Schema.Types.ObjectId, ref: 'Question'}]
 })
 
