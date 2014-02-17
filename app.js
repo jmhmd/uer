@@ -128,7 +128,9 @@ app.get('/quiz/:quizId/results', quizCtrl.showResults)
 // API
 app.post('/makeAdmin', passportConf.isAuthenticatedAPI, passportConf.isAdmin, userCtrl.makeAdmin)
 app.post('/saveQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuiz)
+app.post('/removeQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeQuiz)
 app.post('/saveQuestion', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuestion)
+app.post('/removeQuestion', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeQuestion)
 app.post('/saveImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveImages)
 app.post('/removeImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeImages)
 

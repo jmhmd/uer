@@ -95,6 +95,11 @@ var updateQuestionObject = function(question, newQuestion){
 	return question
 }
 
+
+////////////////////
+// Quiz functions //
+////////////////////
+
 exports.saveQuiz = function(req, res){
 
 	/**
@@ -108,7 +113,7 @@ exports.saveQuiz = function(req, res){
 
 			quiz.save(function(err){
 				if (err){ return res.send(500, err) }
-				res.send(200, "Quiz updated")
+				res.send(200, quiz)
 			})
 		})
 	}
@@ -128,6 +133,18 @@ exports.saveQuiz = function(req, res){
 	}
 }
 
+exports.removeQuiz = function(req, res){
+	Quiz.findById(req.body._id).remove(function(err){
+		if (err){ return send(500, err) }
+		res.send(200, "Quiz removed")
+	})
+}
+
+
+////////////////////////
+// Question functions //
+////////////////////////
+
 exports.saveQuestion = function(req, res){
 	/**
 	 * Updating an existing question
@@ -140,7 +157,7 @@ exports.saveQuestion = function(req, res){
 
 			question.save(function(err){
 				if (err){ return res.send(500, err) }
-				res.send(200, "Question updated")
+				res.send(200, question)
 			})
 		})
 	}
@@ -158,6 +175,13 @@ exports.saveQuestion = function(req, res){
 			res.send(201, question)
 		})
 	}
+}
+
+exports.removeQuestion = function(req, res){
+	Question.findById(req.body._id).remove(function(err){
+		if (err){ return send(500, err) }
+		res.send(200, "Question removed")
+	})
 }
 
 /**

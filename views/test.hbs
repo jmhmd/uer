@@ -74,7 +74,7 @@ var images = {
 $.post('/saveImages', images)
 	.done(function(res){
 		if (res._id){
-			console.log('OK: Case created - _id: ', res._id)
+			console.log('OK: Study created - id: ', res._id)
 
 			// destroy case
 			
@@ -120,8 +120,37 @@ var quiz = {
 	}
 $.post('/saveQuestion', question)
 	.done(function(res){
-		console.log(res)
-		
+		if (res._id){
+			console.log('OK: Question created - id: ', res._id)
+
+			// update question
+			res.stem = "Changed stem"
+
+			$.post('/saveQuestion', res)
+				.done(function(res){
+					if (res.stem == "Changed stem"){
+						console.log('OK: Question updated')
+
+						// delete question
+						$.post('/removeQuestion')
+							.done(function(res){
+								if (res === "Question removed"){
+									console.log('OK: Question removed')
+								}
+							})
+							.fail(function(err){
+								console.log('FAIL: ', err)
+							})
+					} else {
+						console.log('FAIL: Updated question title does not match expected')
+					}
+				})
+				.fail(function(err){
+					console.log('FAIL: ', err)
+				})
+		} else {
+			console.log('FAIL: Question id not returned after save')
+		}
 	})
 	.fail(function(err){
 		console.log('FAIL: ', err)
