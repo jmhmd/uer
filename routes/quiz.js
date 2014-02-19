@@ -32,6 +32,33 @@ exports.showQuiz = function(req, res, next){
 }
 
 /**
+ * show page for quiz editing
+ * @param  {string} quizId
+ */
+exports.showQuizEdit = function(req, res, next){
+	
+	var quizId = req.params.quizId
+
+	if (quizId !== 'new'){
+
+		// get quiz object and render template
+		Quiz
+		.findById(quizId)
+		.populate('questions')
+		.exec(function(err, quiz){
+
+			if (err){ return next(err) }
+
+			// render template
+			res.render('editQuiz', quiz)
+		})
+	} else {
+		res.render('editQuiz')
+	}
+	
+}
+
+/**
  * show page for individual question
  * @param  {string}   quizId
  * @param  {string}   questionId
@@ -78,7 +105,11 @@ exports.showResults = function(req, res, next){
 	})
 }
 
-var updateQuizObject = function(quiz, newQuiz){
+///////////////////////
+// Private functions //
+///////////////////////
+
+var _updateQuizObject = function(quiz, newQuiz){
 	quiz.title = newQuiz.title
 	quiz.difficulty = newQuiz.difficulty
 	quiz.questions = newQuiz.questions
@@ -86,7 +117,7 @@ var updateQuizObject = function(quiz, newQuiz){
 	return quiz
 }
 
-var updateQuestionObject = function(question, newQuestion){
+var _updateQuestionObject = function(question, newQuestion){
 	question.stem = newQuestion.stem
 	question.answers = newQuestion.answers
 	question.category = newQuestion.category
@@ -100,6 +131,25 @@ var updateQuestionObject = function(question, newQuestion){
 // Quiz functions //
 ////////////////////
 
+exports.getQuiz = function(req,res){
+
+	/**
+	 * Read quiz object from db
+	 */
+	var quizId = req.params.quizId
+
+	if (!quizId){ return res.send(400, 'Quiz Id is required') }
+
+	Quiz.findById(quizId)
+		.populate('questions')
+		.exec(function(err, quiz){
+			if (err){ return res.send(500, err) }
+			if (!quiz){ return res.send(404, 'Quiz not found') }
+
+			return res.send(200, quiz)
+		})
+}
+
 exports.saveQuiz = function(req, res){
 
 	/**
@@ -109,7 +159,7 @@ exports.saveQuiz = function(req, res){
 
 		Quiz.findById(req.body._id, function(err, quiz){
 
-			quiz = updateQuizObject(quiz, req.body)
+			quiz = _updateQuizObject(quiz, req.body)
 
 			quiz.save(function(err){
 				if (err){ return res.send(500, err) }
@@ -135,8 +185,8 @@ exports.saveQuiz = function(req, res){
 
 exports.removeQuiz = function(req, res){
 	Quiz.findById(req.body._id).remove(function(err){
-		if (err){ return send(500, err) }
-		res.send(200, "Quiz removed")
+		if (err){ return res.send(500, err) }
+		res.send(200, 'Quiz removed')
 	})
 }
 
@@ -144,6 +194,25 @@ exports.removeQuiz = function(req, res){
 ////////////////////////
 // Question functions //
 ////////////////////////
+
+exports.getQuestion = function(req,res){
+
+	/**
+	 * Read question object from db
+	 */
+	var questionId = req.params.questionId
+
+	if (!questionId){ return res.send(400, 'Question Id is required') }
+
+	Question.findById(questionId)
+		.populate('questions')
+		.exec(function(err, question){
+			if (err){ return res.send(500, err) }
+			if (!question){ return res.send(404, 'Question not found') }
+
+			return res.send(200, question)
+		})
+}
 
 exports.saveQuestion = function(req, res){
 	/**
@@ -153,7 +222,7 @@ exports.saveQuestion = function(req, res){
 
 		Question.findById(req.body._id, function(err, question){
 
-			question = updateQuestionObject(question, req.body)
+			question = _updateQuestionObject(question, req.body)
 
 			question.save(function(err){
 				if (err){ return res.send(500, err) }
@@ -179,8 +248,8 @@ exports.saveQuestion = function(req, res){
 
 exports.removeQuestion = function(req, res){
 	Question.findById(req.body._id).remove(function(err){
-		if (err){ return send(500, err) }
-		res.send(200, "Question removed")
+		if (err){ return res.send(500, err) }
+		res.send(200, 'Question removed')
 	})
 }
 
