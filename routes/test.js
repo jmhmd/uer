@@ -1,20 +1,23 @@
 'use strict';
 
-var request = require('request')
+var request = require('request'),
+	casefiles = require('../config/secrets').casefiles
 
 exports.test = function(req, res) {
 	// run whatever server side tests
 	
 	request.get({
-			url: 'http://localhost:8080/api/upload/getCredentials?apikey=52faa514a225b71d13000005',
+			url: casefiles.url + 'api/upload/getCredentials?apikey=' + casefiles.apikey,
 			json: true
 		},
 		function(err, response, body) {
 
 			if (err) {
+				console.log(err)
 				req.flash('errors', err)
 			}
 			res.locals.s3 = body
+			res.locals.casefiles = casefiles
 			
 			res.render('test')
 		})

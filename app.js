@@ -30,12 +30,16 @@ var secrets = require('./config/secrets'),
  */
 
 mongoose.connect(secrets.db);
-mongoose.connection.on('error', function() {
-	console.log('✗ MongoDB Connection Error. Please make sure MongoDB is running.'.red)
-})
+mongoose.connection
+	.on('error', function() {
+		console.log('MongoDB Connection Error. Please make sure MongoDB is running.'.red)
+	})
+	.on('open', function() {
+		console.log('DB connected, using ' + mongoose.connection.name)
+	})
 
 fs.readdirSync('./config/models').forEach(function(file) {
-	require('./config/models/' + file)
+	require(path.join(__dirname, 'config/models/', file))
 })
 
 

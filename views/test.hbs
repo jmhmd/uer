@@ -21,14 +21,17 @@
 <script type="text/javascript">
 'use strict';
 
-var apikey = '52faa514a225b71d13000005'
+var casefiles = {
+		apikey: '{{casefiles.apikey}}',
+		url: '{{casefiles.url}}'
+	}
 
 
 /////////////////////////////////////////
 // test loading a case from casefil.es //
 /////////////////////////////////////////
 
-$.get('http://localhost:8080/api/study/load/52960b463e31390f00000025', function(res){
+$.get(casefiles.url + 'api/study/load/52960b463e31390f00000025', function(res){
 	if(res._id === '52960b463e31390f00000025'){ console.log('OK: study successfully loaded')}
 	else { console.log('FAIL', res)}
 })
@@ -37,7 +40,7 @@ $.get('http://localhost:8080/api/study/load/52960b463e31390f00000025', function(
 // test getting s3 upload credentials //
 ////////////////////////////////////////
 
-$.get('http://localhost:8080/api/upload/getCredentials?apikey=' + apikey, function(res){
+$.get(casefiles.url + 'api/upload/getCredentials?apikey=' + casefiles.apikey, function(res){
 	if(res.s3Bucket === 'elasticbeanstalk-us-east-1-843279806438'){ console.log('OK: s3 creds returned')}
 	else { console.log('FAIL', res)}
 })
@@ -46,7 +49,7 @@ $.get('http://localhost:8080/api/upload/getCredentials?apikey=' + apikey, functi
 // test making a user admin //
 //////////////////////////////
 
-$.post('/makeAdmin', {userId: '52faa635be26e8ea12fb7adc'})
+$.post('/makeAdmin', {userId: '{{user._id}}'})
 	.done(function(res){
 		if(res === 'User already administrator' || 'User set as administrator'){ console.log('OK: User set as administrator') }
 		else { console.log('FAIL: ', res) }

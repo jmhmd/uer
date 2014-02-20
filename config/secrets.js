@@ -14,12 +14,12 @@ module.exports = {
 
 var casefiles = {}
 
-if (process.env.NODE_ENV === 'development'){
-	casefiles.apikey = '52faa514a225b71d13000005'
-	casefiles.url = 'http://localhost:8080/'
+if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'testing'){
+	casefiles.apikey = '530676deece97f623cfc7428'
+	casefiles.url = 'http://dev.casefil.es/' // must include trailing slash
 } else if (process.env.NODE_ENV === 'production'){
 	casefiles.apikey = ''
-	casefiles.url = 'http://casefil.es/'
+	casefiles.url = 'http://casefil.es/' // must include trailing slash
 }
 
 module.exports.casefiles = casefiles

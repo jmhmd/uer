@@ -336,8 +336,6 @@ exports.saveImages = function(req, res){
 				return res.send(500, err)
 			}
 
-			console.log('result:', body, body._id)
-
 			res.send(200, body)
 		})
 }
