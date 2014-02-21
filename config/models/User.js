@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose'),
 	bcrypt = require('bcrypt-nodejs'),
-	simpleTimestamps = require('mongoose-SimpleTimestamps').SimpleTimestamps
+	simpleTimestamps = require('mongoose-simpletimestamps').SimpleTimestamps
 
 var userSchema = new mongoose.Schema({
 	email: {

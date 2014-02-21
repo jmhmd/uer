@@ -1,5 +1,5 @@
 var mongoose = require('mongoose'),
-	simpleTimestamps = require('mongoose-SimpleTimestamps').SimpleTimestamps
+	simpleTimestamps = require('mongoose-simpletimestamps').SimpleTimestamps
 
 var questionSchema = new mongoose.Schema({
 	stem: {type: String, required: 'A question stem is required'},

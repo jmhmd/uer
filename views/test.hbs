@@ -58,9 +58,9 @@ $.post('/makeAdmin', {userId: '{{user._id}}'})
 		console.log('FAIL: ', err)
 	})
 
-/////////////////////////////////////
-// test creating/destroying a case //
-/////////////////////////////////////
+//////////////////////////////////////
+// test creating/destroying a study //
+//////////////////////////////////////
 
 var images = {
 		diagnosis: 'testDiagnosis',
@@ -79,7 +79,7 @@ $.post('/saveImages', images)
 		if (res._id){
 			console.log('OK: Study created - id: ', res._id)
 
-			// destroy case
+			// destroy study
 			
 			$.post('/removeImages', res)
 				.done(function(res){

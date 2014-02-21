@@ -134,7 +134,7 @@ var _updateQuestionObject = function(question, newQuestion){
 exports.getQuiz = function(req,res){
 
 	/**
-	 * Read quiz object from db
+	 * Get quiz by id
 	 */
 	var quizId = req.params.quizId
 
@@ -147,6 +147,21 @@ exports.getQuiz = function(req,res){
 			if (!quiz){ return res.send(404, 'Quiz not found') }
 
 			return res.send(200, quiz)
+		})
+}
+
+exports.getQuizzes = function(req, res){
+
+	/**
+	 * Get list of quizzes meeting criteria
+	 */
+	Quiz.find()
+		.limit(50)
+		.exec(function(err, quizzes){
+			if (err){ return res.send(500, err) }
+			if (!quizzes){ return res.send(404, 'No quizzes found') }
+
+			return res.send(200, quizzes)
 		})
 }
 
