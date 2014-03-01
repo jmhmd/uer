@@ -10,8 +10,24 @@
 
 	<body>
 
+		{{#if messages.info}}
+			{{#each messages.info}}
+				{{this.msg}}
+			{{/each}}
+		{{/if}}
+		
+		{{#if messages.errors}}
+			{{#each messages.errors}}
+				{{this.msg}}
+			{{/each}}
+		{{/if}}
+
 		{{#if user.email}}
 			Logged in as {{user.email}}
+			{{#if user.isAdmin}}
+				- Administrator
+			{{/if}}
+			<a href="/logout">Log out</a>
 		{{else}}
 			<a href="/login">Log in</a>
 		{{/if}}

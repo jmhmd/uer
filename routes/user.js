@@ -60,11 +60,9 @@ exports.postLogin = function(req, res, next) {
  */
 
 exports.getSignup = function(req, res) {
-	if (req.user) return res.redirect('/');
-	res.render('account/signup', {
-		title: 'Create Account'
-	});
-};
+	if (req.user) { return res.redirect('/') }
+	res.render('account/signup')
+}
 
 /**
  * POST /signup
