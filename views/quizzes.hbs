@@ -1,0 +1,14 @@
+{{!< ./default_layout}}
+<h1> Available Quizzes </h1>
+
+{{#if user.isAdmin}}
+	<a href="/quiz/new">Create new quiz</a>
+{{/if}}
+
+{{#if quizzes}}
+	{{#each quizzes}}
+		<a href="/quiz/{{_id}}">{{name}}</a>
+	{{/each}}
+{{else}}
+	<p>No quizzes found</p>
+{{/if}}

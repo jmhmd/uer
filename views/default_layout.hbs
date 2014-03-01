@@ -2,52 +2,19 @@
 <html>
 
 	<head>
-		<link type="text/css" rel="stylesheet" href="LogIn.css"/>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
 		<script src="js/dropzone.js"></script>
-
-		<script type='text/javascript' src='LogIn.js'></script>
-
 		<title>Call Practice</title>
 	</head>
 
 
 	<body>
 
-		<div id="bigwave"></div>
-		<div id="bigwave"></div>
-		<div id="bigwave"></div>
-		<div id="bigwave"></div>
-		<div id="bigwave"></div>
-		<div id="bigwave"></div>
-		<div id="bigwave"></div>
-		<div id="bigwave"></div>
-		<div id="bigwave"></div>
-		<div id="bigwave"></div>
-		<div id="bigwave"></div>
-		<div id="bigwave"></div>
-		<div id="bigwave"></div>
-		<div id="bigwave"></div>
-		
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewave"></div>
-		<div id="littlewaveend"></div>
+		{{#if user.email}}
+			Logged in as {{user.email}}
+		{{else}}
+			<a href="/login">Log in</a>
+		{{/if}}
 
 		<div id="loginoptioncontainer">
 

@@ -11,6 +11,24 @@ var util = require('util'),
 	casefiles = require('../config/secrets').casefiles
 
 /**
+ * show page to list quizzes
+ */
+exports.showQuizList = function(req, res, next){
+
+	/**
+	 * Get list of quizzes meeting criteria
+	 */
+	Quiz.find()
+		.limit(50)
+		.exec(function(err, quizzes){
+			if (err){ return next(err) }
+
+			res.locals.quizzes = quizzes
+			res.render('quizzes')
+		})
+}
+
+/**
  * show page for quiz overview (start)
  * @param  {string} quizId
  */
@@ -26,9 +44,21 @@ exports.showQuiz = function(req, res, next){
 
 		if (err){ return next(err) }
 
+		if (quiz.length === 0){ return res.render('404') }
+
+		res.locals.quiz = quiz
 		// render template
-		res.render('quiz', quiz)
+		res.render('quiz')
 	})
+}
+
+/**
+ * show page for new quiz
+ * @param  {string} quizId
+ */
+exports.showNewQuiz = function(req, res){
+	
+	res.render('newQuiz')
 }
 
 /**
@@ -39,23 +69,21 @@ exports.showQuizEdit = function(req, res, next){
 	
 	var quizId = req.params.quizId
 
-	if (quizId !== 'new'){
 
-		// get quiz object and render template
-		Quiz
-		.findById(quizId)
-		.populate('questions')
-		.exec(function(err, quiz){
-
-			if (err){ return next(err) }
-
-			// render template
-			res.render('editQuiz', quiz)
-		})
-	} else {
-		res.render('editQuiz')
-	}
+	// get quiz object and render template
 	
+	Quiz
+	.findById(quizId)
+	.populate('questions')
+	.exec(function(err, quiz){
+
+		if (err){ return next(err) }
+
+		res.locals.quiz = quiz
+
+		// render template
+		res.render('editQuiz')
+	})
 }
 
 /**
@@ -193,6 +221,12 @@ exports.saveQuiz = function(req, res){
 			if(err){
 				return res.send(500, err)
 			}
+
+			// send html if creating new quiz
+			if (req.resFormat !== 'json'){
+				return res.redirect('/quiz/edit/' + quiz._id)
+			}
+
 			res.send(201, quiz)
 		})
 	}

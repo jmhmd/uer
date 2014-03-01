@@ -105,16 +105,9 @@ if (app.get('env') === 'production') {
 // Routes //
 ////////////
 
-/**
- * JSON API
- */
-// app.get('/api/loadStudy/:studyId', apiCtrl.loadStudy)
-// app.post('/api/saveStudy/:studyId', apiCtrl.saveStudy)
-
-
-/**
- * APP ROUTES
- */
+////////////////////////////////
+// Navigation, HTML responses //
+////////////////////////////////
 
 // User account
 app.get('/login', userCtrl.getLogin)
@@ -123,31 +116,44 @@ app.get('/logout', userCtrl.logout)
 app.get('/signup', userCtrl.getSignup)
 app.post('/signup', userCtrl.postSignup)
 
-// App navigation
+// Quizzes
 app.get('/', homeCtrl.index)
-app.get('/quiz/:quizId', quizCtrl.showQuiz)
-app.get('/quiz/:quizId/:questionId', quizCtrl.showQuestion)
-app.get('/quiz/:quizId/results', quizCtrl.showResults)
-
-// API
-app.post('/makeAdmin', passportConf.isAuthenticatedAPI, passportConf.isAdmin, userCtrl.makeAdmin)
-
-app.get('/getQuiz/:quizId', quizCtrl.getQuiz)
-app.post('/saveQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuiz)
-app.post('/removeQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeQuiz)
-
-app.get('/getQuestion/:questionId', quizCtrl.getQuestion)
-app.post('/saveQuestion', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuestion)
-app.post('/removeQuestion', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeQuestion)
-
-app.post('/saveImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveImages)
-app.post('/removeImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeImages)
+app.get('/quizzes', passportConf.isAuthenticated, quizCtrl.showQuizList)
+app.get('/quiz/new', passportConf.isAuthenticated, quizCtrl.showNewQuiz)
+app.post('/quiz/new', passportConf.isAuthenticated, quizCtrl.saveQuiz)
+app.get('/quiz/edit/:quizId', passportConf.isAuthenticated, quizCtrl.showQuizEdit)
+app.get('/quiz/:quizId', passportConf.isAuthenticated, quizCtrl.showQuiz)
+app.get('/quiz/:quizId/:questionId', passportConf.isAuthenticated, quizCtrl.showQuestion)
+app.get('/quiz/:quizId/results', passportConf.isAuthenticated, quizCtrl.showResults)
 
 // Partials
 app.get('/partials/:partial', homeCtrl.partials)
 
 // Tests
 app.get('/test', testCtrl.test)
+
+
+/////////////////////////
+// API, JSON responses //
+/////////////////////////
+
+app.all('/api/*', function(req,res,next){
+	req.resFormat = 'json'
+	next()
+})
+
+app.post('/api/makeAdmin', passportConf.isAuthenticatedAPI, passportConf.isAdmin, userCtrl.makeAdmin)
+
+app.get('/api/getQuiz/:quizId', quizCtrl.getQuiz)
+app.post('/api/saveQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuiz)
+app.post('/api/removeQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeQuiz)
+
+app.get('/api/getQuestion/:questionId', quizCtrl.getQuestion)
+app.post('/api/saveQuestion', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuestion)
+app.post('/api/removeQuestion', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeQuestion)
+
+app.post('/api/saveImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveImages)
+app.post('/api/removeImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeImages)
 
 
 /**

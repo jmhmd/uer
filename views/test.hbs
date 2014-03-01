@@ -49,7 +49,7 @@ $.get(casefiles.url + 'api/upload/getCredentials?apikey=' + casefiles.apikey, fu
 // test making a user admin //
 //////////////////////////////
 
-$.post('/makeAdmin', {userId: '{{user._id}}'})
+$.post('/api/makeAdmin', {userId: '{{user._id}}'})
 	.done(function(res){
 		if(res === 'User already administrator' || 'User set as administrator'){ console.log('OK: User set as administrator') }
 		else { console.log('FAIL: ', res) }
@@ -74,14 +74,14 @@ var images = {
 		]
 	}
 
-$.post('/saveImages', images)
+$.post('/api/saveImages', images)
 	.done(function(res){
 		if (res._id){
 			console.log('OK: Study created - id: ', res._id)
 
 			// destroy study
 			
-			$.post('/removeImages', res)
+			$.post('/api/removeImages', res)
 				.done(function(res){
 					if (res === 'Study deleted'){
 						console.log('OK: Study deleted')
@@ -122,7 +122,7 @@ var quiz = {
 		difficulty: 5,
 		questions: []
 	}
-$.post('/saveQuestion', question)
+$.post('/api/saveQuestion', question)
 	.done(function(res){
 		if (res._id){
 			console.log('OK: Question created - id: ', res._id)
@@ -130,13 +130,13 @@ $.post('/saveQuestion', question)
 			// update question
 			res.stem = "Changed stem"
 
-			$.post('/saveQuestion', res)
+			$.post('/api/saveQuestion', res)
 				.done(function(res){
 					if (res.stem == "Changed stem"){
 						console.log('OK: Question updated')
 
 						// delete question
-						$.post('/removeQuestion')
+						$.post('/api/removeQuestion')
 							.done(function(res){
 								if (res === "Question removed"){
 									console.log('OK: Question removed')
@@ -166,7 +166,7 @@ $('#uploadImages').on('click', function(){
 		dropzone.processQueue()
 	} else {
 		// get container for images first
-		$.post('/saveImages', images)
+		$.post('/api/saveImages', images)
 			.done(function(res){
 				console.log('response: ', res)
 			})
