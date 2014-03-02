@@ -59,10 +59,11 @@ var userCtrl = require('./routes/user'),
 // all environments
 app.use(CORS())
 app.set('port', process.env.PORT || 3000)
-app.engine('hbs', hbs.express3({
-  partialsDir: __dirname + '/views/partials'
+app.engine('html', hbs.express3({
+  partialsDir: __dirname + '/views/partials',
+  extname: '.html'
 }))
-app.set('view engine', 'hbs')
+app.set('view engine', 'html')
 app.set('views', __dirname + '/views')
 app.use(express.logger('dev'))
 app.use(express.bodyParser())
