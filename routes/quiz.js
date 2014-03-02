@@ -23,6 +23,10 @@ exports.showQuizList = function(req, res, next){
 		.exec(function(err, quizzes){
 			if (err){ return next(err) }
 
+			if (quizzes.length === 0){
+				res.flash('info', {msg: 'No quizzes found.'})
+			}
+
 			res.locals.quizzes = quizzes
 			res.render('quizzes')
 		})

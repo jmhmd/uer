@@ -6,9 +6,13 @@
 {{/if}}
 
 {{#if quizzes}}
+	<ul>
 	{{#each quizzes}}
-		<a href="/quiz/{{_id}}">{{name}}</a>
+		<li>
+			<a href="/quiz/{{this._id}}">{{this.title}}</a>
+		</li>
 	{{/each}}
+	</ul>
 {{else}}
 	<p>No quizzes found</p>
 {{/if}}
