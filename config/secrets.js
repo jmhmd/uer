@@ -1,7 +1,7 @@
 module.exports = {
 	db: 'mongodb://localhost:27017/call-practice',
 
-	sessionSecret: 'Your Session Secret goes here',
+	sessionSecret: 'call-practice-umb',
 
 	// https://cloud.google.com/console/project
 	google: {
