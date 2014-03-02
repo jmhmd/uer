@@ -16,6 +16,7 @@
     "connect-mongo": "~0.4.0",
     "underscore": "~1.5.2",
     "mongoose-simpletimestamps": "~1.0.0",
-    "validator": "~3.2.1"
+    "validator": "~3.2.1",
+    "cors": "~2.1.1"
   }
 }

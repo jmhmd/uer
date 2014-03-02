@@ -12,7 +12,8 @@ var express = require('express'),
 	http = require('http'),
 	path = require('path'),
 	hbs = require('express-hbs'),
-	fs = require('fs')
+	fs = require('fs'),
+	CORS = require('cors')
 
 var app = module.exports = express()
 
@@ -24,6 +25,23 @@ var app = module.exports = express()
 var secrets = require('./config/secrets'),
 	passportConf = require('./config/passport')
 
+
+/**
+ * CORS middleware
+ */
+
+if (app.get('env') === 'development' || app.get('env') === 'testing'){
+	var whitelist = [
+		'http://localhost'
+	]
+}
+
+var corsOptions = {
+	origin: function(origin, callback) {
+		var originIsWhitelisted = whitelist.indexOf(origin) !== -1
+		callback(null, originIsWhitelisted)
+	}
+}
 
 /**
  * Mongoose configuration.
@@ -57,6 +75,7 @@ var userCtrl = require('./routes/user'),
  */
 
 // all environments
+app.use(CORS(corsOptions))
 app.set('port', process.env.PORT || 3000)
 app.engine('hbs', hbs.express3({
   partialsDir: __dirname + '/views/partials'
