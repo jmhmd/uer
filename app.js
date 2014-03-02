@@ -119,9 +119,11 @@ app.post('/signup', userCtrl.postSignup)
 // Quizzes
 app.get('/', homeCtrl.index)
 app.get('/quizzes', passportConf.isAuthenticated, quizCtrl.showQuizList)
-app.get('/quiz/new', passportConf.isAuthenticated, quizCtrl.showNewQuiz)
-app.post('/quiz/new', passportConf.isAuthenticated, quizCtrl.saveQuiz)
-app.get('/quiz/edit/:quizId', passportConf.isAuthenticated, quizCtrl.showQuizEdit)
+
+app.get('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.showNewQuiz)
+app.post('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.saveQuiz)
+app.get('/quiz/edit/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.showQuizEdit)
+
 app.get('/quiz/:quizId', passportConf.isAuthenticated, quizCtrl.showQuiz)
 app.get('/quiz/:quizId/:questionId', passportConf.isAuthenticated, quizCtrl.showQuestion)
 app.get('/quiz/:quizId/results', passportConf.isAuthenticated, quizCtrl.showResults)
