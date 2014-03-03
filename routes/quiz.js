@@ -237,10 +237,24 @@ exports.saveQuiz = function(req, res){
 }
 
 exports.removeQuiz = function(req, res){
-	Quiz.findById(req.body._id).remove(function(err){
-		if (err){ return res.send(500, err) }
-		res.send(200, 'Quiz removed')
-	})
+
+	
+	// Check if quiz has ever been taken. If so, just mark
+	// as deleted and don't actually delete the record so users
+	// who have taken it can still see their results.
+	
+	if (QuizResult.findOne({quiz: req.body._id})) {
+		Quiz.update({ _id: req.body._id }, { $set: { deleted: true } }, function(err){
+			if (err){ return res.send(500, err) }
+			res.send(200, 'Quiz removed')
+		})
+	} else {
+		Quiz.findById(req.body._id).remove(function(err){
+			if (err){ return res.send(500, err) }
+			res.send(200, 'Quiz removed')
+		})
+	}
+
 }
 
 
@@ -300,10 +314,22 @@ exports.saveQuestion = function(req, res){
 }
 
 exports.removeQuestion = function(req, res){
-	Question.findById(req.body._id).remove(function(err){
-		if (err){ return res.send(500, err) }
-		res.send(200, 'Question removed')
-	})
+
+	// Check if question has ever been used in quiz. If so, just mark
+	// as deleted and don't actually delete the record so users
+	// who have taken it can still see their results.
+	
+	if (Quiz.findOne({questions: req.body._id})) {
+		Question.update({ _id: req.body._id }, { $set: { deleted: true } }, function(err){
+			if (err){ return res.send(500, err) }
+			res.send(200, 'Question removed')
+		})
+	} else {
+		Question.findById(req.body._id).remove(function(err){
+			if (err){ return res.send(500, err) }
+			res.send(200, 'Question removed')
+		})
+	}
 }
 
 /**
@@ -312,29 +338,29 @@ exports.removeQuestion = function(req, res){
  *         	{
  *         		diagnosis: String,
  * 	        	category: String, // available categories: 
-													'Thoracic',
-													'Abdominal',
-													'Interventional',
-													'Breast',
-													'Musculoskeletal',
-													'Neuroradiology',
-													'Nuclear Medicine',
-													'Pediatric',
-													'Trauma',
-													'Other'
+									'Thoracic',
+									'Abdominal',
+									'Interventional',
+									'Breast',
+									'Musculoskeletal',
+									'Neuroradiology',
+									'Nuclear Medicine',
+									'Pediatric',
+									'Trauma',
+									'Other'
 				imageStacks: [ // array of objects, each object represents one series of images
 					{
 						label: String,
 						modality: String, // available modalities:
-																'CT',
-																'MRI',
-																'Ultrasound',
-																'Fluoroscopy',
-																'X-ray plain',
-																'Mammography',
-																'PET',
-																'SPECT',
-																'Other'
+											'CT',
+											'MRI',
+											'Ultrasound',
+											'Fluoroscopy',
+											'X-ray plain',
+											'Mammography',
+											'PET',
+											'SPECT',
+											'Other'
 						imagePaths: [] // array of image urls
 					}
 				]

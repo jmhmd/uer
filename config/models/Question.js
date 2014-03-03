@@ -11,7 +11,8 @@ var questionSchema = new mongoose.Schema({
 	],
 	category: String,
 	difficulty: Number,
-	studyId: String // id of study stored in casefil.es
+	studyId: String, // id of study stored in casefil.es
+	deleted: {type: Boolean, default: false}
 })
 
 questionSchema.plugin(simpleTimestamps)
