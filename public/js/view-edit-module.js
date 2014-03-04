@@ -1,12 +1,10 @@
+'use strict';
 
-
-
-
-var module = ["1", "2", "3"];
+var quiz = ["1", "2", "3"];
 
 
 $(document).ready(function(){
-  for (var i = 1; i <= module.length; i++) {
+  for (var i = 1; i <= quiz.length; i++) {
     $("#questionRow").append('<tr><td id="questionTab">' + (i) + '</td></tr>');
     var questionRowLength = $('#questionRow tr').length;
     $("#totalNumber").html(questionRowLength);}
@@ -17,13 +15,13 @@ $(document).ready(function(){
 
 /*
 var alertData = []
-$.each(module[0], function(index, value) {
+$.each(quiz[0], function(index, value) {
     alertData.push(index + ': ' + value);
 });
 alert(JSON.stringify(alertData));
 
 
-var myData = $(module[0])   //.serialize();//
+var myData = $(quiz[0])   //.serialize();//
 alert(myData);
 */
 
@@ -31,7 +29,7 @@ alert(myData);
 
 
 /*
-Trying to populate form with pre-existing module data as retrieved from the server.
+Trying to populate form with pre-existing quiz data as retrieved from the server.
 Saw these two examples online.
 
 function populate(frm, data) {   
@@ -117,7 +115,7 @@ $(document).ready(function(){
 /*
  $(document).ready(function() {
      $(document).on('change', 'input:file', function(event) {
-       $.post("addNewImage.asp",((parseInt($('#currentNumber').html(), 10) - 1), "#moduleName".html()), function(status, result){
+       $.post("addNewImage.asp",((parseInt($('#currentNumber').html(), 10) - 1), "#quizName".html()), function(status, result){
           if (status == "success"){
             $("#imagePreview").attr('src', result);
             $('#caseImage').attr('readonly');
@@ -133,9 +131,9 @@ $(document).ready(function(){
     
     
     var insertSpot = parseInt($('#currentNumber').html(), 10) - 1;
-    module[insertSpot] = new Question ($('#caseImage').val(), $('#clinicalInfo').val(), $('#question').val(), $('#choiceA').val(), $('#explanationA').val(), $('#choiceB').val(), $('#explanationB').val(), $('#choiceC').val(), $('#explanationC').val(), $('#choiceD').val(), $('#explanationD').val(), $('#choiceE').val(), $('#explanationE').val());
+    quiz[insertSpot] = new Question ($('#caseImage').val(), $('#clinicalInfo').val(), $('#question').val(), $('#choiceA').val(), $('#explanationA').val(), $('#choiceB').val(), $('#explanationB').val(), $('#choiceC').val(), $('#explanationC').val(), $('#choiceD').val(), $('#explanationD').val(), $('#choiceE').val(), $('#explanationE').val());
     
-    if (module.length > 0){
+    if (quiz.length > 0){
       $("#confirmationDiv").fadeIn(300).delay(200).fadeOut(300);}
       else{
       $("#failureDiv").fadeIn(300).delay(300).fadeOut(300);}
@@ -149,7 +147,7 @@ $(document).ready(function(){
     addReadOnly();
 
 /*    var alertData = []
-    $.each(module[insertSpot], function(index, value) {
+    $.each(quiz[insertSpot], function(index, value) {
     alertData.push(index + ': ' + value);
     });
     alert(JSON.stringify(alertData));*/
@@ -161,8 +159,8 @@ $(document).ready(function(){
 
 
 /*
-Probably won't need this as the above seems to generally work, but it depends on whether or not I can get the module[] area to equal 
-a dynamic value based on which question number is clicked so that it adds to that spot in the module array.
+Probably won't need this as the above seems to generally work, but it depends on whether or not I can get the quiz[] area to equal 
+a dynamic value based on which question number is clicked so that it adds to that spot in the quiz array.
 
 $(document).ready(function(){
 	$("#submitButton").click(function(){
@@ -175,8 +173,8 @@ $(document).ready(function(){
     $('input').css("color", "#686868");
     $('input').css("background-color", "#C8C8C8");
     questionBeingAdded = new Question ($('#caseImage').val(), $('#clinicalInfo').val(), $('#question').val(), $('#choiceA').val(), $('#explanationA').val(), $('#choiceB').val(), $('#explanationB').val(), $('#choiceC').val(), $('#explanationC').val(), $('#choiceD').val(), $('#explanationD').val(), $('#choiceE').val(), $('#explanationE').val());
-    module.push(questionBeingAdded);
-    confirm(module.length);
+    quiz.push(questionBeingAdded);
+    confirm(quiz.length);
     };
 	});
 });
@@ -200,7 +198,7 @@ $(document).ready(function(){
 
 
 /*
-Something like if class == 'clicked' then get html data from that row and parse it to interval to place in module [_], to retrieve
+Something like if class == 'clicked' then get html data from that row and parse it to interval to place in quiz [_], to retrieve
   data to fill in the form.
 */
 
@@ -222,7 +220,7 @@ $(document).ready(function(){
 */  
 
 
-//  $.each(module[0], function(i,val) { $('#'+ i).val(val); //
+//  $.each(quiz[0], function(i,val) { $('#'+ i).val(val); //
  
 
 
@@ -233,57 +231,57 @@ $(document).ready(function(){
         $("#currentNumber").html($('#questionRow td.clicked').html());
 
         var currentSpot = parseInt($('#currentNumber').html(), 10);
-        if (module.length>=currentSpot){
+        if (quiz.length>=currentSpot){
           addReadOnly();
 
-          function populate(frm, data) {
-            $.each(data, function(key, value){
-            $('[name='+key+']', frm).val(value);
-             }
-            };
+        function populate(frm, data) {
+          $.each(data, function(key, value) {
+              $('[name=' + key + ']', frm).val(value);
+          })
+        };
 
-          populate('#form1', $.parseJSON(module[currentSpot - 1]));
+          populate('#form1', $.parseJSON(quiz[currentSpot - 1]));
          
         } 
         else {removeReadOnly();}
 
         /*
-        This is where to look in the module array if a corresponding object already exists there.
+        This is where to look in the quiz array if a corresponding object already exists there.
         */
         
 
         var currentSpot = parseInt($('#currentNumber').html(), 10);
-        if (module.length>=currentSpot){
+        if (quiz.length>=currentSpot){
           function populate(frm, data) {
             $.each(data, function(key, value){
             $('[name='+key+']', frm).val(value);
              });
             }
 
-          populate('#form1', $.parseJSON(module[currentSpot - 1]));
+          populate('#form1', $.parseJSON(quiz[currentSpot - 1]));
          }
 
 
         /*function populate(frm, data) {
-          $.each(module[0], function(key, value){
+          $.each(quiz[0], function(key, value){
           $('[name='+key+']', frm).val(value);
            });
           }
 
-          populate('#form1', $.parseJSON(module[0]));
+          populate('#form1', $.parseJSON(quiz[0]));
         */
 
 
         /*    var alertData = []
-        $.each(module[insertSpot], function(index, value) {
+        $.each(quiz[insertSpot], function(index, value) {
         alertData.push(index + ': ' + value);
         });
         alert(JSON.stringify(alertData));
         */
 
 
-        /*var moduleSearchSpot = parseInt($('#currentNumber').html(), 10) - 1;
-        if(module[moduleSearchSpot].length > 0) {
+        /*var quizSearchSpot = parseInt($('#currentNumber').html(), 10) - 1;
+        if(quiz[quizSearchSpot].length > 0) {
           addReadOnly;} else {
             removeReadOnly;
         */
@@ -321,7 +319,7 @@ $(document).ready(function(){
 
         //Will eventually move to global variable to access in all functions, but this works for testing for now//
         //var retrieveSpot = parseInt($('#currentNumber').html(), 10) - 1;//
-        //get data from module[td which has class clicked (probably through html content using parseInt)] and fill in the form//
+        //get data from quiz[td which has class clicked (probably through html content using parseInt)] and fill in the form//
 
 
 $(document).ready(function(){
@@ -372,7 +370,7 @@ $(document).ready(function(){
 /*
 $(document).ready(function(){
   $("#submitButton").click(function(){
-    module[0] = new Question ($('#caseImage').val(), $('#clinicalInfo').val(), $('#question').val(), $('choiceA').val(), $('#explanationA').val(), $('choiceB').val(), $('#explanationB').val(), $('choiceC').val(), $('#explanationC').val(), $('choiceD').val(), $('#explanationD').val(), $('choiceE').val(), $('#explanationE').val());
+    quiz[0] = new Question ($('#caseImage').val(), $('#clinicalInfo').val(), $('#question').val(), $('choiceA').val(), $('#explanationA').val(), $('choiceB').val(), $('#explanationB').val(), $('choiceC').val(), $('#explanationC').val(), $('choiceD').val(), $('#explanationD').val(), $('choiceE').val(), $('#explanationE').val());
     alert(modlue.length);
   });
 });
@@ -389,8 +387,8 @@ $(document).ready(function(){
 
 
 $(document).ready(function(){
-  $("#viewModules").click(function(){
-    $("#currentModules").slideToggle("slow");
+  $("#viewquizs").click(function(){
+    $("#currentquizs").slideToggle("slow");
   });
 });
 */
