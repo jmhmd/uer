@@ -2,6 +2,7 @@ var mongoose = require('mongoose'),
 	simpleTimestamps = require('mongoose-simpletimestamps').SimpleTimestamps
 
 var questionSchema = new mongoose.Schema({
+	clinicalInfo: String,
 	stem: {type: String, required: 'A question stem is required'},
 	answers: [
 		{

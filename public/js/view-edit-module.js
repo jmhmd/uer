@@ -6,11 +6,11 @@ var quiz = ["1", "2", "3"];
 $(document).ready(function(){
   for (var i = 1; i <= quiz.length; i++) {
     $("#questionRow").append('<tr><td id="questionTab">' + (i) + '</td></tr>');
-    var questionRowLength = $('#questionRow tr').length;
-    $("#totalNumber").html(questionRowLength);}
+    //var questionRowLength = $('#questionRow tr').length;
+    var questionRowLength = quiz.length;
+    $("#totalNumber").html(questionRowLength);
+  }
 });
-
-
 
 
 /*
@@ -70,9 +70,20 @@ $.each(data, function(name, val){
 
 */
 
+/**
+ * Nice choice to use a constructor here. However, you'll want to be able to pass it
+ * an arbitrary number of choices, so passing it an array as an argument might be a
+ * more flexible solution. Then we can use loops elsewhere to perform whatever action
+ * on the choices array regardless of length.
+ */
+function Question(caseImage, clinicalInfo, stem, choices) {
+  this.caseImage = caseImage;
+  this.clinicalInfo = clinicalInfo;
+  this.stem = stem; // changed this from this.question to match the database model that is set up, also to not confuse a question object with question parameter i.e. "question.question"
+  this.choices = choices;
+}
 
-
-function Question(caseImage, clinicalInfo, question, choiceA, explanationA, choiceB, explanationB, choiceC, explanationC, choiceD, explanationD, choiceE, explanationE) {
+/*function Question(caseImage, clinicalInfo, question, choiceA, explanationA, choiceB, explanationB, choiceC, explanationC, choiceD, explanationD, choiceE, explanationE) {
     this.caseImage = caseImage;
     this.clinicalInfo = clinicalInfo;
     this.question = question;
@@ -86,8 +97,7 @@ function Question(caseImage, clinicalInfo, question, choiceA, explanationA, choi
     this.explanationD = explanationD;
     this.choiceE = choiceE;
     this.explanationE = explanationE;
-};
-
+};*/
 
 var addReadOnly = function(){
     $('textarea, input').prop('readonly', true);
