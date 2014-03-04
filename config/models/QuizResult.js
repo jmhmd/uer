@@ -1,9 +1,12 @@
 var mongoose = require('mongoose'),
-	simpleTimestamps = require( 'mongoose-SimpleTimestamps').SimpleTimestamps
+	simpleTimestamps = require( 'mongoose-simpletimestamps').SimpleTimestamps
 
 var quizResultSchema = new mongoose.Schema({
-	user: {type: mongoose.Schema.Types.ObjectId, required: true},
-	quizName: String, // will record whatever the name of the quiz was when taken, even if changed later
+	user: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User'},
+	quiz: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Quiz'},
+
+	// save reference to question used, as well as additional information
+	// relating to user's answer
 	quizQuestions: [
 		{
 			questionId: {type: mongoose.Schema.Types.ObjectId, ref: 'Question'},
@@ -13,11 +16,17 @@ var quizResultSchema = new mongoose.Schema({
 
 			// store here to make quick calculations of percent wrong/right
 			// easier without needing to pull in whole question document
-			correct: Boolean
+			correct: Boolean,
+
+			// collect chosen location of abnormality
+			abnormalityLoc: {
+				series: Number,
+				image: Number,
+				coords: [Number], // should be of length 2, with x,y coordinates
+			}
 		}
 	],
-	category: String,
-	studyId: String // id of study stored in casefil.es
+	percentCorrect: Number
 })
 
 quizResultSchema.plugin(simpleTimestamps)

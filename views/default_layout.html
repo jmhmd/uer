@@ -1,0 +1,46 @@
+<!DOCTYPE html> 
+<html>
+
+	<head>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+		<script src="/js/dropzone.js"></script>
+		<title>Call Practice</title>
+	</head>
+
+
+	<body>
+
+		<a href="/">Home</a>
+
+		{{#if messages.info}}
+			{{#each messages.info}}
+				{{this.msg}}
+			{{/each}}
+		{{/if}}
+		
+		{{#if messages.errors}}
+			{{#each messages.errors}}
+				{{this.msg}}
+			{{/each}}
+		{{/if}}
+
+		{{#if user.email}}
+			Logged in as {{user.email}}
+			{{#if user.isAdmin}}
+				- Administrator
+			{{/if}}
+			<a href="/logout">Log out</a>
+		{{else}}
+			<a href="/login">Log in</a>
+		{{/if}}
+
+		<div id="loginoptioncontainer">
+
+		{{{body}}}
+			
+		</div>
+
+	</body>
+
+
+</html>

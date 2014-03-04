@@ -8,3 +8,8 @@ exports.name = function(req, res) {
 		name: 'Bob'
 	})
 }
+
+// not sure we even need this, as our client can query the casefil.es api directly
+/*exports.loadStudy = function(req, res){
+
+}*/

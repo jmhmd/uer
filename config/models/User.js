@@ -1,6 +1,8 @@
+'use strict';
+
 var mongoose = require('mongoose'),
 	bcrypt = require('bcrypt-nodejs'),
-	simpleTimestamps = require('mongoose-SimpleTimestamps').SimpleTimestamps
+	simpleTimestamps = require('mongoose-simpletimestamps').SimpleTimestamps
 
 var userSchema = new mongoose.Schema({
 	email: {
@@ -17,7 +19,7 @@ var userSchema = new mongoose.Schema({
 	
 	tokens: Array,
 
-	isAdmin: Boolean,
+	isAdmin: {type: Boolean, default: false},
 
 	profile: {
 		name: {
@@ -49,13 +51,13 @@ userSchema.pre('save', function(next) {
 	var user = this,
 		SALT_FACTOR = 5
 
-	if (!user.isModified('password')) return next()
+	if (!user.isModified('password')){ return next() }
 
 	bcrypt.genSalt(SALT_FACTOR, function(err, salt) {
-		if (err) return next(err)
+		if (err){ return next(err) }
 
 		bcrypt.hash(user.password, salt, null, function(err, hash) {
-			if (err) return next(err)
+			if (err){ return next(err) }
 			user.password = hash
 			next()
 		})
@@ -64,9 +66,9 @@ userSchema.pre('save', function(next) {
 
 userSchema.methods.comparePassword = function(candidatePassword, cb) {
 	bcrypt.compare(candidatePassword, this.password, function(err, isMatch) {
-		if (err) return cb(err);
-		cb(null, isMatch);
-	});
-};
+		if (err){ return cb(err) }
+		cb(null, isMatch)
+	})
+}
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema)

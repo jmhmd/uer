@@ -1,0 +1,222 @@
+{{!< ./default_layout}}
+
+<h1> Test all the things! </h1>
+
+<p>Logged in: {{user.email}}</p>
+
+<a href="/login">Log in</a>
+
+<form class="dropzone">
+	<input type="hidden" name="key" value="uploads/temp/${filename}">
+	<input type="hidden" name="AWSAccessKeyId" value="{{ s3.s3Key }}"> 
+	<input type="hidden" name="acl" value="public-read"> 
+	<input type="hidden" name="success_action_status" value="201">
+	<input type="hidden" name="policy" value="{{ s3.s3Policy64 }}">
+	<input type="hidden" name="signature" value="{{ s3.s3Signature }}">
+	<input type="hidden" name="Content-Type" value="image/jpeg">
+</form>
+
+<button id="uploadImages">Upload</button>
+
+<script type="text/javascript">
+'use strict';
+
+var casefiles = {
+		apikey: '{{casefiles.apikey}}',
+		url: '{{casefiles.url}}'
+	}
+
+
+/////////////////////////////////////////
+// test loading a case from casefil.es //
+/////////////////////////////////////////
+
+$.get(casefiles.url + 'api/study/load/52960b463e31390f00000025', function(res){
+	if(res._id === '52960b463e31390f00000025'){ console.log('OK: study successfully loaded')}
+	else { console.log('FAIL', res)}
+})
+
+////////////////////////////////////////
+// test getting s3 upload credentials //
+////////////////////////////////////////
+
+$.get(casefiles.url + 'api/upload/getCredentials?apikey=' + casefiles.apikey, function(res){
+	if(res.s3Bucket === 'elasticbeanstalk-us-east-1-843279806438'){ console.log('OK: s3 creds returned')}
+	else { console.log('FAIL', res)}
+})
+
+//////////////////////////////
+// test making a user admin //
+//////////////////////////////
+
+$.post('/api/makeAdmin', {userId: '{{user._id}}'})
+	.done(function(res){
+		if(res === 'User already administrator' || 'User set as administrator'){ console.log('OK: User set as administrator') }
+		else { console.log('FAIL: ', res) }
+	})
+	.fail(function(err){
+		console.log('FAIL: ', err)
+	})
+
+//////////////////////////////////////
+// test creating/destroying a study //
+//////////////////////////////////////
+
+var images = {
+		diagnosis: 'testDiagnosis',
+		category: 'Thoracic',
+		imageStacks: [ // array of objects, each object represents one series of images
+			{
+				label: 'testLabel',
+				modality: 'CT',
+				imagePaths: [] // array of image urls
+			}
+		]
+	}
+
+$.post('/api/saveImages', images)
+	.done(function(res){
+		if (res._id){
+			console.log('OK: Study created - id: ', res._id)
+
+			// destroy study
+			
+			$.post('/api/removeImages', res)
+				.done(function(res){
+					if (res === 'Study deleted'){
+						console.log('OK: Study deleted')
+					}
+				})
+				.fail(function(err){
+					console.log('FAIL: ', err)
+				})
+		}
+	})
+	.fail(function(err){
+		console.log('FAIL: ', err)
+	})
+
+
+////////////////////////////////////////////
+// Test creating/updating/deleting a quiz //
+////////////////////////////////////////////
+
+var question = {
+		stem: "Question stem",
+		answers: [
+			{
+				option: 'Option 1',
+				correct: false
+			},
+			{
+				option: 'Option 2',
+				correct: true
+			}
+		],
+		category: 'Neuro',
+		difficulty: 5,
+		StudyId: 'placeholderID02830823049203'
+	}
+var quiz = {
+		title: 'New quiz',
+		difficulty: 5,
+		questions: []
+	}
+$.post('/api/saveQuestion', question)
+	.done(function(res){
+		if (res._id){
+			console.log('OK: Question created - id: ', res._id)
+
+			// update question
+			res.stem = "Changed stem"
+
+			$.post('/api/saveQuestion', res)
+				.done(function(res){
+					if (res.stem == "Changed stem"){
+						console.log('OK: Question updated')
+
+						// delete question
+						$.post('/api/removeQuestion')
+							.done(function(res){
+								if (res === "Question removed"){
+									console.log('OK: Question removed')
+								}
+							})
+							.fail(function(err){
+								console.log('FAIL: ', err)
+							})
+					} else {
+						console.log('FAIL: Updated question title does not match expected')
+					}
+				})
+				.fail(function(err){
+					console.log('FAIL: ', err)
+				})
+		} else {
+			console.log('FAIL: Question id not returned after save')
+		}
+	})
+	.fail(function(err){
+		console.log('FAIL: ', err)
+	})
+
+$('#uploadImages').on('click', function(){
+	// make sure images have id
+	if (images._id){
+		dropzone.processQueue()
+	} else {
+		// get container for images first
+		$.post('/api/saveImages', images)
+			.done(function(res){
+				console.log('response: ', res)
+			})
+			.fail(function(err){
+				console.log('FAIL', err)
+			})
+	}
+})
+
+Dropzone.autoDiscover = false
+var dropzone = new Dropzone('.dropzone', {
+		url: '{{s3.s3URL}}',
+		maxFilesize: 100,
+		paramName: 'file',
+		maxThumbnailFilesize: 5,
+		autoProcessQueue: false,
+		dictDefaultMessage: '<div class="msg-primary">Drop files here to upload</div><div class="msg-secondary">(or click)</div>'
+	})
+	.on('addedfile', function(file){
+		$(file.previewElement).find('.dz-success-mark,.dz-error-mark').hide()
+	})
+	.on('totaluploadprogress', function(total, totalBytes, totalBytesSent){
+		console.log(total)
+	})
+	.on('error', function(file, error){
+		console.log('error: ', error)
+	})
+	.on('success', function(file, response){
+		response = response.split('Location')[1].slice(1, -2)
+		console.log(response)
+		$(file.previewElement).find('.dz-success-mark').show()
+	})
+	.on('complete',function(){
+		if (this.getUploadingFiles().length > 0){
+			this.processQueue()
+			return false
+		}
+		console.log('complete')
+	})
+
+
+/*
+
+var quiz
+$.post('/saveQuiz', {userId: '52f6b898e426a9080ce53adf'})
+	.done(function(res){
+		console.log(res)
+	})
+	.fail(function(err){
+		console.log('FAIL', err)
+	})*/
+
+</script>

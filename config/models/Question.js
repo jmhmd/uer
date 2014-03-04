@@ -1,17 +1,18 @@
 var mongoose = require('mongoose'),
-	simpleTimestamps = require('mongoose-SimpleTimestamps').SimpleTimestamps
+	simpleTimestamps = require('mongoose-simpletimestamps').SimpleTimestamps
 
 var questionSchema = new mongoose.Schema({
-	stem: {type: String, required: true},
+	stem: {type: String, required: 'A question stem is required'},
 	answers: [
 		{
-			optionId: Number,
 			option: String,
 			correct: {type: Boolean, default: false}
 		}
 	],
 	category: String,
-	studyId: String // id of study stored in casefil.es
+	difficulty: Number,
+	studyId: String, // id of study stored in casefil.es
+	deleted: {type: Boolean, default: false}
 })
 
 questionSchema.plugin(simpleTimestamps)

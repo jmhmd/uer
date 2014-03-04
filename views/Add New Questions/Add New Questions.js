@@ -10,6 +10,46 @@ $(document).ready(function(){
 
 
 $('#caseImage').change(function(){
+/**
+ *  Some thoughts:
+ *
+ * You should only need one $(document).ready(function(){ ... }) call in your entire script,
+ * often times that will just surround the entire script to keep it from running until the DOM is ready.
+ *
+ * for the question object, what I was trying to say today would be like:
+ * var quiz = {
+ *   'title': '',
+ *   'questions': [
+ *     {
+ *       'stem': '',
+ *       'options': [
+ *         {'option': 'atelectasis', correct: false},
+ *         {'option': 'cancer', correct: true},
+ *         {'option': 'whatever', correct: false}
+ *       ],
+ *       'explanation': ''
+ *     },
+ *     {
+ *       'stem': '',
+ *       'options': [
+ *         {'option': 'atelectasis', correct: false},
+ *         {'option': 'cancer', correct: true},
+ *         {'option': 'whatever', correct: false}
+ *       ],
+ *       'explanation': ''
+ *     },
+ *     ...
+ *   ]
+ * }
+ *
+ * Then, each time the user saves/deletes a new question, you just add/remove it from the 'questions' array
+ * and send the whole object back to the server.
+ *
+ * You can access different questions using the index, i.e. quiz.questions[1].options
+ * (gives array of option objects)
+ *
+ * Hope that makes some sense
+ */
 
 
 })

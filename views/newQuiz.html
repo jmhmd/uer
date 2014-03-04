@@ -1,0 +1,15 @@
+{{!< ./default_layout}}
+
+<h1> Create New Quiz </h1>
+
+<form action="/quiz/new" method="POST">
+	<label for="title">Title</label>
+	<input type="text" name="title">
+	<label for="difficulty">Difficulty</label>
+	<select name="difficulty">
+		<option value="1">Easy</option>
+		<option value="2">Medium</option>
+		<option value="3">Hard</option>
+	</select>
+	<button type="submit">Save</button>
+</form>

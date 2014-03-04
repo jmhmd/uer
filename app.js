@@ -11,17 +11,11 @@ var express = require('express'),
 	expressValidator = require('express-validator'),
 	http = require('http'),
 	path = require('path'),
-	hbs = require('express-hbs')
+	hbs = require('express-hbs'),
+	fs = require('fs'),
+	CORS = require('cors')
 
 var app = module.exports = express()
-
-/**
- *  Load Routes
- */
-var userCtrl = require('./routes/user'),
-	apiCtrl = require('./routes/api'),
-	homeCtrl = require('./routes/home'),
-	quizCtrl = require('./routes/quiz')
 
 
 /**
@@ -36,28 +30,48 @@ var secrets = require('./config/secrets'),
  */
 
 mongoose.connect(secrets.db);
-mongoose.connection.on('error', function() {
-	console.log('✗ MongoDB Connection Error. Please make sure MongoDB is running.'.red)
+mongoose.connection
+	.on('error', function() {
+		console.log('MongoDB Connection Error. Please make sure MongoDB is running.'.red)
+	})
+	.on('open', function() {
+		console.log('DB connected, using ' + mongoose.connection.name)
+	})
+
+fs.readdirSync('./config/models').forEach(function(file) {
+	require(path.join(__dirname, 'config/models/', file))
 })
 
+
+/**
+ *  Load Routes
+ */
+var userCtrl = require('./routes/user'),
+	apiCtrl = require('./routes/api'),
+	homeCtrl = require('./routes/home'),
+	quizCtrl = require('./routes/quiz'),
+	testCtrl = require('./routes/test')
 
 /**
  * Configuration
  */
 
 // all environments
+app.use(CORS())
 app.set('port', process.env.PORT || 3000)
-app.engine('hbs', hbs.express3({
-  partialsDir: __dirname + '/views/partials'
+app.engine('html', hbs.express3({
+  partialsDir: __dirname + '/views/partials',
+  extname: '.html'
 }))
-app.set('view engine', 'hbs')
+app.set('view engine', 'html')
 app.set('views', __dirname + '/views')
 app.use(express.logger('dev'))
 app.use(express.bodyParser())
 app.use(expressValidator())
 app.use(express.methodOverride())
+app.use(express.cookieParser())
 app.use(express.session({
-	secret: 'rads call practice',
+	secret: secrets.sessionSecret,
 	store: new MongoStore({
 		db: mongoose.connection.db,
 		auto_reconnect: true
@@ -93,16 +107,9 @@ if (app.get('env') === 'production') {
 // Routes //
 ////////////
 
-/**
- * JSON API
- */
-app.get('/api/loadStudy/:studyId', apiCtrl.loadStudy)
-app.post('/api/saveStudy/:studyId', apiCtrl.saveStudy)
-
-
-/**
- * APP ROUTES
- */
+////////////////////////////////
+// Navigation, HTML responses //
+////////////////////////////////
 
 // User account
 app.get('/login', userCtrl.getLogin)
@@ -111,14 +118,46 @@ app.get('/logout', userCtrl.logout)
 app.get('/signup', userCtrl.getSignup)
 app.post('/signup', userCtrl.postSignup)
 
-// App navigation
+// Quizzes
 app.get('/', homeCtrl.index)
-app.get('/quiz/:quizId', quizCtrl.showQuiz)
-app.get('/quiz/:quizId/:questionId', quizCtrl.showQuestion)
-app.get('/quiz/:quizId/results', quizCtrl.showResults)
+app.get('/quizzes', passportConf.isAuthenticated, quizCtrl.showQuizList)
+
+app.get('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.showNewQuiz)
+app.post('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.saveQuiz)
+app.get('/quiz/edit/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.showQuizEdit)
+
+app.get('/quiz/:quizId', passportConf.isAuthenticated, quizCtrl.showQuiz)
+app.get('/quiz/:quizId/:questionId', passportConf.isAuthenticated, quizCtrl.showQuestion)
+app.get('/quiz/:quizId/results', passportConf.isAuthenticated, quizCtrl.showResults)
 
 // Partials
 app.get('/partials/:partial', homeCtrl.partials)
+
+// Tests
+app.get('/test', testCtrl.test)
+
+
+/////////////////////////
+// API, JSON responses //
+/////////////////////////
+
+app.all('/api/*', function(req,res,next){
+	req.resFormat = 'json'
+	next()
+})
+
+app.post('/api/makeAdmin', passportConf.isAuthenticatedAPI, passportConf.isAdmin, userCtrl.makeAdmin)
+
+app.get('/api/getQuiz/:quizId', quizCtrl.getQuiz)
+app.post('/api/saveQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuiz)
+app.post('/api/removeQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeQuiz)
+
+app.get('/api/getQuestion/:questionId', quizCtrl.getQuestion)
+app.post('/api/saveQuestion', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuestion)
+app.post('/api/removeQuestion', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeQuestion)
+
+app.post('/api/saveImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveImages)
+app.post('/api/removeImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeImages)
 
 
 /**
@@ -129,7 +168,7 @@ app.get('/auth/google', passport.authenticate('google', { scope: 'profile email'
 app.get('/auth/google/callback', passport.authenticate('google', { successRedirect: '/', failureRedirect: '/login' }));
 
 // redirect all others to the index
-app.get('*', routes.index)
+app.get('*', homeCtrl.index)
 
 /**
  * Start Server

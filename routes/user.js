@@ -1,9 +1,11 @@
 'use strict';
 
-var mongoose = require('mongoose');
-var passport = require('passport');
-var _ = require('underscore');
-var User = require('../config/models/User');
+var mongoose = require('mongoose'),
+	passport = require('passport'),
+	_ = require('underscore'),
+	User = mongoose.model('User'),
+	request = require('request'),
+	casefiles = require('../config/secrets').casefiles
 
 /**
  * GET /login
@@ -58,11 +60,9 @@ exports.postLogin = function(req, res, next) {
  */
 
 exports.getSignup = function(req, res) {
-	if (req.user) return res.redirect('/');
-	res.render('account/signup', {
-		title: 'Create Account'
-	});
-};
+	if (req.user) { return res.redirect('/') }
+	res.render('account/signup')
+}
 
 /**
  * POST /signup
@@ -213,6 +213,51 @@ exports.getOauthUnlink = function(req, res, next) {
 		});
 	});
 };
+
+/**
+ * POST /account/makeAdmin
+ * make a user an admin, must check with casefil.es to give upload access
+ * @return {Object} JSON response
+ */
+exports.makeAdmin = function(req, res, next){
+	var userId = req.params.userId || req.body.userId
+
+	// pull user from db
+	User.findById(userId, function(err, user){
+		if (err){ 
+			console.log(err)
+			return next(err)
+		}
+
+		if (!user || !user.email) { return res.send(400, 'User does not have email on file') }
+		
+		// try to associate this user with an account on casefil.es
+		request.post({
+				url: casefiles.url + 'api/user/addToAffiliation', 
+				json: {
+					email: user.email,
+					apikey: casefiles.apikey
+				}},
+				function(err, response, body){
+					if (err){ return next(err) }
+
+					// user successfully created, make admin
+					setAsAdmin(user)
+				})
+	})
+
+	function setAsAdmin(user){
+		if (user.isAdmin){
+			res.send(200, 'User already administrator')
+		} else {
+			user.isAdmin = true
+			user.save(function(err){
+				if (err){ return next(err) }
+				res.send(200, 'User set as administrator')
+			})
+		}
+	}
+}
 
 /**
  * GET /logout
