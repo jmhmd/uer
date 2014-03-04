@@ -1,53 +1,111 @@
 
 
 body {
-	background-color: #CCCCFF; 
+	background-color: #909090;
+
+	/*background: -webkit-repeating-linear-gradient(left, #0A1429, #0F1F3D 0.5%, #142952 1%); /* For Safari */
+	/*background: -o-repeating-linear-gradient(right, #0A1429, #0F1F3D 0.5%, #142952 1%); /* For Opera 11.1 to 12.0 */
+	/*background: -moz-repeating-linear-gradient(right, #0A1429, #0F1F3D 0.5%, #142952 1%); /* For Firefox 3.6 to 15 */
+	/*background: repeating-linear-gradient(to right, #0A1429, #0F1F3D 0.5%, #142952 1%); /* Standard syntax (must be last) */
+	
 	margin: 0;
 	padding: 0;
 }
+
+
+
+#confirmationDiv {
+	width: 100%;
+	height: 100%;
+	background-color: green;
+	position: absolute;
+	margin-top: 0;
+	margin-left: 0;
+	opacity: 0.6;
+	z-index: 2;
+	color: white;
+	font-size: 70px;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 600px; 
+	display: none;
+}
+
+
+#failureDiv {
+	width: 100%;
+	height: 100%;
+	background-color: red;
+	position: absolute;
+	margin-top: 0;
+	margin-left: 0;
+	opacity: 0.6;
+	z-index: 2;
+	color: white;
+	font-size: 70px;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 600px; 
+	display: none;
+}
+
 
 #moduleName {
 	display: inline-block;
 	float: left;
 	margin-left: 10px;
 	text-align: center;
-	font-size: 25px;
+	font-size: 35px;
 	font-weight: 2px;
-	margin-bottom: 20px;
+	margin-bottom: 10px;
 	font-family: Verdana;
+	text-shadow: 3px 3px 3px #606060;
 }
 
-
-table {
+#questionRowcontainer {
 	position: absolute;
 	margin-top: 70px;
-	margin-left: 0;
+	margin-left: -10px;
 	z-index: 1;
+	font-family: Verdana;
 }
 
 td {
 	height: 18px;
 	padding: 4px;
 	border: 1px solid black;
-	background-color: orange;
+	background-color: #52CCA3;
+	color: #606060;
 	font-size: 14px;
 	border-bottom-right-radius: 10px;
 	border-top-right-radius: 10px;
 	min-width: 40px;
 	text-align: center;
+	font-family: Verdana;
+	box-shadow: 3px 3px 3px #606060;
 }
 
 
-#submitButton:hover, td:hover {
-	background-color: white;
-	color: orange;
+td:hover {
+	background-color: #66FFCC;
+	color: #000000;
 }
 
-#addQuestionbutton, #editQuestionbutton, #submitChangesbutton {
-	width: 140px;
+
+#questionRow tr td.clicked {
+	background-color: #66FFCC;
+	color: #000000;
+	font-weight: bold;
+	font-size: 18px;
+	border: 2px solid black;
+}
+
+
+#addQuestionbutton, #editQuestionbutton, #submitButton {
+	width: 70px;
 	background-color: #FF6699;
 	color: yellow;
-	font-family: Arial, Verdana;
+	font-family: Verdana;
 	font-size: 18px;
 	padding: 3px;
 	border: 1px solid black;
@@ -55,85 +113,108 @@ td {
 	border-radius: 3px;
 	clear: left;
 	text-align: center;
+	text-shadow: 1px 1px 1px #606060;
 }
 
-#addQuestionbutton:hover, #editQuestionbutton:hover, #submitChangesbutton:hover {
+
+#addQuestionbutton:hover, #editQuestionbutton:hover, #submitButton:hover {
 	background-color: #FF0099;
 }
 
+
 #questionNav {
 	position: absolute;
-	margin-top: -50px;
+	margin-top: 50px;
 	margin-left: 40%;
 	width: 500px;
 	font-size: 30px;
+	font-family: Verdana;
 }
+
 
 #currentNumber, #totalNumber {
 	display: inline;
 	font-size: 30px;
 	font-style: bold;
+	font-family: Verdana;
 }
+
 
 #formdiv {
 	width: 60%;
-	display: inline-block;
 	position: absolute;
-	margin-top: 20px;
-	margin-left: 40px;
+	margin-top: 120px;
+	margin-left: 70px;
+	font-family: Verdana;
 }
+
 
 textarea {
 	vertical-align: top;
 	background-color: #C8C8C8;
 	color: #686868;
+	font-family: Verdana;
+	box-shadow: 3px 3px 3px #606060;
 }
+
 
 input {
 	background-color: #C8C8C8;
 	color: #686868;
+	font-family: Verdana;
+	box-shadow: 3px 3px 3px #606060;
+
 }
+
 
 #text {
 	display: inline;
 }
 
+
 li {
-	list-style: none
+	list-style: none;
+	margin-top: 10px;
+	font-size: 16px;
 }
 
-#textfields li {
-	margin-top: 15px;
-	font-size: 18px;
+
+#textfields, #moretextfields {
 	color: #686868;
-	font-style: bold;
 }
+
+
+#moretextfields li input {
+	font-size: 14px;
+	border: 0px;
+}
+
 
 #question {
-	margin-bottom: 35px;
-	color: #686868;
+	margin-bottom: 15px;
 }
+
 
 #difficulty {
 	margin-top: 35px;
-	font-size: 18px;
-	color: #686868;
+	font-size: 16px;
 	font-style: bold;
 }
 
+
 #subspecialty {
 	margin-top: 35px;
-	font-size: 18px;
-	color: #686868;
+	font-size: 16px;
 	font-style: bold;
 }
+
 
 #imagepreviewDiv {
 	display: inline-block;
 	float: right;
-	background-color: #6633FF;
+	background-color: #080808;
 	height: 540px;
-	width: 40%;
+	width: 36%;
 	margin-top: 30px;
 	margin-right: 10px;
 	border: 1px solid black;
@@ -143,6 +224,11 @@ li {
 }
 
 
-
+#imagepreviewDiv img{
+	max-width:100%; 
+	max-height:100%;
+	margin:auto;
+	display:block;
+}
 
 

@@ -9,7 +9,10 @@ $(document).ready(function(){
 });
 
 
+$('#caseImage').change(function(){
 
+
+})
 
 
 
@@ -40,7 +43,7 @@ $(document).ready(function(){
 
 
 $(document).ready(function(){
-  $("#addQuestionbutton").click(function(){
+  $("#addQuestionbutton, #questionTabAdd").click(function(){
     var questionRowLength = $('#questionRow tr').length;
     $("#questionRow").append('<tr><td id="questionTab">' + (questionRowLength + 1) + '</td></tr>');
     var questionRowLength = questionRowLength + 1;

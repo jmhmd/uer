@@ -3,7 +3,7 @@
 
 	<head>
 		<link type="text/css" rel="stylesheet" href="View-Edit Module.css"/>
-		<script src="jquery-2.1.0.js"></script>
+		<script src="../jquery-2.1.0.js"></script>
 		<script type='text/javascript' src='View-Edit Module.js'></script>
 		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
 		</script>
@@ -14,102 +14,110 @@
 
 	<body>
 
+		<div id="confirmationDiv">Saved</div>
+
+		<div id="failureDiv">Failed to Save</div>
 		
 		<div id="moduleName"> Module Name <!--Module Name automatically inserted--> </div>
 
-		<table id="questionRow">
-			<tr>
-				<td id="submitButton">Submit</td>
-			</tr>
-			<tr>
-				<td id="questionTab1">1</td>
-			</tr>
-			<tr>
-				<td id="questionTab2">2</td>
-			</tr>	
-			<tr>
-				<td id="questionTab3">3</td>
-			</tr>
-			<tr>
-				<td id="questionTab4">4</td>
-			</tr>
-			<tr>
-				<td id="questionTab5">5</td>
-			</tr>
-			<tr>
-				<td id="questionTab6">6</td>
-			</tr>
-			<tr>
-				<td id="questionTab7">7</td>
-			</tr>
-			<tr>
-				<td id="questionTab8">8</td>
-			</tr>
-			<tr>
-				<td id="questionTab+">+</td>
-			</tr>
-		</table>
+		<div id="questionRowcontainer">
+			<table>
+				<tr>
+					<td id="submitButton">Submit</td>
+				</tr>
+				<tr>
+					<td id="editQuestionbutton">Edit</td>
+				</tr>
+				<tr>
+					<td id="addQuestionbutton">Add</td>
+				</tr>
+			</table>
+
+			<table id="questionRow">
+				
+				<!-- <tr>
+					<td id="questionTab" class="clicked">1</td>
+				</tr>
+				<tr>
+					<td id="questionTab">2</td>
+				</tr>
+				<tr>
+					<td id="questionTab">3</td>
+				</tr>
+				<tr>
+					<td id="questionTab">4</td>
+				</tr>
+				<tr>
+					<td id="questionTab">5</td>
+				</tr>
+				<tr>
+					<td id="questionTab">6</td>
+				</tr>
+				<tr>
+					<td id="questionTab">7</td>
+				</tr>
+				<tr>
+					<td id="questionTab">8</td>
+				</tr> -->
+			</table>
+		</div>
 		
-		<div id="addQuestionbutton">Add Question</div>
-
-		<div id="editQuestionbutton">Edit Question</div>
-
-		<div id="questionNav">Question <p id="currentNumber">_</p> of <p id="totalNumber">_</p></div>
+		
+		<div id="questionNav">Question <p id="currentNumber">1</p> of <p id="totalNumber">_</p></div>
 
 			<div id="formdiv">
-				<form>
+				<form id="form1">
 					<ul id="textfields">
 						<li id="image">
-							Image: <input type="file" name="caseImage" style="width: 300px; height: 22px" accept="image/x-png, image/gif, image/jpeg">
+							Image: <input id="caseImage" type="file" name="caseImage" style="width: 300px; height: 22px" accept="image/x-png, image/gif, image/jpeg">
 						</li>
 						<li id="clinicalinfo">
 							Clinical Information: <textarea readonly id="clinicalInfo" name="clinicalInfo" style="width:400px; height:50px;"></textarea>
 						</li>
 						<li id="question">
-							Question: <textarea readonly type="text" name="question" style="width:400px; height:50px;"></textarea>
+							Question: <textarea readonly id="question" type="text" name="question" style="width:400px; height:50px;"></textarea>
 						</li>
-
 
 
 						<li id="answerchoices">
 							Answer choices and explanations:
 						</li>
 						<li id="choice">
-							A: <textarea readonly type="text" name="choiceA" style="width:400px; height:16px;"></textarea>
+							A: <textarea readonly id="choiceA" type="text" name="choiceA" style="width:400px; height:16px;"></textarea>
 						</li>
 						<li>
-							Explanation: <textarea readonly type="text" name="explanationA" style="width:600px; height:40px;"></textarea>
+							Explanation: <textarea readonly id="explanationA" type="text" name="explanationA" style="width:600px; height:40px;"></textarea>
 						</li>
 						<li id="choice">
-							B: <textarea readonly type="text" name="choiceB" style="width:400px; height:16px;"></textarea>
+							B: <textarea readonly id="choiceB" type="text" name="choiceB" style="width:400px; height:16px;"></textarea>
 						</li>
 						<li>
-							Explanation: <textarea readonly type="text" name="explanationB" style="width:600px; height:40px;"></textarea>
+							Explanation: <textarea readonly id="explanationB" type="text" name="explanationB" style="width:600px; height:40px;"></textarea>
 						</li>
 						<li id="choice">
-							C: <textarea readonly type="text" name="choiceC" style="width:400px; height:16px;"></textarea>
+							C: <textarea readonly id="choiceC" type="text" name="choiceC" style="width:400px; height:16px;"></textarea>
 						</li>
 						<li>
-							Explanation: <textarea readonly type="text" name="explanationC" style="width:600px; height:40px;"></textarea>
+							Explanation: <textarea readonly id="explanationC" type="text" name="explanationC" style="width:600px; height:40px;"></textarea>
 						</li>
 						<li id="choice">
-							D: <textarea readonly type="text" name="choiceD" style="width:400px; height:16px;"></textarea>
+							D: <textarea readonly id="choiceD" type="text" name="choiceD" style="width:400px; height:16px;"></textarea>
 						</li>
 						<li>
-							Explanation: <textarea readonly type="text" name="explanationD" style="width:600px; height:40px;"></textarea>
+							Explanation: <textarea readonly id="explanationD" type="text" name="explanationD" style="width:600px; height:40px;"></textarea>
 						</li>
 						<li id="choice">
-							E: <textarea readonly type="text" name="choiceE" style="width:400px; height:16px;"></textarea>
+							E: <textarea readonly id="choiceE" type="text" name="choiceE" style="width:400px; height:16px;"></textarea>
 						</li>
 						<li>
-							Explanation: <textarea readonly type="text" name="explanationE" style="width:600px; height:40px;"></textarea>
+							Explanation: <textarea readonly id="explanationE" type="text" name="explanationE" style="width:600px; height:40px;"></textarea>
 						</li>
 
 
 
 						<li id="diagnosis">
 							Diagnosis:
-								<input readonly type="text" name="Diagnosis" style="width:400px; height:16px;">
+								<input readonly id="diagnosis" type="text" name="Diagnosis" style="width:400px; height:16px;">
 						</li>
 						<li>
 							Additional Keywords (including classic signs, etc.):
@@ -125,18 +133,18 @@
 
 
 				<form>
-					<ul>
+					<ul id="moretextfields">
 						<li id="difficulty">
 							Difficulty Level:
 						</li>
 						<li>
-							<input type="radio" name="easydifficulty" value="easy">Easy
+							<input type="checkbox" name="easydifficulty" value="easy">Easy
 						</li>
 						<li>
-							<input type="radio" name="intermediatedifficulty" value="intermediate">Intermediate
+							<input type="checkbox" name="intermediatedifficulty" value="intermediate">Intermediate
 						</li>
 						<li>
-							<input type="radio" name="highdifficulty" value="difficult">Difficult
+							<input type="checkbox" name="highdifficulty" value="difficult">Difficult
 						</li>
 
 
@@ -205,7 +213,7 @@
 		</div>
 
 		
-		<div id="imagepreviewDiv"></div>
+		<div id="imagepreviewDiv"><img id="imagePreview" src="http://upload.wikimedia.org/wikipedia/commons/2/22/Scaphoid_waist_fracture.gif"/></div>
 
 
 	</body>
