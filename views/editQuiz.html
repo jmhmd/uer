@@ -1,7 +1,14 @@
 {{!< ./default_layout}}
 
+<script type="text/javascript">
+var quiz = {{{quiz}}}
+
+console.log(quiz)
+</script>
 <script type="text/javascript" src="/js/view-edit-module.js"></script>
-<script type="text/javascript">console.log({{quiz}})</script>
+<link type="text/css" rel="stylesheet" href="/css/view-edit-module.css"/>
+
+<!-- <script type="text/javascript">console.log(JSON.parse('{{quiz}}'))</script> -->
 
 <div id="confirmationDiv">Saved</div>
 
@@ -127,13 +134,13 @@
 					Difficulty Level:
 				</li>
 				<li>
-					<input type="checkbox" name="easydifficulty" value="easy">Easy
+					<input type="checkbox" name="easydifficulty" value="1">Easy
 				</li>
 				<li>
-					<input type="checkbox" name="intermediatedifficulty" value="intermediate">Intermediate
+					<input type="checkbox" name="intermediatedifficulty" value="2">Intermediate
 				</li>
 				<li>
-					<input type="checkbox" name="highdifficulty" value="difficult">Difficult
+					<input type="checkbox" name="highdifficulty" value="3">Difficult
 				</li>
 
 

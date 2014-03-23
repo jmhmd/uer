@@ -1,15 +1,17 @@
-'use strict';
+//'use strict';
 
-var quiz = ["1", "2", "3"];
+/**
+ * The quiz object should be loaded in by the template when the page renders
+ */
 
 
-$(document).ready(function(){
-  for (var i = 1; i <= quiz.length; i++) {
-    $("#questionRow").append('<tr><td id="questionTab">' + (i) + '</td></tr>');
-    //var questionRowLength = $('#questionRow tr').length;
-    var questionRowLength = quiz.length;
-    $("#totalNumber").html(questionRowLength);
-  }
+$(document).ready(function() {
+	for (var i = 1; i <= quiz.length; i++) {
+		$("#questionRow").append('<tr><td id="questionTab">' + (i) + '</td></tr>');
+		//var questionRowLength = $('#questionRow tr').length;
+		var questionRowLength = quiz.length;
+		$("#totalNumber").html(questionRowLength);
+	}
 });
 
 
@@ -24,7 +26,6 @@ alert(JSON.stringify(alertData));
 var myData = $(quiz[0])   //.serialize();//
 alert(myData);
 */
-
 
 
 
@@ -76,11 +77,14 @@ $.each(data, function(name, val){
  * more flexible solution. Then we can use loops elsewhere to perform whatever action
  * on the choices array regardless of length.
  */
-function Question(caseImage, clinicalInfo, stem, choices) {
-  this.caseImage = caseImage;
-  this.clinicalInfo = clinicalInfo;
-  this.stem = stem; // changed this from this.question to match the database model that is set up, also to not confuse a question object with question parameter i.e. "question.question"
-  this.choices = choices;
+function Question(caseImage, clinicalInfo, stem, choices, category) {
+	this.caseImage = caseImage;
+	this.clinicalInfo = clinicalInfo;
+	this.stem = stem; // changed this from this.question to match the database model that is set up, also to not confuse a question object with question parameter i.e. "question.question"
+	this.choices = choices;
+
+	// adding a few properties that we might want to store as well
+	this.category = category;
 }
 
 /*function Question(caseImage, clinicalInfo, question, choiceA, explanationA, choiceB, explanationB, choiceC, explanationC, choiceD, explanationD, choiceE, explanationE) {
@@ -99,26 +103,26 @@ function Question(caseImage, clinicalInfo, stem, choices) {
     this.explanationE = explanationE;
 };*/
 
-var addReadOnly = function(){
-    $('textarea, input').prop('readonly', true);
-    $('textarea, input').css("color", "#686868");
-    $('textarea, input').css("background-color", "#C8C8C8");
-    $('#textfields, #moretextfields').css("color", "#686868");
-  };
+var addReadOnly = function() {
+	$('textarea, input').prop('readonly', true);
+	$('textarea, input').css("color", "#686868");
+	$('textarea, input').css("background-color", "#C8C8C8");
+	$('#textfields, #moretextfields').css("color", "#686868");
+};
 
 
-var removeReadOnly = function(){
-    $('textarea, input').removeAttr('readonly');
-    $('textarea, input').css("color", "black");
-    $('textarea, input').css("background-color", "white");
-    $('#textfields, #moretextfields').css("color", "black");
-  };
+var removeReadOnly = function() {
+	$('textarea, input').removeAttr('readonly');
+	$('textarea, input').css("color", "black");
+	$('textarea, input').css("background-color", "white");
+	$('#textfields, #moretextfields').css("color", "black");
+};
 
 
-$(document).ready(function(){
-  $("#editQuestionbutton").click(function(){
-    removeReadOnly();
-  });
+$(document).ready(function() {
+	$("#editQuestionbutton").click(function() {
+		removeReadOnly();
+	});
 });
 
 
@@ -135,36 +139,36 @@ $(document).ready(function(){
 */
 
 
-$(document).ready(function(){
-  $("#submitButton").click(function(){
-    confirm("Submit Question?");
-    
-    
-    var insertSpot = parseInt($('#currentNumber').html(), 10) - 1;
-    quiz[insertSpot] = new Question ($('#caseImage').val(), $('#clinicalInfo').val(), $('#question').val(), $('#choiceA').val(), $('#explanationA').val(), $('#choiceB').val(), $('#explanationB').val(), $('#choiceC').val(), $('#explanationC').val(), $('#choiceD').val(), $('#explanationD').val(), $('#choiceE').val(), $('#explanationE').val());
-    
-    if (quiz.length > 0){
-      $("#confirmationDiv").fadeIn(300).delay(200).fadeOut(300);}
-      else{
-      $("#failureDiv").fadeIn(300).delay(300).fadeOut(300);}
+$(document).ready(function() {
+	$("#submitButton").click(function() {
+		confirm("Submit Question?");
 
-    var next = $("#questionRow td.clicked").parent().next().children('td');
-    $("#questionRow td").removeClass('clicked');
-    next.addClass('clicked');
 
-    $("#currentNumber").html($('#questionRow td.clicked').html());
+		var insertSpot = parseInt($('#currentNumber').html(), 10) - 1;
+		quiz[insertSpot] = new Question($('#caseImage').val(), $('#clinicalInfo').val(), $('#question').val(), $('#choiceA').val(), $('#explanationA').val(), $('#choiceB').val(), $('#explanationB').val(), $('#choiceC').val(), $('#explanationC').val(), $('#choiceD').val(), $('#explanationD').val(), $('#choiceE').val(), $('#explanationE').val());
 
-    addReadOnly();
+		if (quiz.length > 0) {
+			$("#confirmationDiv").fadeIn(300).delay(200).fadeOut(300);
+		} else {
+			$("#failureDiv").fadeIn(300).delay(300).fadeOut(300);
+		}
 
-/*    var alertData = []
+		var next = $("#questionRow td.clicked").parent().next().children('td');
+		$("#questionRow td").removeClass('clicked');
+		next.addClass('clicked');
+
+		$("#currentNumber").html($('#questionRow td.clicked').html());
+
+		addReadOnly();
+
+		/*    var alertData = []
     $.each(quiz[insertSpot], function(index, value) {
     alertData.push(index + ': ' + value);
     });
     alert(JSON.stringify(alertData));*/
-    
-  });
-});
 
+	});
+});
 
 
 
@@ -194,16 +198,16 @@ $(document).ready(function(){
 // on.(event(function()) may be useful in the future //  
 
 
-$(document).ready(function(){
-  $("#addQuestionbutton").click(function(){
-    var questionRowLength = $('#questionRow tr').length;
-    $("#questionRow td").removeClass('clicked');
-    $("#questionRow").append('<tr><td id="questionTab" class="clicked">' + (questionRowLength + 1) + '</td></tr>');
-    var questionRowLength = questionRowLength + 1;
-    $("#totalNumber, #currentNumber").html(questionRowLength);
-    removeReadOnly();
-      
-  });
+$(document).ready(function() {
+	$("#addQuestionbutton").click(function() {
+		var questionRowLength = $('#questionRow tr').length;
+		$("#questionRow td").removeClass('clicked');
+		$("#questionRow").append('<tr><td id="questionTab" class="clicked">' + (questionRowLength + 1) + '</td></tr>');
+		var questionRowLength = questionRowLength + 1;
+		$("#totalNumber, #currentNumber").html(questionRowLength);
+		removeReadOnly();
+
+	});
 });
 
 
@@ -227,52 +231,53 @@ $(document).ready(function(){
     };
   });
   });
-*/  
+*/
 
 
 //  $.each(quiz[0], function(i,val) { $('#'+ i).val(val); //
- 
 
 
-$(document).ready(function(){
-  $(document).on('click', '#questionRow td', function(event) {
-        $('#questionRow td').not(this).removeClass('clicked');
-        $(this).toggleClass('clicked'); 
-        $("#currentNumber").html($('#questionRow td.clicked').html());
 
-        var currentSpot = parseInt($('#currentNumber').html(), 10);
-        if (quiz.length>=currentSpot){
-          addReadOnly();
+$(document).ready(function() {
+	$(document).on('click', '#questionRow td', function(event) {
+		$('#questionRow td').not(this).removeClass('clicked');
+		$(this).toggleClass('clicked');
+		$("#currentNumber").html($('#questionRow td.clicked').html());
 
-        function populate(frm, data) {
-          $.each(data, function(key, value) {
-              $('[name=' + key + ']', frm).val(value);
-          })
-        };
+		var currentSpot = parseInt($('#currentNumber').html(), 10);
+		if (quiz.length >= currentSpot) {
+			addReadOnly();
 
-          populate('#form1', $.parseJSON(quiz[currentSpot - 1]));
-         
-        } 
-        else {removeReadOnly();}
+			function populate(frm, data) {
+				$.each(data, function(key, value) {
+					$('[name=' + key + ']', frm).val(value);
+				})
+			};
 
-        /*
+			populate('#form1', $.parseJSON(quiz[currentSpot - 1]));
+
+		} else {
+			removeReadOnly();
+		}
+
+		/*
         This is where to look in the quiz array if a corresponding object already exists there.
         */
-        
-
-        var currentSpot = parseInt($('#currentNumber').html(), 10);
-        if (quiz.length>=currentSpot){
-          function populate(frm, data) {
-            $.each(data, function(key, value){
-            $('[name='+key+']', frm).val(value);
-             });
-            }
-
-          populate('#form1', $.parseJSON(quiz[currentSpot - 1]));
-         }
 
 
-        /*function populate(frm, data) {
+		var currentSpot = parseInt($('#currentNumber').html(), 10);
+		if (quiz.length >= currentSpot) {
+			function populate(frm, data) {
+				$.each(data, function(key, value) {
+					$('[name=' + key + ']', frm).val(value);
+				});
+			}
+
+			populate('#form1', $.parseJSON(quiz[currentSpot - 1]));
+		}
+
+
+		/*function populate(frm, data) {
           $.each(quiz[0], function(key, value){
           $('[name='+key+']', frm).val(value);
            });
@@ -282,7 +287,7 @@ $(document).ready(function(){
         */
 
 
-        /*    var alertData = []
+		/*    var alertData = []
         $.each(quiz[insertSpot], function(index, value) {
         alertData.push(index + ': ' + value);
         });
@@ -290,12 +295,12 @@ $(document).ready(function(){
         */
 
 
-        /*var quizSearchSpot = parseInt($('#currentNumber').html(), 10) - 1;
+		/*var quizSearchSpot = parseInt($('#currentNumber').html(), 10) - 1;
         if(quiz[quizSearchSpot].length > 0) {
           addReadOnly;} else {
             removeReadOnly;
         */
-    });
+	});
 });
 
 
@@ -303,7 +308,6 @@ $(document).ready(function(){
         $('#questionRow td').not(this).removeClass('clicked');
         $(this).toggleClass('clicked'); 
         $("#currentNumber").html($('#questionRow td.clicked').html());*/
-
 
 
 
@@ -326,24 +330,23 @@ $(document).ready(function(){
 
 
 
+//Will eventually move to global variable to access in all functions, but this works for testing for now//
+//var retrieveSpot = parseInt($('#currentNumber').html(), 10) - 1;//
+//get data from quiz[td which has class clicked (probably through html content using parseInt)] and fill in the form//
 
-        //Will eventually move to global variable to access in all functions, but this works for testing for now//
-        //var retrieveSpot = parseInt($('#currentNumber').html(), 10) - 1;//
-        //get data from quiz[td which has class clicked (probably through html content using parseInt)] and fill in the form//
 
-
-$(document).ready(function(){
-  var questionRowLength = $('#questionRow tr').length;
-  $("#totalNumber").html(questionRowLength);
+$(document).ready(function() {
+	var questionRowLength = $('#questionRow tr').length;
+	$("#totalNumber").html(questionRowLength);
 });
 
 
 
 var imageHeight = $('#imagepreviewDiv img').height();
-    if (imageHeight < 540) {
-        var margintop = (540 - imageHeight) / 2;
-        $('#imagepreviewDiv img').css('margin-top', margintop);
-    };
+if (imageHeight < 540) {
+	var margintop = (540 - imageHeight) / 2;
+	$('#imagepreviewDiv img').css('margin-top', margintop);
+};
 
 /*
 Would like this to work so that the functionality of changing current number in questionNav is not lost when the user adds a new question.
@@ -402,6 +405,3 @@ $(document).ready(function(){
   });
 });
 */
-
-
-

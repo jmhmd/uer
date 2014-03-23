@@ -4,7 +4,7 @@ var mongoose = require('mongoose'),
 var questionSchema = new mongoose.Schema({
 	clinicalInfo: String,
 	stem: {type: String, required: 'A question stem is required'},
-	answers: [
+	choices: [
 		{
 			option: String,
 			correct: {type: Boolean, default: false}

@@ -83,7 +83,7 @@ exports.showQuizEdit = function(req, res, next){
 
 		if (err){ return next(err) }
 
-		res.locals.quiz = quiz
+		res.locals.quiz = JSON.stringify(quiz)
 
 		// render template
 		res.render('editQuiz')
@@ -145,15 +145,19 @@ var _updateQuizObject = function(quiz, newQuiz){
 	quiz.title = newQuiz.title
 	quiz.difficulty = newQuiz.difficulty
 	quiz.questions = newQuiz.questions
+	quiz.type = newQuiz.type
+	quiz.deleted = newQuiz.deleted
 
 	return quiz
 }
 
 var _updateQuestionObject = function(question, newQuestion){
 	question.stem = newQuestion.stem
-	question.answers = newQuestion.answers
+	question.choices = newQuestion.choices
 	question.category = newQuestion.category
+	question.difficulty = newQuestion.difficulty
 	question.studyId = newQuestion.studyId
+	question.deleted = newQuestion.deleted
 
 	return question
 }

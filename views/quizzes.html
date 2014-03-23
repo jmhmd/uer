@@ -10,6 +10,10 @@
 	{{#each quizzes}}
 		<li>
 			<a href="/quiz/{{this._id}}">{{this.title}}</a>
+
+			{{#if ../user.isAdmin}}
+				- <a href="/quiz/edit/{{this._id}}">edit</a>
+			{{/if}}
 		</li>
 	{{/each}}
 	</ul>
