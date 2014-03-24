@@ -8,7 +8,8 @@ var util = require('util'),
 	QuizResult = mongoose.model('QuizResult'),
 	validator = require('validator'),
 	request = require('request'),
-	casefiles = require('../config/secrets').casefiles
+	casefiles = require('../config/secrets').casefiles,
+	async = require('async')
 
 /**
  * show page to list quizzes
@@ -141,14 +142,41 @@ exports.showResults = function(req, res, next){
 // Private functions //
 ///////////////////////
 
-var _updateQuizObject = function(quiz, newQuiz){
+var _updateQuizObject = function(quiz, newQuiz, cb){
 	quiz.title = newQuiz.title
 	quiz.difficulty = newQuiz.difficulty
-	quiz.questions = newQuiz.questions
 	quiz.type = newQuiz.type
 	quiz.deleted = newQuiz.deleted
 
-	return quiz
+	// check if questions array populated with documents or just ids.
+	// if ids, just update and save. If objects, we need to loop through
+	// and individually save each question document.
+	if (quiz.questions.length > 0 && _.isObject(quiz.questions[0])){
+
+		var questions = []
+
+		// save each question document and collect ids
+		var saveQuestion = function(question, cb){
+			_saveQuestion(question, function(err, question){
+				if (err){ return cb(err) }
+				questions.push(question._id)
+				cb()
+			})
+		}
+
+		async.each(quiz.questions, saveQuestion, function(err){
+			if (err){
+				return cb(err)
+			}
+
+			quiz.questions = questions
+
+			cb(null, quiz)
+		})
+	} else {
+		quiz.questions = newQuiz.questions
+		cb(null, quiz)
+	}
 }
 
 var _updateQuestionObject = function(question, newQuestion){
@@ -210,11 +238,12 @@ exports.saveQuiz = function(req, res){
 
 		Quiz.findById(req.body._id, function(err, quiz){
 
-			quiz = _updateQuizObject(quiz, req.body)
+			_updateQuizObject(quiz, req.body, function(err, updatedQuiz){
 
-			quiz.save(function(err){
-				if (err){ return res.send(500, err) }
-				res.send(200, quiz)
+				updatedQuiz.save(function(err){
+					if (err){ return res.send(500, err) }
+					res.send(200, updatedQuiz)
+				})
 			})
 		})
 	}
@@ -285,19 +314,19 @@ exports.getQuestion = function(req,res){
 		})
 }
 
-exports.saveQuestion = function(req, res){
+function _saveQuestion (questionObj, cb){
 	/**
 	 * Updating an existing question
 	 */
-	if (req.body._id){
+	if (questionObj._id){
 
-		Question.findById(req.body._id, function(err, question){
+		Question.findById(questionObj._id, function(err, question){
 
-			question = _updateQuestionObject(question, req.body)
+			question = _updateQuestionObject(question, questionObj)
 
 			question.save(function(err){
-				if (err){ return res.send(500, err) }
-				res.send(200, question)
+				if (err){ return cb(err) }
+				cb(null, question, 200)
 			})
 		})
 	}
@@ -306,15 +335,21 @@ exports.saveQuestion = function(req, res){
 	 * Saving a new question
 	 */
 	else {
-		var	question = new Question(req.body);
+		var	question = new Question(questionObj);
 	
 		question.save(function(err){
-			if(err){
-				return res.send(500, err)
-			}
-			res.send(201, question)
+			if(err){ cb(err) }
+			cb(null, question, 201)
 		})
 	}
+}
+
+exports.saveQuestion = function(req, res){
+
+	_saveQuestion(req.body, function(err, question, code){
+		if (err){ return res.send(500, err) }
+		res.send(code, question)
+	})
 }
 
 exports.removeQuestion = function(req, res){

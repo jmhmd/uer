@@ -1,19 +1,299 @@
 //'use strict';
 
 /**
- * The quiz object should be loaded in by the template when the page renders
+ * The quiz object should be loaded in by the template when the page renders, just
+ * doing this to make jshint happy
  */
+var quiz = quiz,
+    currentQuestion = 0 // should use index (zero based) internally within script
 
+/////////////////
+// Initialize  //
+/////////////////
 
 $(document).ready(function() {
-	for (var i = 1; i <= quiz.length; i++) {
-		$("#questionRow").append('<tr><td id="questionTab">' + (i) + '</td></tr>');
-		//var questionRowLength = $('#questionRow tr').length;
-		var questionRowLength = quiz.length;
-		$("#totalNumber").html(questionRowLength);
-	}
+
+	updateQuestionTabs()
+
+  registerEventHandlers()
+
+  addQuestion()
+
 });
 
+///////////////////
+// DOM functions //
+///////////////////
+
+var updateQuestionTabs = function(){
+
+  var questionRow = $("#questionRow")
+
+  // clear all
+  questionRow.empty()
+  
+  // repopulate
+  for (var i = 1; i <= quiz.questions.length; i++) {
+    $("#questionRow").append('<tr><td id="questionTab">' + (i) + '</td></tr>');
+    //var questionRowLength = $('#questionRow tr').length;
+    var questionRowLength = quiz.length;
+    $("#totalNumber").html(questionRowLength);
+  }
+}
+
+var addReadOnly = function() {
+  $('textarea, input').prop('readonly', true);
+  $('textarea, input').css("color", "#686868");
+  $('textarea, input').css("background-color", "#C8C8C8");
+  $('#textfields, #moretextfields').css("color", "#686868");
+};
+
+
+var removeReadOnly = function() {
+  $('textarea, input').removeAttr('readonly');
+  $('textarea, input').css("color", "black");
+  $('textarea, input').css("background-color", "white");
+  $('#textfields, #moretextfields').css("color", "black");
+};
+
+var addQuestion = function(){
+  var questionRowLength = $('#questionRow tr').length;
+
+  $("#questionRow td").removeClass('clicked');
+  $("#questionRow").append('<tr><td id="questionTab" class="clicked">' + (questionRowLength + 1) + '</td></tr>');
+
+  quiz.questions.push(new Question())
+
+  goToQuestion(quiz.questions.length - 1)
+}
+
+var loadQuestion = function(index){
+
+  var question = quiz.questions[index];
+
+  $('#clinicalInfo').val(question.clinicalInfo);
+  $('#question').val(question.stem);
+  $('#diagnosis').val(question.diagnosis);
+  $('#category').val(question.category);
+  $('#difficulty').val(question.difficulty);
+
+  var choices = $('#choices')
+
+  choices.empty()
+
+  question.choices.forEach(function(choice, i){
+    addChoice(i, choice.option, choice.explanation)
+  })
+}
+
+var saveQuestion = function(index){
+
+  index = index || currentQuestion
+
+  var question = quiz.questions[index]
+ 
+  question.clinicalInfo = $('#clinicalInfo').val()
+  question.stem = $('#question').val()
+  question.choices = getChoices()
+  question.diagnosis = $('#diagnosis').val()
+  question.category = $('#category').val()
+  question.difficulty = $('#difficulty').val()
+}
+
+var getChoices = function(){
+
+  return $('.choice').map(function(i, choice){
+
+        choice = $(choice)
+
+        return {
+          option: choice.find('#choice'+i).val(),
+          explanation: choice.find('#explanation'+i).val(),
+          correct: parseInt(choice.find('#isCorrect'+i).val(), 10) === i
+        }
+      }).get()
+}
+
+var addChoice = function(index, option, explanation, correct){
+
+  var choiceContainer = $('#choices')
+
+  index = index || choiceContainer.find('.choice').length
+  option = option || ''
+  explanation = explanation || ''
+
+  correct = correct ? "checked" : ""
+
+  choiceContainer.append('<li class="choice">'+
+      getChar(index).toUpperCase() + '. <textarea id="choice'+index+'" style="width:400px; height:16px;">'+
+      option +
+      '</textarea>'+
+    '<br>'+
+      'Explanation: <textarea id="explanation'+index+'" style="width:600px; height:40px;">'+
+      explanation +
+      '</textarea>'+
+    '<br>'+
+      'Is correct: <input type="radio" id="isCorrect'+index+'" name="isCorrect" value="'+index+'" '+correct+'>'+
+    '</li>')
+}
+
+var goToQuestion = function(index){
+
+  // save current question
+  saveQuestion()
+
+  // load new question into form
+  loadQuestion(index)
+
+  currentQuestion = index
+
+  // update display
+  $("#totalNumber").html(quiz.questions.length)
+  $("#currentNumber").html(index + 1)
+}
+
+
+////////////////////
+// Event handlers //
+////////////////////
+
+var registerEventHandlers = function(){
+
+  $("#editQuestionbutton").click(function() {
+    removeReadOnly();
+  });
+
+  /**
+   * Save quiz
+   */
+
+  $("#submitButton").click(function() {
+
+    if (!window.confirm("Save Quiz?")){
+      return false
+    }
+    
+    // make sure current question is saved
+    saveQuestion()
+
+    // send quiz object to the server
+    $.post('/api/saveQuiz', quiz)
+      .done(function(res){
+        console.log(res)
+
+        $("#confirmationDiv").fadeIn(300).delay(200).fadeOut(300);
+      })
+      .fail(function(err){
+        console.log(err)
+
+        $("#failureDiv").fadeIn(300).delay(300).fadeOut(300);
+      })
+
+    /*if (quiz.length > 0) {
+      $("#confirmationDiv").fadeIn(300).delay(200).fadeOut(300);
+    } else {
+      $("#failureDiv").fadeIn(300).delay(300).fadeOut(300);
+    }*/
+
+    /*var next = $("#questionRow td.clicked").parent().next().children('td');
+    $("#questionRow td").removeClass('clicked');
+    next.addClass('clicked');
+
+    $("#currentNumber").html($('#questionRow td.clicked').html());
+
+    addReadOnly();*/
+
+    /*    var alertData = []
+    $.each(quiz[insertSpot], function(index, value) {
+    alertData.push(index + ': ' + value);
+    });
+    alert(JSON.stringify(alertData));*/
+
+  });
+
+  $("#addQuestionbutton").click(function() {
+    addQuestion()
+  });
+
+  $("#addChoiceButton").click(function() {
+    
+    addChoice()
+  });
+
+  $(document).on('click', '#questionRow td', function() {
+
+    // add 'clicked' class
+    $('#questionRow td').removeClass('clicked');
+    $(this).addClass('clicked');
+
+
+    // set current question
+    var clickedQuestion = parseInt($('#questionRow td.clicked').html(), 10);
+
+    goToQuestion(clickedQuestion - 1);
+
+    /*
+    This is where to look in the quiz array if a corresponding object already exists there.
+    */
+
+    /*if (quiz.length >= currentSpot) {
+      function populate(frm, data) {
+        $.each(data, function(key, value) {
+          $('[name=' + key + ']', frm).val(value);
+        });
+      }
+
+      populate('#form1', $.parseJSON(quiz[currentSpot - 1]));
+    }*/
+
+
+    /*function populate(frm, data) {
+          $.each(quiz[0], function(key, value){
+          $('[name='+key+']', frm).val(value);
+           });
+          }
+
+          populate('#form1', $.parseJSON(quiz[0]));
+        */
+
+
+    /*    var alertData = []
+        $.each(quiz[insertSpot], function(index, value) {
+        alertData.push(index + ': ' + value);
+        });
+        alert(JSON.stringify(alertData));
+        */
+
+
+    /*var quizSearchSpot = parseInt($('#currentNumber').html(), 10) - 1;
+        if(quiz[quizSearchSpot].length > 0) {
+          addReadOnly;} else {
+            removeReadOnly;
+        */
+  });
+
+  $(document).on('click', '#copyPrevious', function() {
+
+    // load data from previous question into form
+    if (currentQuestion > 0){
+      loadQuestion(currentQuestion - 1)
+    }
+  })
+}
+
+//////////////////////
+// Helper functions //
+//////////////////////
+
+function getChar(n) {
+  n = parseInt(n, 10);
+  var s = "";
+  while(n >= 0) {
+    s = String.fromCharCode(n % 26 + 97) + s;
+    n = Math.floor(n / 26) - 1;
+  }
+  return s;
+}
 
 /*
 var alertData = []
@@ -77,14 +357,26 @@ $.each(data, function(name, val){
  * more flexible solution. Then we can use loops elsewhere to perform whatever action
  * on the choices array regardless of length.
  */
-function Question(caseImage, clinicalInfo, stem, choices, category) {
-	this.caseImage = caseImage;
-	this.clinicalInfo = clinicalInfo;
-	this.stem = stem; // changed this from this.question to match the database model that is set up, also to not confuse a question object with question parameter i.e. "question.question"
-	this.choices = choices;
+
+/**
+ * Question object constructor
+ * @param {String} caseImage    ID of study images
+ * @param {String} clinicalInfo History (optional)
+ * @param {String} stem         Question stem
+ * @param {Array} choices      Array of answer choices
+ * @param {String} category     
+ * @param {Number} difficulty 
+ */
+function Question(caseImage, clinicalInfo, stem, choices, diagnosis, category, difficulty) {
+	this.caseImage = caseImage || false;
+	this.clinicalInfo = clinicalInfo || '';
+	this.stem = stem || ''; // changed this from this.question to match the database model that is set up, also to not confuse a question object with question parameter i.e. "question.question"
+	this.choices = choices || [];
 
 	// adding a few properties that we might want to store as well
-	this.category = category;
+  this.diagnosis = diagnosis || ''; 
+	this.category = category || '';
+  this.difficulty = difficulty || 1;
 }
 
 /*function Question(caseImage, clinicalInfo, question, choiceA, explanationA, choiceB, explanationB, choiceC, explanationC, choiceD, explanationD, choiceE, explanationE) {
@@ -103,29 +395,6 @@ function Question(caseImage, clinicalInfo, stem, choices, category) {
     this.explanationE = explanationE;
 };*/
 
-var addReadOnly = function() {
-	$('textarea, input').prop('readonly', true);
-	$('textarea, input').css("color", "#686868");
-	$('textarea, input').css("background-color", "#C8C8C8");
-	$('#textfields, #moretextfields').css("color", "#686868");
-};
-
-
-var removeReadOnly = function() {
-	$('textarea, input').removeAttr('readonly');
-	$('textarea, input').css("color", "black");
-	$('textarea, input').css("background-color", "white");
-	$('#textfields, #moretextfields').css("color", "black");
-};
-
-
-$(document).ready(function() {
-	$("#editQuestionbutton").click(function() {
-		removeReadOnly();
-	});
-});
-
-
 /*
  $(document).ready(function() {
      $(document).on('change', 'input:file', function(event) {
@@ -137,40 +406,6 @@ $(document).ready(function() {
      });
   });
 */
-
-
-$(document).ready(function() {
-	$("#submitButton").click(function() {
-		confirm("Submit Question?");
-
-
-		var insertSpot = parseInt($('#currentNumber').html(), 10) - 1;
-		quiz[insertSpot] = new Question($('#caseImage').val(), $('#clinicalInfo').val(), $('#question').val(), $('#choiceA').val(), $('#explanationA').val(), $('#choiceB').val(), $('#explanationB').val(), $('#choiceC').val(), $('#explanationC').val(), $('#choiceD').val(), $('#explanationD').val(), $('#choiceE').val(), $('#explanationE').val());
-
-		if (quiz.length > 0) {
-			$("#confirmationDiv").fadeIn(300).delay(200).fadeOut(300);
-		} else {
-			$("#failureDiv").fadeIn(300).delay(300).fadeOut(300);
-		}
-
-		var next = $("#questionRow td.clicked").parent().next().children('td');
-		$("#questionRow td").removeClass('clicked');
-		next.addClass('clicked');
-
-		$("#currentNumber").html($('#questionRow td.clicked').html());
-
-		addReadOnly();
-
-		/*    var alertData = []
-    $.each(quiz[insertSpot], function(index, value) {
-    alertData.push(index + ': ' + value);
-    });
-    alert(JSON.stringify(alertData));*/
-
-	});
-});
-
-
 
 /*
 Probably won't need this as the above seems to generally work, but it depends on whether or not I can get the quiz[] area to equal 
@@ -198,18 +433,6 @@ $(document).ready(function(){
 // on.(event(function()) may be useful in the future //  
 
 
-$(document).ready(function() {
-	$("#addQuestionbutton").click(function() {
-		var questionRowLength = $('#questionRow tr').length;
-		$("#questionRow td").removeClass('clicked');
-		$("#questionRow").append('<tr><td id="questionTab" class="clicked">' + (questionRowLength + 1) + '</td></tr>');
-		var questionRowLength = questionRowLength + 1;
-		$("#totalNumber, #currentNumber").html(questionRowLength);
-		removeReadOnly();
-
-	});
-});
-
 
 /*
 Something like if class == 'clicked' then get html data from that row and parse it to interval to place in quiz [_], to retrieve
@@ -235,73 +458,6 @@ $(document).ready(function(){
 
 
 //  $.each(quiz[0], function(i,val) { $('#'+ i).val(val); //
-
-
-
-$(document).ready(function() {
-	$(document).on('click', '#questionRow td', function(event) {
-		$('#questionRow td').not(this).removeClass('clicked');
-		$(this).toggleClass('clicked');
-		$("#currentNumber").html($('#questionRow td.clicked').html());
-
-		var currentSpot = parseInt($('#currentNumber').html(), 10);
-		if (quiz.length >= currentSpot) {
-			addReadOnly();
-
-			function populate(frm, data) {
-				$.each(data, function(key, value) {
-					$('[name=' + key + ']', frm).val(value);
-				})
-			};
-
-			populate('#form1', $.parseJSON(quiz[currentSpot - 1]));
-
-		} else {
-			removeReadOnly();
-		}
-
-		/*
-        This is where to look in the quiz array if a corresponding object already exists there.
-        */
-
-
-		var currentSpot = parseInt($('#currentNumber').html(), 10);
-		if (quiz.length >= currentSpot) {
-			function populate(frm, data) {
-				$.each(data, function(key, value) {
-					$('[name=' + key + ']', frm).val(value);
-				});
-			}
-
-			populate('#form1', $.parseJSON(quiz[currentSpot - 1]));
-		}
-
-
-		/*function populate(frm, data) {
-          $.each(quiz[0], function(key, value){
-          $('[name='+key+']', frm).val(value);
-           });
-          }
-
-          populate('#form1', $.parseJSON(quiz[0]));
-        */
-
-
-		/*    var alertData = []
-        $.each(quiz[insertSpot], function(index, value) {
-        alertData.push(index + ': ' + value);
-        });
-        alert(JSON.stringify(alertData));
-        */
-
-
-		/*var quizSearchSpot = parseInt($('#currentNumber').html(), 10) - 1;
-        if(quiz[quizSearchSpot].length > 0) {
-          addReadOnly;} else {
-            removeReadOnly;
-        */
-	});
-});
 
 
 /*    $(document).on('change', '#questionRow td', (function() {
@@ -335,12 +491,10 @@ $(document).ready(function() {
 //get data from quiz[td which has class clicked (probably through html content using parseInt)] and fill in the form//
 
 
-$(document).ready(function() {
+/*$(document).ready(function() {
 	var questionRowLength = $('#questionRow tr').length;
 	$("#totalNumber").html(questionRowLength);
-});
-
-
+});*/
 
 var imageHeight = $('#imagepreviewDiv img').height();
 if (imageHeight < 540) {

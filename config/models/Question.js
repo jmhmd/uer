@@ -7,9 +7,11 @@ var questionSchema = new mongoose.Schema({
 	choices: [
 		{
 			option: String,
+			explanation: String,
 			correct: {type: Boolean, default: false}
 		}
 	],
+	diagnosis: String,
 	category: String,
 	difficulty: Number,
 	studyId: String, // id of study stored in casefil.es
