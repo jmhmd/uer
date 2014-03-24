@@ -80,11 +80,13 @@ exports.showQuizEdit = function(req, res, next){
 	Quiz
 	.findById(quizId)
 	.populate('questions')
+	.lean()
 	.exec(function(err, quiz){
 
 		if (err){ return next(err) }
 
 		res.locals.quiz = JSON.stringify(quiz)
+		console.log(res.locals.quiz)
 
 		// render template
 		res.render('editQuiz')
@@ -151,7 +153,7 @@ var _updateQuizObject = function(quiz, newQuiz, cb){
 	// check if questions array populated with documents or just ids.
 	// if ids, just update and save. If objects, we need to loop through
 	// and individually save each question document.
-	if (quiz.questions.length > 0 && _.isObject(quiz.questions[0])){
+	if (newQuiz.questions.length > 0 && _.isObject(newQuiz.questions[0])){
 
 		var questions = []
 
@@ -160,11 +162,11 @@ var _updateQuizObject = function(quiz, newQuiz, cb){
 			_saveQuestion(question, function(err, question){
 				if (err){ return cb(err) }
 				questions.push(question._id)
-				cb()
+				return cb()
 			})
 		}
 
-		async.each(quiz.questions, saveQuestion, function(err){
+		async.eachSeries(newQuiz.questions, saveQuestion, function(err){
 			if (err){
 				return cb(err)
 			}
@@ -180,12 +182,13 @@ var _updateQuizObject = function(quiz, newQuiz, cb){
 }
 
 var _updateQuestionObject = function(question, newQuestion){
+	question.clinicalInfo = newQuestion.clinicalInfo
 	question.stem = newQuestion.stem
 	question.choices = newQuestion.choices
 	question.category = newQuestion.category
 	question.difficulty = newQuestion.difficulty
+	question.diagnosis = newQuestion.diagnosis
 	question.studyId = newQuestion.studyId
-	question.deleted = newQuestion.deleted
 
 	return question
 }
@@ -236,9 +239,11 @@ exports.saveQuiz = function(req, res){
 	 */
 	if (req.body._id){
 
-		Quiz.findById(req.body._id, function(err, quiz){
+		Quiz.findById(req.body._id).exec(function(err, quiz){
+			if (err){return res.send(500, err)}
 
 			_updateQuizObject(quiz, req.body, function(err, updatedQuiz){
+				if (err){return res.send(500, err)}
 
 				updatedQuiz.save(function(err){
 					if (err){ return res.send(500, err) }

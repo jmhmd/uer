@@ -1,11 +1,11 @@
-//'use strict';
+'use strict';
 
 /**
  * The quiz object should be loaded in by the template when the page renders, just
  * doing this to make jshint happy
  */
 var quiz = quiz,
-    currentQuestion = 0 // should use index (zero based) internally within script
+    currentQuestion = null // should use index (zero based) internally within script
 
 /////////////////
 // Initialize  //
@@ -17,7 +17,11 @@ $(document).ready(function() {
 
   registerEventHandlers()
 
-  addQuestion()
+  if (quiz.questions.length === 0){
+    addQuestion()
+  } else {
+    goToQuestion(0)
+  }
 
 });
 
@@ -35,10 +39,9 @@ var updateQuestionTabs = function(){
   // repopulate
   for (var i = 1; i <= quiz.questions.length; i++) {
     $("#questionRow").append('<tr><td id="questionTab">' + (i) + '</td></tr>');
-    //var questionRowLength = $('#questionRow tr').length;
-    var questionRowLength = quiz.length;
-    $("#totalNumber").html(questionRowLength);
   }
+
+  $("#totalNumber").html(quiz.length);
 }
 
 var addReadOnly = function() {
@@ -82,7 +85,7 @@ var loadQuestion = function(index){
   choices.empty()
 
   question.choices.forEach(function(choice, i){
-    addChoice(i, choice.option, choice.explanation)
+    addChoice(i, choice.option, choice.explanation, choice.correct)
   })
 }
 
@@ -106,10 +109,12 @@ var getChoices = function(){
 
         choice = $(choice)
 
+        var correct = parseInt($('input:radio[name=isCorrect]:checked').val(), 10)
+
         return {
           option: choice.find('#choice'+i).val(),
           explanation: choice.find('#explanation'+i).val(),
-          correct: parseInt(choice.find('#isCorrect'+i).val(), 10) === i
+          correct:  correct === i
         }
       }).get()
 }
@@ -140,14 +145,21 @@ var addChoice = function(index, option, explanation, correct){
 var goToQuestion = function(index){
 
   // save current question
-  saveQuestion()
+  if (currentQuestion !== null){
+    saveQuestion()
+  }
 
   // load new question into form
   loadQuestion(index)
 
   currentQuestion = index
 
-  // update display
+  // add 'clicked' class to tab
+  var questionTabs = $('#questionRow td')
+  questionTabs.removeClass('clicked');
+  $(questionTabs[index]).addClass('clicked');
+
+  // update numbers
   $("#totalNumber").html(quiz.questions.length)
   $("#currentNumber").html(index + 1)
 }
@@ -188,27 +200,6 @@ var registerEventHandlers = function(){
 
         $("#failureDiv").fadeIn(300).delay(300).fadeOut(300);
       })
-
-    /*if (quiz.length > 0) {
-      $("#confirmationDiv").fadeIn(300).delay(200).fadeOut(300);
-    } else {
-      $("#failureDiv").fadeIn(300).delay(300).fadeOut(300);
-    }*/
-
-    /*var next = $("#questionRow td.clicked").parent().next().children('td');
-    $("#questionRow td").removeClass('clicked');
-    next.addClass('clicked');
-
-    $("#currentNumber").html($('#questionRow td.clicked').html());
-
-    addReadOnly();*/
-
-    /*    var alertData = []
-    $.each(quiz[insertSpot], function(index, value) {
-    alertData.push(index + ': ' + value);
-    });
-    alert(JSON.stringify(alertData));*/
-
   });
 
   $("#addQuestionbutton").click(function() {
@@ -220,56 +211,12 @@ var registerEventHandlers = function(){
     addChoice()
   });
 
-  $(document).on('click', '#questionRow td', function() {
-
-    // add 'clicked' class
-    $('#questionRow td').removeClass('clicked');
-    $(this).addClass('clicked');
-
+  $(document).on('click', '#questionRow td', function(event) {
 
     // set current question
-    var clickedQuestion = parseInt($('#questionRow td.clicked').html(), 10);
+    var clickedQuestion = parseInt($(event.target).html(), 10);
 
     goToQuestion(clickedQuestion - 1);
-
-    /*
-    This is where to look in the quiz array if a corresponding object already exists there.
-    */
-
-    /*if (quiz.length >= currentSpot) {
-      function populate(frm, data) {
-        $.each(data, function(key, value) {
-          $('[name=' + key + ']', frm).val(value);
-        });
-      }
-
-      populate('#form1', $.parseJSON(quiz[currentSpot - 1]));
-    }*/
-
-
-    /*function populate(frm, data) {
-          $.each(quiz[0], function(key, value){
-          $('[name='+key+']', frm).val(value);
-           });
-          }
-
-          populate('#form1', $.parseJSON(quiz[0]));
-        */
-
-
-    /*    var alertData = []
-        $.each(quiz[insertSpot], function(index, value) {
-        alertData.push(index + ': ' + value);
-        });
-        alert(JSON.stringify(alertData));
-        */
-
-
-    /*var quizSearchSpot = parseInt($('#currentNumber').html(), 10) - 1;
-        if(quiz[quizSearchSpot].length > 0) {
-          addReadOnly;} else {
-            removeReadOnly;
-        */
   });
 
   $(document).on('click', '#copyPrevious', function() {
@@ -294,62 +241,6 @@ function getChar(n) {
   }
   return s;
 }
-
-/*
-var alertData = []
-$.each(quiz[0], function(index, value) {
-    alertData.push(index + ': ' + value);
-});
-alert(JSON.stringify(alertData));
-
-
-var myData = $(quiz[0])   //.serialize();//
-alert(myData);
-*/
-
-
-
-/*
-Trying to populate form with pre-existing quiz data as retrieved from the server.
-Saw these two examples online.
-
-function populate(frm, data) {   
-    $.each(data, function(key, value){  
-    var $ctrl = $('[name='+key+']', frm);  
-    switch($ctrl.attr("type"))  
-    {  
-        case "text" :   
-        case "hidden":  
-        $ctrl.val(value);   
-        break;   
-        case "radio" : case "checkbox":   
-        $ctrl.each(function(){
-           if($(this).attr('value') == value) {  $(this).attr("checked",value); } });   
-        break;  
-        default:
-        $ctrl.val(value); 
-    }  
-    });  
-}
-
-
-$.each(data, function(name, val){
-    var $el = $('[name="'+name+'"]'),
-        type = $el.attr('type');
-
-    switch(type){
-        case 'checkbox':
-            $el.attr('checked', 'checked');
-            break;
-        case 'radio':
-            $el.filter('[value="'+val+'"]').attr('checked', 'checked');
-            break;
-        default:
-            $el.val(val);
-    }
-});
-
-*/
 
 /**
  * Nice choice to use a constructor here. However, you'll want to be able to pass it
@@ -379,183 +270,8 @@ function Question(caseImage, clinicalInfo, stem, choices, diagnosis, category, d
   this.difficulty = difficulty || 1;
 }
 
-/*function Question(caseImage, clinicalInfo, question, choiceA, explanationA, choiceB, explanationB, choiceC, explanationC, choiceD, explanationD, choiceE, explanationE) {
-    this.caseImage = caseImage;
-    this.clinicalInfo = clinicalInfo;
-    this.question = question;
-    this.choiceA = choiceA;
-    this.explanationA = explanationA;
-    this.choiceB = choiceB;
-    this.explanationB = explanationB;
-    this.choiceC = choiceC;
-    this.explanationC = explanationC;
-    this.choiceD = choiceD;
-    this.explanationD = explanationD;
-    this.choiceE = choiceE;
-    this.explanationE = explanationE;
-};*/
-
-/*
- $(document).ready(function() {
-     $(document).on('change', 'input:file', function(event) {
-       $.post("addNewImage.asp",((parseInt($('#currentNumber').html(), 10) - 1), "#quizName".html()), function(status, result){
-          if (status == "success"){
-            $("#imagePreview").attr('src', result);
-            $('#caseImage').attr('readonly');
-          };
-     });
-  });
-*/
-
-/*
-Probably won't need this as the above seems to generally work, but it depends on whether or not I can get the quiz[] area to equal 
-a dynamic value based on which question number is clicked so that it adds to that spot in the quiz array.
-
-$(document).ready(function(){
-	$("#submitButton").click(function(){
-    confirm("Submit Question?");
-    if (response = true){
-    $('textarea').attr('readonly');
-    $('input').attr('readonly');
-    $('textarea').css("color", "#686868");
-    $('textarea').css("background-color", "#C8C8C8");
-    $('input').css("color", "#686868");
-    $('input').css("background-color", "#C8C8C8");
-    questionBeingAdded = new Question ($('#caseImage').val(), $('#clinicalInfo').val(), $('#question').val(), $('#choiceA').val(), $('#explanationA').val(), $('#choiceB').val(), $('#explanationB').val(), $('#choiceC').val(), $('#explanationC').val(), $('#choiceD').val(), $('#explanationD').val(), $('#choiceE').val(), $('#explanationE').val());
-    quiz.push(questionBeingAdded);
-    confirm(quiz.length);
-    };
-	});
-});
-*/
-
-
-// on.(event(function()) may be useful in the future //  
-
-
-
-/*
-Something like if class == 'clicked' then get html data from that row and parse it to interval to place in quiz [_], to retrieve
-  data to fill in the form.
-*/
-
-
-/*
-Probably need to use .each() method below
-
-$(document).ready(function(){
-  $('#editQuestionbutton').click(function(){
-  for (var i = 0; i < $('#questionRow tr').length; i++) {
-    if ($('questionRow td').hasClass('clicked')) {
-      var integer = $('#questionRow td.clicked').html();
-      var retrieveSpot = parseInt(integer, 10) - 1;
-      alert(retrieveSpot);
-    };
-    };
-  });
-  });
-*/
-
-
-//  $.each(quiz[0], function(i,val) { $('#'+ i).val(val); //
-
-
-/*    $(document).on('change', '#questionRow td', (function() {
-        $('#questionRow td').not(this).removeClass('clicked');
-        $(this).toggleClass('clicked'); 
-        $("#currentNumber").html($('#questionRow td.clicked').html());*/
-
-
-
-/*$.each(data, function(name, val){
-    var $el = $('[name="'+name+'"]'),
-        type = $el.attr('type');
-
-    switch(type){
-        case 'checkbox':
-            $el.attr('checked', 'checked');
-            break;
-        case 'radio':
-            $el.filter('[value="'+val+'"]').attr('checked', 'checked');
-            break;
-        default:
-            $el.val(val);
-    }
-});
-*/
-
-
-
-//Will eventually move to global variable to access in all functions, but this works for testing for now//
-//var retrieveSpot = parseInt($('#currentNumber').html(), 10) - 1;//
-//get data from quiz[td which has class clicked (probably through html content using parseInt)] and fill in the form//
-
-
-/*$(document).ready(function() {
-	var questionRowLength = $('#questionRow tr').length;
-	$("#totalNumber").html(questionRowLength);
-});*/
-
 var imageHeight = $('#imagepreviewDiv img').height();
 if (imageHeight < 540) {
 	var margintop = (540 - imageHeight) / 2;
 	$('#imagepreviewDiv img').css('margin-top', margintop);
-};
-
-/*
-Would like this to work so that the functionality of changing current number in questionNav is not lost when the user adds a new question.
-The add new Question button, however only currently creates a new <td> with id="questionTab" which is generic and not specific which is why
-I think we can't use the this function properly.
-
-$(document).ready(function(){
-  $("#questionTab").click(function(){
-    $("#currentNumber").html($(this).html());
-  });
-});
-*/
-
-
-/*
-$(document).ready(function(){
-  $("#questionRow td.clicked").click(function(){
-    $("#currentNumber").html($(this).html());
-  });
-});
-*/
-
-
-/*
-$(document).ready(function(){
-  $("#questionTab1, #questionTab2, #questionTab3, #questionTab4, #questionTab5, #questionTab6, #questionTab7, #questionTab8, #questionTab9, #questionTab10, #questionTab11, #questionTab12").click(function(){
-    $("#currentNumber").html($(this).html());
-  });
-});
-*/
-
-
-
-/*
-$(document).ready(function(){
-  $("#submitButton").click(function(){
-    quiz[0] = new Question ($('#caseImage').val(), $('#clinicalInfo').val(), $('#question').val(), $('choiceA').val(), $('#explanationA').val(), $('choiceB').val(), $('#explanationB').val(), $('choiceC').val(), $('#explanationC').val(), $('choiceD').val(), $('#explanationD').val(), $('choiceE').val(), $('#explanationE').val());
-    alert(modlue.length);
-  });
-});
-*/
-
-
-
-/*
-$(document).ready(function(){
-    $("#previewButton").click(function() {
-        var clinicalInfo = $("input[name=clinicalInfo]").val();
-        $("#questionpreviewcontainer").append('<div class="clinicalInfopreview">' + clinicalInfo + '</div>');
-
-
-
-$(document).ready(function(){
-  $("#viewquizs").click(function(){
-    $("#currentquizs").slideToggle("slow");
-  });
-});
-*/
+}
