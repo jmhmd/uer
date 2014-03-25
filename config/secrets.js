@@ -1,3 +1,5 @@
+var request = require('request')
+
 module.exports = {
 	db: 'mongodb://localhost:27017/call-practice',
 
@@ -23,6 +25,16 @@ if (process.env.NODE_ENV === 'development'){
 } else if (process.env.NODE_ENV === 'production'){
 	casefiles.apikey = ''
 	casefiles.url = 'http://casefil.es/' // must include trailing slash
+}
+
+casefiles.getUploadCreds = function(cb){
+	request.get({
+			url: casefiles.url + 'api/upload/getCredentials?apikey=' + casefiles.apikey,
+			json: true
+		},
+		function(err, response, body){
+			cb(err, body)
+		})
 }
 
 module.exports.casefiles = casefiles

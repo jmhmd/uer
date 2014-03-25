@@ -6,6 +6,7 @@ var quiz = {{{quiz}}}
 console.log(quiz)
 </script>
 <script type="text/javascript" src="/js/view-edit-module.js"></script>
+<script type="text/javascript" src="/js/dropzone.js"></script>
 <link type="text/css" rel="stylesheet" href="/css/view-edit-module.css"/>
 
 <!-- <script type="text/javascript">console.log(JSON.parse('{{quiz}}'))</script> -->
@@ -65,7 +66,19 @@ console.log(quiz)
 		<form id="form1">
 			<ul id="textfields">
 				<li id="image">
-					Image: <input id="caseImage" type="file" name="caseImage" style="width: 300px; height: 22px" accept="image/x-png, image/gif, image/jpeg">
+					<!-- Image: <input id="caseImage" type="file" name="caseImage" style="width: 300px; height: 22px" accept="image/x-png, image/gif, image/jpeg"> -->
+
+					<form class="dropzone">
+						<input type="hidden" name="key" value="uploads/temp/${filename}">
+						<input type="hidden" name="AWSAccessKeyId" value="{{ s3.s3Key }}"> 
+						<input type="hidden" name="acl" value="public-read"> 
+						<input type="hidden" name="success_action_status" value="201">
+						<input type="hidden" name="policy" value="{{ s3.s3Policy64 }}">
+						<input type="hidden" name="signature" value="{{ s3.s3Signature }}">
+						<input type="hidden" name="Content-Type" value="image/jpeg">
+					</form>
+
+					<button id="uploadImages">Upload</button>
 				</li>
 				<li>
 					Clinical Information: <textarea id="clinicalInfo" name="clinicalInfo" style="width:400px; height:50px;"></textarea>

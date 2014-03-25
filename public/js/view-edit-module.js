@@ -35,7 +35,7 @@ var updateQuestionTabs = function(){
 
   // clear all
   questionRow.empty()
-  
+
   // repopulate
   for (var i = 1; i <= quiz.questions.length; i++) {
     $("#questionRow").append('<tr><td id="questionTab">' + (i) + '</td></tr>');
@@ -94,7 +94,7 @@ var saveQuestion = function(index){
   index = index || currentQuestion
 
   var question = quiz.questions[index]
- 
+
   question.clinicalInfo = $('#clinicalInfo').val()
   question.stem = $('#question').val()
   question.choices = getChoices()
@@ -184,7 +184,7 @@ var registerEventHandlers = function(){
     if (!window.confirm("Save Quiz?")){
       return false
     }
-    
+
     // make sure current question is saved
     saveQuestion()
 
@@ -207,7 +207,7 @@ var registerEventHandlers = function(){
   });
 
   $("#addChoiceButton").click(function() {
-    
+
     addChoice()
   });
 
@@ -255,8 +255,8 @@ function getChar(n) {
  * @param {String} clinicalInfo History (optional)
  * @param {String} stem         Question stem
  * @param {Array} choices      Array of answer choices
- * @param {String} category     
- * @param {Number} difficulty 
+ * @param {String} category
+ * @param {Number} difficulty
  */
 function Question(caseImage, clinicalInfo, stem, choices, diagnosis, category, difficulty) {
 	this.caseImage = caseImage || false;
@@ -265,7 +265,7 @@ function Question(caseImage, clinicalInfo, stem, choices, diagnosis, category, d
 	this.choices = choices || [];
 
 	// adding a few properties that we might want to store as well
-  this.diagnosis = diagnosis || ''; 
+  this.diagnosis = diagnosis || '';
 	this.category = category || '';
   this.difficulty = difficulty || 1;
 }
@@ -275,3 +275,50 @@ if (imageHeight < 540) {
 	var margintop = (540 - imageHeight) / 2;
 	$('#imagepreviewDiv img').css('margin-top', margintop);
 }
+
+$('#uploadImages').on('click', function(){
+  // make sure images have id
+  if (images._id){
+    dropzone.processQueue()
+  } else {
+    // get container for images first
+    $.post('/api/saveImages', images)
+      .done(function(res){
+        console.log('response: ', res)
+      })
+      .fail(function(err){
+        console.log('FAIL', err)
+      })
+  }
+})
+
+Dropzone.autoDiscover = false
+var dropzone = new Dropzone('.dropzone', {
+    url: '{{s3.s3URL}}',
+    maxFilesize: 100,
+    paramName: 'file',
+    maxThumbnailFilesize: 5,
+    autoProcessQueue: false,
+    dictDefaultMessage: '<div class="msg-primary">Drop files here to upload</div><div class="msg-secondary">(or click)</div>'
+  })
+  .on('addedfile', function(file){
+    $(file.previewElement).find('.dz-success-mark,.dz-error-mark').hide()
+  })
+  .on('totaluploadprogress', function(total, totalBytes, totalBytesSent){
+    console.log(total)
+  })
+  .on('error', function(file, error){
+    console.log('error: ', error)
+  })
+  .on('success', function(file, response){
+    response = response.split('Location')[1].slice(1, -2)
+    console.log(response)
+    $(file.previewElement).find('.dz-success-mark').show()
+  })
+  .on('complete',function(){
+    if (this.getUploadingFiles().length > 0){
+      this.processQueue()
+      return false
+    }
+    console.log('complete')
+  })

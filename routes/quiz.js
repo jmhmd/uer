@@ -82,14 +82,18 @@ exports.showQuizEdit = function(req, res, next){
 	.populate('questions')
 	.lean()
 	.exec(function(err, quiz){
-
 		if (err){ return next(err) }
 
-		res.locals.quiz = JSON.stringify(quiz)
-		console.log(res.locals.quiz)
+		casefiles.getUploadCreds(function(err, creds){
+			if (err){ return next(err) }
 
-		// render template
-		res.render('editQuiz')
+			res.locals.uploadCreds = creds			
+			res.locals.quiz = JSON.stringify(quiz)
+
+			// render template
+			res.render('editQuiz')
+		})
+
 	})
 }
 
