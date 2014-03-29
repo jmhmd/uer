@@ -6,7 +6,10 @@
  */
 var quiz = quiz,
     uploadURL = uploadURL,
-    currentQuestion = null // should use index (zero based) internally within script
+    currentQuestion = null, // should use index (zero based) internally within script
+    updateUploadKey = function(id){
+      $('#uploadKey').val("uploads/temp/" + id + "/${filename}")
+    }
 
 /////////////////
 // Initialize  //
@@ -116,7 +119,8 @@ var loadQuestion = function(index){
         $('#imageModality').val(question.caseImage.imageStacks[0].modality);
         $('#imageCategory').val(question.caseImage.category);
 
-        image.attr('src', question.caseImage.imageStacks[0].imagePaths[0])
+        var imageURL = question.caseImage.imageStacks[0].imagePaths[0] || 'http://placehold.it/512x512&text=No+image+for+this+case.'
+        image.attr('src', imageURL)
       };
 
   if (typeof question.caseImage === "undefined"){
@@ -169,7 +173,12 @@ var saveQuestion = function(index, cb){
   question.caseImage.imageStacks[0].label = $('#imageLabel').val()
   question.caseImage.imageStacks[0].modality = $('#imageModality').val()
 
-  $.post('/api/saveImages', {studyId: question.studyId, studyObj: question.caseImage})
+  var sendObj = {
+    studyId: question.studyId,
+    studyObj: question.caseImage
+  }
+
+  $.post('/api/saveImages', sendObj)
     .done(function(res){
       console.log('saved images: ', res)
 
@@ -252,12 +261,12 @@ var saveToServer = function(){
   // send quiz object to the server
   $.post('/api/saveQuiz', quiz)
     .done(function(res){
-      console.log(res)
+      console.log('Saved quiz to server ', res)
 
       $("#confirmationDiv").fadeIn(300).delay(200).fadeOut(300);
     })
     .fail(function(err){
-      console.log(err)
+      console.log('Error saving quiz to server: ', err)
 
       $("#failureDiv").fadeIn(300).delay(300).fadeOut(300);
     })
@@ -283,9 +292,6 @@ var registerEventHandlers = function(){
     if (!window.confirm("Save Quiz?")){
       return false
     }
-
-    // make sure current question is saved
-    saveQuestion()
 
     // send quiz object to the server
     saveToServer()
@@ -389,23 +395,45 @@ var setupUpload = function(){
     // see if study has id already (has been saved in the past), otherwise,
     // save the object to get an id
     if (studyId){
-      // go ahead and trigger upload
-      dropzone.processQueue()
+
+      updateUploadKey(studyId)
+
+      // if there are images already, delete them
+      if (questionStudy.imageStacks[0].imagePaths.length > 0){
+        $.post('/api/clearImages', {studyId: studyId})
+          .done(function(res){
+
+            console.log('Images deleted from server', res)
+
+            // images deleted from server
+            questionStudy.imageStacks[0].imagePaths = []
+
+            // go ahead and trigger upload
+            dropzone.processQueue()
+          })
+          .fail(function(err){
+            console.log(err)
+          })
+      } else {
+        // empty container exists, start upload
+        dropzone.processQueue()
+      }
     } else {
       // get container for images first so we know where to upload to
       $.post('/api/saveImages', {studyId: false, studyObj: questionStudy})
         .done(function(res){
-          console.log('response: ', res)
+          console.log('Created image container: ', res)
 
           if (res._id){
 
             // add id, process upload
             studyId = res._id
+
+            updateUploadKey(studyId)
+
             dropzone.processQueue()
           } else {
-
-            console.log(res)
-            window.alert('There was an error saving the Image data.')
+            console.log('There was an error saving the Image data.')
           }
         })
         .fail(function(err){
@@ -420,6 +448,7 @@ var setupUpload = function(){
   var dropzone = new Dropzone('.dropzone', {
       url: uploadURL,
       maxFilesize: 100,
+      maxFiles: 1,
       paramName: 'file',
       maxThumbnailFilesize: 5,
       autoProcessQueue: false,
@@ -427,6 +456,14 @@ var setupUpload = function(){
     })
     .on('addedfile', function(file){
       $(file.previewElement).find('.dz-success-mark,.dz-error-mark').hide()
+
+      // just overwrite previous file if adding more than one
+      if (this.files[1]!=null){
+        this.removeFile(this.files[0]);
+      }
+    })
+    .on("maxfilesexceeded", function(file) { 
+      this.removeFile(file)
     })
     .on('totaluploadprogress', function(total, totalBytes, totalBytesSent){
       console.log(total)
@@ -440,26 +477,58 @@ var setupUpload = function(){
       }
       var imageURL = response.split('Location')[1].slice(1, -2)
       console.log('Saved image to: ', imageURL)
-      $(file.previewElement).find('.dz-success-mark').show()
 
       // push url into array
       newImagePaths.push(imageURL)
       
+      $(file.previewElement).find('.dz-success-mark').show()
+
+      if (this.getUploadingFiles().length > 0){
+        this.processQueue()
+      } else {
+        onAllUploaded()
+      }
     })
-    .on('complete',function(){
+
+    var onAllUploaded = function(){
+      console.log('complete')
+
+      var question = quiz.questions[currentQuestion]
+
+      // set new imagePaths on quiz object
+      question.caseImage.imageStacks[0].imagePaths = newImagePaths
+
+      // refresh DOM to display new image
+      loadQuestion(currentQuestion)
+
+      // clear array for next time
+      newImagePaths = []
+      dropzone.removeAllFiles()
+
+      // probably should auto-save quiz to server here
+      saveToServer()
+    }
+    /*.on('complete',function(){
       if (this.getUploadingFiles().length > 0){
         this.processQueue()
         return false
       }
+      
       console.log('complete')
 
-      // overwrite imagePaths
-      quiz.questions[currentQuestion].caseImage.imageStacks[0].imagePaths = newImagePaths
+      var question = quiz.questions[currentQuestion]
+
+      // set new imagePaths on quiz object
+      question.caseImage.imageStacks[0].imagePaths = newImagePaths
+
+      // refresh DOM to display new image
+      loadQuestion(currentQuestion)
 
       // clear array for next time
       newImagePaths = []
+      dropzone.removeAllFiles()
 
       // probably should auto-save quiz to server here
       saveToServer()
-    })
+    })*/
 }

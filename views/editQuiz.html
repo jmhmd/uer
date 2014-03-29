@@ -106,7 +106,7 @@ console.log(quiz)
 				<br>
 
 				<form class="dropzone">
-					<input type="hidden" name="key" value="uploads/temp/${filename}">
+					<input type="hidden" id="uploadKey" name="key" value="">
 					<input type="hidden" name="AWSAccessKeyId" value="{{ uploadCreds.s3Key }}"> 
 					<input type="hidden" name="acl" value="public-read"> 
 					<input type="hidden" name="success_action_status" value="201">
@@ -209,4 +209,4 @@ console.log(quiz)
 </div>
 
 
-<div id="imagepreviewDiv"><img id="imagePreview" src="http://upload.wikimedia.org/wikipedia/commons/2/22/Scaphoid_waist_fracture.gif"/></div>
+<div id="imagepreviewDiv"><img id="imagePreview" src="http://placehold.it/512x512&text=No+image+for+this+case."/></div>

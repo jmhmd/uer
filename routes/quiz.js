@@ -464,7 +464,7 @@ exports.saveImages = function(req, res){
 
 	errors = req.validationErrors()
 
-	if (req.body.studyObj.imageStacks.length > 0){
+	if (req.body.studyObj.imageStacks && req.body.studyObj.imageStacks.length > 0){
 		_.each(req.body.studyObj.imageStacks, function(stack, i){
 			if (!validator.isLength(stack.modality, 1)){
 				if (!errors){ errors = [] }
@@ -495,7 +495,9 @@ exports.saveImages = function(req, res){
 	/**
 	 * Send case to casefiles
 	 */
-		
+	
+	console.log(studyObj)
+
 	request.post({
 			url: casefiles.url + 'api/client/saveStudy',
 			json: {
@@ -544,9 +546,9 @@ exports.getImageObject = function(req, res){
 }
 
 /**
- * Delete study from casefiles
+ * Delete study from casefiles, including images and metadata
  * Required:
- * body._id // id of study being removed
+ * res.body._id // id of study being removed
  */
 exports.removeImages = function(req, res){
 	/**
@@ -561,6 +563,37 @@ exports.removeImages = function(req, res){
 			}
 		},
 		function(err, response, body) {
+			if (response.statusCode !== 200 && !err){
+				err = body
+			}
+			if (err) {
+				return res.send(500, err)
+			}
+			res.send(200, body)
+		})
+}
+
+/**
+ * Delete images from study object, but don't delete container and metadata
+ * @param  {string} req.body.studyId - Id of study saved in casefiles to empty
+ */
+exports.clearImages = function(req, res){
+
+	if (!req.body.studyId){
+		res.send(400, 'Must include study id to clear')
+		return
+	}
+
+	request.post({
+			url: casefiles.url + 'api/client/deleteAll/' + req.body.studyId + '/' + 0,
+			json: {
+				apikey: casefiles.apikey
+			}
+		},
+		function(err, response, body) {
+			if (response.statusCode !== 200 && !err){
+				err = body
+			}
 			if (err) {
 				return res.send(500, err)
 			}
