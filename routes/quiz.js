@@ -33,6 +33,47 @@ exports.showQuizList = function(req, res, next){
 		})
 }
 
+var _getLeanQuizObject = function(id, cb){
+
+	Quiz
+	.findById(id)
+	.populate('questions')
+	.lean()
+	.exec(function(err, quiz){
+		if (err){ return cb(err) }
+
+/*
+		// get image objects for each question in the quiz from casefiles
+		if(quiz.questions.length > 0){
+
+			var setCaseImage = function(question, cb){
+
+				if (question.studyId){
+
+					_getImageObject(question.studyId, function(err, imageObject){
+						if (err){ return cb(err) }
+						console.log(imageObject)
+						question.studyId = imageObject
+						cb()
+					})
+				} else {
+					cb()
+				}
+			}
+
+			async.eachSeries(quiz.questions, setCaseImage, function(err){
+				if (err){ return cb(err) }
+				return cb(null, quiz)
+			})
+		} else {
+
+			return cb(null, quiz)
+		}
+*/		
+		return cb(null, quiz)
+	})
+}
+
 /**
  * show page for quiz overview (start)
  * @param  {string} quizId
@@ -40,16 +81,9 @@ exports.showQuizList = function(req, res, next){
 exports.showQuiz = function(req, res, next){
 	
 	var quizId = req.params.quizId
-	
-	// get quiz object and render template
-	Quiz
-	.findById(quizId)
-	.populate('questions')
-	.exec(function(err, quiz){
 
+	_getLeanQuizObject(quizId, function(err, quiz){
 		if (err){ return next(err) }
-
-		if (quiz.length === 0){ return res.render('404') }
 
 		res.locals.quiz = quiz
 		// render template
@@ -76,12 +110,7 @@ exports.showQuizEdit = function(req, res, next){
 
 
 	// get quiz object and render template
-	
-	Quiz
-	.findById(quizId)
-	.populate('questions')
-	.lean()
-	.exec(function(err, quiz){
+	_getLeanQuizObject(quizId, function(err, quiz){
 		if (err){ return next(err) }
 
 		casefiles.getUploadCreds(function(err, creds){
@@ -93,7 +122,6 @@ exports.showQuizEdit = function(req, res, next){
 			// render template
 			res.render('editQuiz')
 		})
-
 	})
 }
 
@@ -110,7 +138,6 @@ exports.showQuestion = function(req, res, next){
 	Question
 	.findById(questionId)
 	.exec(function(err, question){
-
 		if (err){ return next(err) }
 
 		// render template
@@ -130,7 +157,6 @@ exports.showResults = function(req, res, next){
 	QuizResult
 	.findById(quizResultId)
 	.exec(function(err, quizResult){
-
 		if (err){ return next(err) }
 
 		/**
@@ -180,12 +206,14 @@ var _updateQuizObject = function(quiz, newQuiz, cb){
 			cb(null, quiz)
 		})
 	} else {
+		// questions parameter is a simple array of objectIds
 		quiz.questions = newQuiz.questions
 		cb(null, quiz)
 	}
 }
 
 var _updateQuestionObject = function(question, newQuestion){
+
 	question.clinicalInfo = newQuestion.clinicalInfo
 	question.stem = newQuestion.stem
 	question.choices = newQuestion.choices
@@ -239,7 +267,7 @@ exports.getQuizzes = function(req, res){
 exports.saveQuiz = function(req, res){
 
 	/**
-	 * Updating an existing case
+	 * Updating an existing quiz
 	 */
 	if (req.body._id){
 
@@ -258,23 +286,31 @@ exports.saveQuiz = function(req, res){
 	}
 
 	/**
-	 * Saving a new case
+	 * Saving a new quiz
 	 */
 	else {
-		var	quiz = new Quiz(req.body);
-	
-		quiz.save(function(err){
-			if(err){
-				return res.send(500, err)
-			}
 
-			// send html if creating new quiz
-			if (req.resFormat !== 'json'){
-				return res.redirect('/quiz/edit/' + quiz._id)
-			}
+		// create new mongoose quiz object
+		var	quiz = new Quiz();
 
-			res.send(201, quiz)
+		// use this function instead of the Quiz constructor directly
+		// so we get the object modifications before saving
+		_updateQuizObject(quiz, res.body, function(err, updatedQuiz){
+			if (err){ return res.send(500, err) }
+
+			updatedQuiz.save(function(err){
+				if(err){ return res.send(500, err) }
+
+				// send html if creating new quiz
+				if (req.resFormat !== 'json'){
+					return res.redirect('/quiz/edit/' + quiz._id)
+				} else {
+					return res.send(201, quiz)
+				}
+
+			})
 		})
+	
 	}
 }
 
@@ -330,6 +366,7 @@ function _saveQuestion (questionObj, cb){
 	if (questionObj._id){
 
 		Question.findById(questionObj._id, function(err, question){
+			if (err){ return cb(err) }
 
 			question = _updateQuestionObject(question, questionObj)
 
@@ -422,13 +459,13 @@ exports.saveImages = function(req, res){
 	
 	var errors, loopErrors = false
 
-	req.checkBody('diagnosis', 'Must include diagnosis').notEmpty()
-	req.checkBody('category', 'Must include category').notEmpty()
+	req.checkBody('studyObj.diagnosis', 'Must include diagnosis').notEmpty()
+	req.checkBody('studyObj.category', 'Must include category').notEmpty()
 
 	errors = req.validationErrors()
 
-	if (req.body.imageStacks.length > 0){
-		_.each(req.body.imageStacks, function(stack, i){
+	if (req.body.studyObj.imageStacks.length > 0){
+		_.each(req.body.studyObj.imageStacks, function(stack, i){
 			if (!validator.isLength(stack.modality, 1)){
 				if (!errors){ errors = [] }
 				errors.push({param: 'modality', msg: 'modality required', value: stack.modality })
@@ -447,6 +484,15 @@ exports.saveImages = function(req, res){
 	}
 
 	/**
+	 * Prepare study object
+	 */
+	var studyObj = req.body.studyObj
+
+	if (req.body.studyId){
+		studyObj._id = req.body.studyId
+	}
+
+	/**
 	 * Send case to casefiles
 	 */
 		
@@ -455,16 +501,46 @@ exports.saveImages = function(req, res){
 			json: {
 				email: req.user.email,
 				apikey: casefiles.apikey,
-				study: req.body
+				study: studyObj
 			}
 		},
 		function(err, response, body) {
+			if (response.statusCode !== 200 && response.statusCode !== 201 && !err){
+				err = body
+			}
 			if (err) {
 				return res.send(500, err)
 			}
 
+			console.log(response.statusCode)
+
 			res.send(200, body)
 		})
+}
+
+/**
+ * Load study object from casefiles API
+ * @param  {String} id Unique id for study in casefiles
+ * @return {String}    JSON object of study
+ */
+var _getImageObject = function(id, cb){
+
+	request.get({
+			url: casefiles.url + 'api/study/load/' + id + '?apikey=' + casefiles.apikey
+		}, function(err, response, body){
+			if (err) { return cb(err) }
+			if (response.statusCode !== 200){ return cb(body) }
+			cb(null, body)
+		})
+}
+
+exports.getImageObject = function(req, res){
+	var id = req.params.id
+
+	_getImageObject(id, function(err, imageObject){
+		if (err) { return res.send(500, err) }
+		res.send(200, imageObject)
+	})
 }
 
 /**

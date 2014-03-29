@@ -17,7 +17,8 @@ module.exports = {
 var casefiles = {}
 
 if (process.env.NODE_ENV === 'development'){
-	casefiles.apikey = '52faa514a225b71d13000005'
+	casefiles.apikey = '52f7caabff074a371800000b'
+	//casefiles.apikey = '52f7caabff074a37180000' // invalid for testing
 	casefiles.url = 'http://localhost:8080/' // must include trailing slash
 } else if (process.env.NODE_ENV === 'testing'){
 	casefiles.apikey = '530676deece97f623cfc7428'
@@ -33,6 +34,7 @@ casefiles.getUploadCreds = function(cb){
 			json: true
 		},
 		function(err, response, body){
+			if (response.statusCode !== 200 && !err){ err = body }
 			cb(err, body)
 		})
 }

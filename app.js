@@ -158,6 +158,7 @@ app.post('/api/removeQuestion', passportConf.isAuthenticatedAPI, passportConf.is
 
 app.post('/api/saveImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveImages)
 app.post('/api/removeImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeImages)
+app.get('/api/getImageObject/:id', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.getImageObject)
 
 
 /**

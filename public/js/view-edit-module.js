@@ -1,10 +1,11 @@
 'use strict';
 
 /**
- * The quiz object should be loaded in by the template when the page renders, just
+ * The quiz object and uploadURL should be loaded in by the template when the page renders, just
  * doing this to make jshint happy
  */
 var quiz = quiz,
+    uploadURL = uploadURL,
     currentQuestion = null // should use index (zero based) internally within script
 
 /////////////////
@@ -17,12 +18,19 @@ $(document).ready(function() {
 
   registerEventHandlers()
 
+  setupUpload()
+
   if (quiz.questions.length === 0){
     addQuestion()
   } else {
     goToQuestion(0)
   }
 
+  /*var imageHeight = $('#imagepreviewDiv img').height();
+  if (imageHeight < 540) {
+    var margintop = (540 - imageHeight) / 2;
+    $('#imagepreviewDiv img').css('margin-top', margintop);
+  }*/
 });
 
 ///////////////////
@@ -67,29 +75,83 @@ var addQuestion = function(){
 
   quiz.questions.push(new Question())
 
-  goToQuestion(quiz.questions.length - 1)
+  saveQuestion(function(){
+    goToQuestion(quiz.questions.length - 1)
+  })
+}
+
+var _loadCaseImage = function(studyId, cb){
+
+  $.getJSON('/api/getImageObject/' + studyId)
+    .done(function(res){
+      console.log('loaded: ', res)
+      cb(null, res)
+    })
+    .fail(function(err){
+      cb(err)
+    })
 }
 
 var loadQuestion = function(index){
 
-  var question = quiz.questions[index];
+  var question = quiz.questions[index],
+      updateDOM = function(){
 
-  $('#clinicalInfo').val(question.clinicalInfo);
-  $('#question').val(question.stem);
-  $('#diagnosis').val(question.diagnosis);
-  $('#category').val(question.category);
-  $('#difficulty').val(question.difficulty);
+        var choices = $('#choices'),
+            image = $('#imagePreview')
 
-  var choices = $('#choices')
+        choices.empty()
 
-  choices.empty()
+        question.choices.forEach(function(choice, i){
+          addChoice(i, choice.option, choice.explanation, choice.correct)
+        })
 
-  question.choices.forEach(function(choice, i){
-    addChoice(i, choice.option, choice.explanation, choice.correct)
-  })
+        $('#clinicalInfo').val(question.clinicalInfo);
+        $('#question').val(question.stem);
+        $('#diagnosis').val(question.diagnosis);
+        $('#category').val(question.category);
+        $('#difficulty').val(question.difficulty);
+
+        $('#imageLabel').val(question.caseImage.imageStacks[0].label);
+        $('#imageModality').val(question.caseImage.imageStacks[0].modality);
+        $('#imageCategory').val(question.caseImage.category);
+
+        image.attr('src', question.caseImage.imageStacks[0].imagePaths[0])
+      };
+
+  if (typeof question.caseImage === "undefined"){
+
+    // if the question has .studyId defined, then there's an image
+    // study already saved in casefiles- load it in
+    if (question.studyId){
+
+      _loadCaseImage(question.studyId, function(err, caseImage){
+        if (err){
+          console.log(err)
+          return window.alert('There was an error loading the image for this question.')
+        }
+
+        question.caseImage = new QuestionImage(caseImage)
+        updateDOM()
+      })
+    }
+    else {
+
+      question.caseImage = new QuestionImage()
+      updateDOM()
+    }
+  }
+  else {
+    updateDOM()
+  }
 }
 
-var saveQuestion = function(index){
+var saveQuestion = function(index, cb){
+
+  if (typeof index === "function"){
+    cb = index
+    index = null
+  }
 
   index = index || currentQuestion
 
@@ -101,6 +163,31 @@ var saveQuestion = function(index){
   question.diagnosis = $('#diagnosis').val()
   question.category = $('#category').val()
   question.difficulty = $('#difficulty').val()
+
+  question.caseImage.category = $('#imageCategory').val()
+  question.caseImage.diagnosis = question.diagnosis
+  question.caseImage.imageStacks[0].label = $('#imageLabel').val()
+  question.caseImage.imageStacks[0].modality = $('#imageModality').val()
+
+  $.post('/api/saveImages', {studyId: question.studyId, studyObj: question.caseImage})
+    .done(function(res){
+      console.log('saved images: ', res)
+
+      if (res._id && question.studyId && res._id !== question.studyId){ console.log('IDs do not match') }
+
+      // add images study id if not already set
+      if (!question.studyId && res._id){
+        question.studyId = res._id
+        console.log('studyId set to ', question.studyId)
+      }
+
+      if (cb){ cb(null, res) }
+    })
+    .fail(function(err){
+      console.log('error saving images: ', err)
+      window.alert('Error saving images.')
+      if (cb){ cb(err) }
+    })
 }
 
 var getChoices = function(){
@@ -144,12 +231,6 @@ var addChoice = function(index, option, explanation, correct){
 
 var goToQuestion = function(index){
 
-  // save current question
-  if (currentQuestion !== null){
-    saveQuestion()
-  }
-
-  // load new question into form
   loadQuestion(index)
 
   currentQuestion = index
@@ -162,6 +243,24 @@ var goToQuestion = function(index){
   // update numbers
   $("#totalNumber").html(quiz.questions.length)
   $("#currentNumber").html(index + 1)
+}
+
+var saveToServer = function(){
+
+  saveQuestion()
+
+  // send quiz object to the server
+  $.post('/api/saveQuiz', quiz)
+    .done(function(res){
+      console.log(res)
+
+      $("#confirmationDiv").fadeIn(300).delay(200).fadeOut(300);
+    })
+    .fail(function(err){
+      console.log(err)
+
+      $("#failureDiv").fadeIn(300).delay(300).fadeOut(300);
+    })
 }
 
 
@@ -189,17 +288,8 @@ var registerEventHandlers = function(){
     saveQuestion()
 
     // send quiz object to the server
-    $.post('/api/saveQuiz', quiz)
-      .done(function(res){
-        console.log(res)
-
-        $("#confirmationDiv").fadeIn(300).delay(200).fadeOut(300);
-      })
-      .fail(function(err){
-        console.log(err)
-
-        $("#failureDiv").fadeIn(300).delay(300).fadeOut(300);
-      })
+    saveToServer()
+    
   });
 
   $("#addQuestionbutton").click(function() {
@@ -216,7 +306,10 @@ var registerEventHandlers = function(){
     // set current question
     var clickedQuestion = parseInt($(event.target).html(), 10);
 
-    goToQuestion(clickedQuestion - 1);
+    // save current question, then load next
+    saveQuestion(function(){
+      goToQuestion(clickedQuestion - 1);
+    })
   });
 
   $(document).on('click', '#copyPrevious', function() {
@@ -243,13 +336,6 @@ function getChar(n) {
 }
 
 /**
- * Nice choice to use a constructor here. However, you'll want to be able to pass it
- * an arbitrary number of choices, so passing it an array as an argument might be a
- * more flexible solution. Then we can use loops elsewhere to perform whatever action
- * on the choices array regardless of length.
- */
-
-/**
  * Question object constructor
  * @param {String} caseImage    ID of study images
  * @param {String} clinicalInfo History (optional)
@@ -258,8 +344,9 @@ function getChar(n) {
  * @param {String} category
  * @param {Number} difficulty
  */
-function Question(caseImage, clinicalInfo, stem, choices, diagnosis, category, difficulty) {
-	this.caseImage = caseImage || false;
+function Question(caseImage, studyId, clinicalInfo, stem, choices, diagnosis, category, difficulty) {
+	this.caseImage = caseImage || new QuestionImage({category: category, diagnosis: diagnosis})
+  this.studyId = studyId || false;
 	this.clinicalInfo = clinicalInfo || '';
 	this.stem = stem || ''; // changed this from this.question to match the database model that is set up, also to not confuse a question object with question parameter i.e. "question.question"
 	this.choices = choices || [];
@@ -270,55 +357,109 @@ function Question(caseImage, clinicalInfo, stem, choices, diagnosis, category, d
   this.difficulty = difficulty || 1;
 }
 
-var imageHeight = $('#imagepreviewDiv img').height();
-if (imageHeight < 540) {
-	var margintop = (540 - imageHeight) / 2;
-	$('#imagepreviewDiv img').css('margin-top', margintop);
+function QuestionImage(obj){
+
+  obj = obj || {}
+
+  this.category = obj.category || ''
+  this.diagnosis = obj.diagnosis || ''
+  
+  // array of objects, each object represents one series of images
+  // for now, only use one element until viewing multiple series is supported
+  // that's why for now it's always caseImage.imageStacks[0] elsewhere in the code
+  this.imageStacks = obj.imageStacks || [
+      {
+        label: 'Series 1',
+        modality: '',
+        imagePaths: [] // array of image urls
+      }
+    ]
 }
 
-$('#uploadImages').on('click', function(){
-  // make sure images have id
-  if (images._id){
-    dropzone.processQueue()
-  } else {
-    // get container for images first
-    $.post('/api/saveImages', images)
-      .done(function(res){
-        console.log('response: ', res)
-      })
-      .fail(function(err){
-        console.log('FAIL', err)
-      })
-  }
-})
+var setupUpload = function(){
 
-Dropzone.autoDiscover = false
-var dropzone = new Dropzone('.dropzone', {
-    url: '{{s3.s3URL}}',
-    maxFilesize: 100,
-    paramName: 'file',
-    maxThumbnailFilesize: 5,
-    autoProcessQueue: false,
-    dictDefaultMessage: '<div class="msg-primary">Drop files here to upload</div><div class="msg-secondary">(or click)</div>'
-  })
-  .on('addedfile', function(file){
-    $(file.previewElement).find('.dz-success-mark,.dz-error-mark').hide()
-  })
-  .on('totaluploadprogress', function(total, totalBytes, totalBytesSent){
-    console.log(total)
-  })
-  .on('error', function(file, error){
-    console.log('error: ', error)
-  })
-  .on('success', function(file, response){
-    response = response.split('Location')[1].slice(1, -2)
-    console.log(response)
-    $(file.previewElement).find('.dz-success-mark').show()
-  })
-  .on('complete',function(){
-    if (this.getUploadingFiles().length > 0){
-      this.processQueue()
-      return false
+  $('#uploadImages').on('click', function(){
+
+    // save any changes to the quiz object
+    saveQuestion()
+
+    var questionStudy = quiz.questions[currentQuestion].caseImage,
+        studyId = quiz.questions[currentQuestion].studyId
+
+    // see if study has id already (has been saved in the past), otherwise,
+    // save the object to get an id
+    if (studyId){
+      // go ahead and trigger upload
+      dropzone.processQueue()
+    } else {
+      // get container for images first so we know where to upload to
+      $.post('/api/saveImages', {studyId: false, studyObj: questionStudy})
+        .done(function(res){
+          console.log('response: ', res)
+
+          if (res._id){
+
+            // add id, process upload
+            studyId = res._id
+            dropzone.processQueue()
+          } else {
+
+            console.log(res)
+            window.alert('There was an error saving the Image data.')
+          }
+        })
+        .fail(function(err){
+          console.log('FAIL', err)
+        })
     }
-    console.log('complete')
   })
+
+  var newImagePaths = []
+
+  Dropzone.autoDiscover = false
+  var dropzone = new Dropzone('.dropzone', {
+      url: uploadURL,
+      maxFilesize: 100,
+      paramName: 'file',
+      maxThumbnailFilesize: 5,
+      autoProcessQueue: false,
+      dictDefaultMessage: '<div class="msg-primary">Drop files here to upload</div><div class="msg-secondary">(or click)</div>'
+    })
+    .on('addedfile', function(file){
+      $(file.previewElement).find('.dz-success-mark,.dz-error-mark').hide()
+    })
+    .on('totaluploadprogress', function(total, totalBytes, totalBytesSent){
+      console.log(total)
+    })
+    .on('error', function(file, error){
+      console.log('error: ', error)
+    })
+    .on('success', function(file, response){
+      if (response.indexOf('Location') === -1){
+        return console.log('error: ', response)
+      }
+      var imageURL = response.split('Location')[1].slice(1, -2)
+      console.log('Saved image to: ', imageURL)
+      $(file.previewElement).find('.dz-success-mark').show()
+
+      // push url into array
+      newImagePaths.push(imageURL)
+      
+    })
+    .on('complete',function(){
+      if (this.getUploadingFiles().length > 0){
+        this.processQueue()
+        return false
+      }
+      console.log('complete')
+
+      // overwrite imagePaths
+      quiz.questions[currentQuestion].caseImage.imageStacks[0].imagePaths = newImagePaths
+
+      // clear array for next time
+      newImagePaths = []
+
+      // probably should auto-save quiz to server here
+      saveToServer()
+    })
+}

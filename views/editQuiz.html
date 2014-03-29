@@ -1,15 +1,16 @@
 {{!< ./default_layout}}
 
 <script type="text/javascript">
-var quiz = {{{quiz}}}
+var quiz = {{{quiz}}},
+	uploadURL = '{{uploadCreds.s3URL}}'
 
 console.log(quiz)
 </script>
-<script type="text/javascript" src="/js/view-edit-module.js"></script>
 <script type="text/javascript" src="/js/dropzone.js"></script>
-<link type="text/css" rel="stylesheet" href="/css/view-edit-module.css"/>
+<script type="text/javascript" src="/js/view-edit-module.js"></script>
 
-<!-- <script type="text/javascript">console.log(JSON.parse('{{quiz}}'))</script> -->
+<link type="text/css" rel="stylesheet" href="/css/view-edit-module.css"/>
+<link type="text/css" rel="stylesheet" href="/css/dropzone.css"/>
 
 <div id="confirmationDiv">Saved</div>
 
@@ -63,23 +64,62 @@ console.log(quiz)
 <div id="questionNav">Question <p id="currentNumber">1</p> of <p id="totalNumber">_</p></div>
 
 	<div id="formdiv">
+		<ul class="textfields">
+			<li id="image">
+				<!-- Image: <input id="caseImage" type="file" name="caseImage" style="width: 300px; height: 22px" accept="image/x-png, image/gif, image/jpeg"> -->
+				<label for="imageLabel">Image label:</label>
+				<br>
+				<input type="text" id="imageLabel" name="imageLabel">
+				<br>
+
+				<label for="imageCategory">Image category:</label>
+				<br>
+				<select id="imageCategory" name="imageCategory">
+					<option value=''>Select One</option>
+					<option value='Thoracic'>Thoracic</option>
+					<option value='Abdominal'>Abdominal</option>
+					<option value='Interventional'>Interventional</option>
+					<option value='Breast'>Breast</option>
+					<option value='Musculoskeletal'>Musculoskeletal</option>
+					<option value='Neuroradiology'>Neuroradiology</option>
+					<option value='Nuclear Medicine'>Nuclear Medicine</option>
+					<option value='Pediatric'>Pediatric</option>
+					<option value='Trauma'>Trauma</option>
+					<option value='Other'>Other</option>
+				</select>
+				<br>
+				
+				<label for="imageModality">Image modality:</label>
+				<br>
+				<select id="imageModality" name="imageModality">
+					<option value="" class="">Select One</option>
+					<option value="CT">CT</option>
+					<option value="MRI">MRI</option>
+					<option value="Ultrasound">Ultrasound</option>
+					<option value="Fluoroscopy">Fluoroscopy</option>
+					<option value="X-ray plain">X-ray plain</option>
+					<option value="Mammography">Mammography</option>
+					<option value="PET">PET</option>
+					<option value="SPECT">SPECT</option>
+					<option value="Other">Other</option>
+				</select>
+				<br>
+
+				<form class="dropzone">
+					<input type="hidden" name="key" value="uploads/temp/${filename}">
+					<input type="hidden" name="AWSAccessKeyId" value="{{ uploadCreds.s3Key }}"> 
+					<input type="hidden" name="acl" value="public-read"> 
+					<input type="hidden" name="success_action_status" value="201">
+					<input type="hidden" name="policy" value="{{ uploadCreds.s3Policy64 }}">
+					<input type="hidden" name="signature" value="{{ uploadCreds.s3Signature }}">
+					<input type="hidden" name="Content-Type" value="image/jpeg">
+				</form>
+
+				<button type="button" id="uploadImages">Upload</button>
+			</li>
+		</ul>
 		<form id="form1">
-			<ul id="textfields">
-				<li id="image">
-					<!-- Image: <input id="caseImage" type="file" name="caseImage" style="width: 300px; height: 22px" accept="image/x-png, image/gif, image/jpeg"> -->
-
-					<form class="dropzone">
-						<input type="hidden" name="key" value="uploads/temp/${filename}">
-						<input type="hidden" name="AWSAccessKeyId" value="{{ s3.s3Key }}"> 
-						<input type="hidden" name="acl" value="public-read"> 
-						<input type="hidden" name="success_action_status" value="201">
-						<input type="hidden" name="policy" value="{{ s3.s3Policy64 }}">
-						<input type="hidden" name="signature" value="{{ s3.s3Signature }}">
-						<input type="hidden" name="Content-Type" value="image/jpeg">
-					</form>
-
-					<button id="uploadImages">Upload</button>
-				</li>
+			<ul class="textfields">
 				<li>
 					Clinical Information: <textarea id="clinicalInfo" name="clinicalInfo" style="width:400px; height:50px;"></textarea>
 				</li>
@@ -141,7 +181,7 @@ console.log(quiz)
 					Subspecialty:
 				</li>
 				<li>
-					<select id="category">
+					<select id="questionCategory">
 						<option value="">Select One</option>
 						<option value="breast">Breast</option>
 						<option value="cardiac">Cardiac</option>
