@@ -14,18 +14,25 @@ module.exports = {
 	}
 }
 
-var casefiles = {}
+var casefiles = {},
+	uploadKeyRoot = "uploads/temp/"
 
 if (process.env.NODE_ENV === 'development'){
+
 	casefiles.apikey = '52f7caabff074a371800000b'
 	//casefiles.apikey = '52f7caabff074a37180000' // invalid for testing
 	casefiles.url = 'http://localhost:8080/' // must include trailing slash
+	uploadKeyRoot = "uploads/temp/"
 } else if (process.env.NODE_ENV === 'testing'){
+
 	casefiles.apikey = '530676deece97f623cfc7428'
 	casefiles.url = 'http://dev.casefil.es/' // must include trailing slash
+	uploadKeyRoot = "uploads/temp/"
 } else if (process.env.NODE_ENV === 'production'){
+
 	casefiles.apikey = ''
 	casefiles.url = 'http://casefil.es/' // must include trailing slash
+	uploadKeyRoot = "uploads/"
 }
 
 casefiles.getUploadCreds = function(cb){
@@ -40,3 +47,4 @@ casefiles.getUploadCreds = function(cb){
 }
 
 module.exports.casefiles = casefiles
+module.exports.uploadKeyRoot = uploadKeyRoot

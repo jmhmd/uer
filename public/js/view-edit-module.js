@@ -7,6 +7,7 @@
 var quiz = quiz,
     uploadURL = uploadURL,
     currentQuestion = null, // should use index (zero based) internally within script
+    uploadKeyRoot = uploadKeyRoot,
     updateUploadKey = function(id){
       $('#uploadKey').val("uploads/temp/" + id + "/${filename}")
     }

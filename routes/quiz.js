@@ -8,7 +8,8 @@ var util = require('util'),
 	QuizResult = mongoose.model('QuizResult'),
 	validator = require('validator'),
 	request = require('request'),
-	casefiles = require('../config/secrets').casefiles,
+	secrets = require('../config/secrets'),
+	casefiles = secrets.casefiles,
 	async = require('async')
 
 /**
@@ -121,6 +122,7 @@ exports.showQuizEdit = function(req, res, next){
 
 			res.locals.uploadCreds = creds			
 			res.locals.quiz = JSON.stringify(quiz)
+			res.locals.uploadKeyRoot = secrets.uploadKeyRoot
 
 			// render template
 			res.render('editQuiz')
