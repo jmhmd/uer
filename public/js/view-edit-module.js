@@ -355,7 +355,13 @@ var registerEventHandlers = function(){
       if (currentQuestion > 0){
         // clone object
         quiz.questions[currentQuestion] = JSON.parse(JSON.stringify(quiz.questions[currentQuestion - 1]))
-        // remove uploaded image paths
+        // remove question specific fields
+        delete quiz.questions[currentQuestion].studyId
+        delete quiz.questions[currentQuestion]._id
+        delete quiz.questions[currentQuestion].createdAt
+        delete quiz.questions[currentQuestion].updatedAt
+        delete quiz.questions[currentQuestion].caseImage.imageStacks[0]._id
+        delete quiz.questions[currentQuestion].caseImage.imageStacks[0].id
         quiz.questions[currentQuestion].caseImage.imageStacks[0].imagePaths = []
         // reload question
         loadQuestion(currentQuestion)
