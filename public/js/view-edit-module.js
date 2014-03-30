@@ -89,6 +89,25 @@ var addQuestion = function(){
   }
 }
 
+var removeQuestion = function(index){
+  var questionRow = $('#questionRow tr');
+
+  questionRow[index].remove()
+
+  // get row again, without removed element (jquery .remove() doesn't remove the element
+  // from the questionRow array)
+  questionRow = $('#questionRow tr')
+
+  quiz.questions.splice(index, 1)
+
+  // renumber tabs
+  questionRow.each(function(i){
+    $(this).children(":first").html(i + 1)
+  })
+
+  goToQuestion(0)
+}
+
 var _loadCaseImage = function(studyId, cb){
 
   $.getJSON('/api/getImageObject/' + studyId)
@@ -342,8 +361,12 @@ var registerEventHandlers = function(){
     var clickedQuestion = parseInt($(event.target).html(), 10);
 
     // save current question, then load next
-    saveQuestion(function(){
-      goToQuestion(clickedQuestion - 1);
+    saveQuestion(function(err){
+      if (err){
+        console.log(err)
+      } else {
+        goToQuestion(clickedQuestion - 1);
+      }
     })
   });
 
@@ -365,6 +388,30 @@ var registerEventHandlers = function(){
         quiz.questions[currentQuestion].caseImage.imageStacks[0].imagePaths = []
         // reload question
         loadQuestion(currentQuestion)
+      }
+    }
+  })
+
+  $(document).on('click', '#removeQuestion', function() {
+
+    if (confirm('Delete question? This cannot be undone.')){
+      
+      if (quiz.questions[currentQuestion]._id){
+
+        // delete question
+        $.post('/api/removeQuestion', {_id: quiz.questions[currentQuestion]._id})
+          .done(function(res){
+            console.log('Removed question ', res)
+            removeQuestion(currentQuestion)
+          })
+          .fail(function(err){
+            console.log('Question could not be removed. ', err)
+          })
+      }
+      else {
+
+        // nothing to delete from server, just remove from quiz object
+        removeQuestion(currentQuestion)
       }
     }
   })

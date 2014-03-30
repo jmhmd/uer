@@ -37,7 +37,10 @@ var _getLeanQuizObject = function(id, cb){
 
 	Quiz
 	.findById(id)
-	.populate('questions')
+	.populate({
+			path: 'questions',
+			match: { deleted: false }
+		})
 	.lean()
 	.exec(function(err, quiz){
 		if (err){ return cb(err) }
@@ -240,7 +243,10 @@ exports.getQuiz = function(req,res){
 	if (!quizId){ return res.send(400, 'Quiz Id is required') }
 
 	Quiz.findById(quizId)
-		.populate('questions')
+		.populate({
+			path: 'questions',
+			match: { deleted: false }
+		})
 		.exec(function(err, quiz){
 			if (err){ return res.send(500, err) }
 			if (!quiz){ return res.send(404, 'Quiz not found') }
@@ -321,18 +327,23 @@ exports.removeQuiz = function(req, res){
 	// as deleted and don't actually delete the record so users
 	// who have taken it can still see their results.
 	
-	if (QuizResult.findOne({quiz: req.body._id})) {
-		Quiz.update({ _id: req.body._id }, { $set: { deleted: true } }, function(err){
-			if (err){ return res.send(500, err) }
-			res.send(200, 'Quiz removed')
-		})
-	} else {
-		Quiz.findById(req.body._id).remove(function(err){
-			if (err){ return res.send(500, err) }
-			res.send(200, 'Quiz removed')
-		})
-	}
+	QuizResult.findOne({quiz: req.body._id}, function(err, result){
+		if (err){ console.log(err) }
 
+		console.log(result)
+		
+		if (result && result.length > 0){
+			Quiz.update({ _id: req.body._id }, { $set: { deleted: true } }, function(err){
+				if (err){ return res.send(500, err) }
+				res.send(200, 'Quiz set as deleted')
+			})
+		} else {
+			Quiz.findById(req.body._id).remove(function(err){
+				if (err){ return res.send(500, err) }
+				res.send(200, 'Quiz removed')
+			})
+		}
+	})
 }
 
 
@@ -350,10 +361,17 @@ exports.getQuestion = function(req,res){
 	if (!questionId){ return res.send(400, 'Question Id is required') }
 
 	Question.findById(questionId)
-		.populate('questions')
-		.exec(function(err, question){
-			if (err){ return res.send(500, err) }
-			if (!question){ return res.send(404, 'Question not found') }
+		.populate({
+			path: 'questions',
+			match: { deleted: false }
+		})
+		.exec(function(err, question) {
+			if (err) {
+				return res.send(500, err)
+			}
+			if (!question) {
+				return res.send(404, 'Question not found')
+			}
 
 			return res.send(200, question)
 		})
@@ -404,17 +422,29 @@ exports.removeQuestion = function(req, res){
 	// as deleted and don't actually delete the record so users
 	// who have taken it can still see their results.
 	
-	if (Quiz.findOne({questions: req.body._id})) {
-		Question.update({ _id: req.body._id }, { $set: { deleted: true } }, function(err){
-			if (err){ return res.send(500, err) }
-			res.send(200, 'Question removed')
-		})
+	QuizResult.findOne({'quizQuestions': { $elemMatch: {'questionId': req.body._id}}}, function(err, result){
+		if (err){ console.log(err) }
+
+		console.log(result)
+		
+		if (result && result.length > 0){
+			Question.update({ _id: req.body._id }, { $set: { deleted: true } }, function(err){
+				if (err){ return res.send(500, err) }
+				res.send(200, 'Question set as deleted')
+			})
+		} else {
+			Question.findById(req.body._id).remove(function(err){
+				if (err){ return res.send(500, err) }
+				res.send(200, 'Question removed')
+			})
+		}
+	})
+	
+	/*if (QuizResult.findOne({'quizQuestions': { $elemMatch: {'questionId': req.body._id}}})) {
+		
 	} else {
-		Question.findById(req.body._id).remove(function(err){
-			if (err){ return res.send(500, err) }
-			res.send(200, 'Question removed')
-		})
-	}
+		
+	}*/
 }
 
 /**
