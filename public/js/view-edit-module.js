@@ -103,8 +103,9 @@ var _loadCaseImage = function(studyId, cb){
 
 var loadQuestion = function(index){
 
-  var question = quiz.questions[index],
-      updateDOM = function(){
+  var question = quiz.questions[index]
+  
+  var updateDOM = function(){
 
         var choices = $('#choices'),
             image = $('#imagePreview')
