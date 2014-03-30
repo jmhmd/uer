@@ -316,6 +316,13 @@ var saveToServer = function(){
     .done(function(res){
       console.log('Saved quiz to server ', res)
 
+      // assign ids to questions if they don't have yet
+      res.questions.forEach(function(question, i){
+        if (!quiz.questions[i]._id){
+          quiz.questions[i]._id = question
+        }
+      })
+
       $("#confirmationDiv").fadeIn(300).delay(200).fadeOut(300);
     })
     .fail(function(err){
@@ -383,9 +390,13 @@ var registerEventHandlers = function(){
         delete quiz.questions[currentQuestion]._id
         delete quiz.questions[currentQuestion].createdAt
         delete quiz.questions[currentQuestion].updatedAt
-        delete quiz.questions[currentQuestion].caseImage.imageStacks[0]._id
-        delete quiz.questions[currentQuestion].caseImage.imageStacks[0].id
-        quiz.questions[currentQuestion].caseImage.imageStacks[0].imagePaths = []
+
+        if (quiz.questions[currentQuestion].caseImage && quiz.questions[currentQuestion].caseImage.imageStacks[0]){
+          delete quiz.questions[currentQuestion].caseImage.imageStacks[0]._id
+          delete quiz.questions[currentQuestion].caseImage.imageStacks[0].id
+          quiz.questions[currentQuestion].caseImage.imageStacks[0].imagePaths = []
+        }
+
         // reload question
         loadQuestion(currentQuestion)
       }
@@ -396,10 +407,10 @@ var registerEventHandlers = function(){
 
     if (confirm('Delete question? This cannot be undone.')){
       
-      if (quiz.questions[currentQuestion]._id){
+      if (quiz.questions[currentQuestion].studyId){
 
         // delete question
-        $.post('/api/removeQuestion', {_id: quiz.questions[currentQuestion]._id})
+        $.post('/api/removeQuestion', quiz.questions[currentQuestion])
           .done(function(res){
             console.log('Removed question ', res)
             removeQuestion(currentQuestion)

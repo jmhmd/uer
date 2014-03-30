@@ -425,7 +425,7 @@ exports.removeQuestion = function(req, res){
 	QuizResult.findOne({'quizQuestions': { $elemMatch: {'questionId': req.body._id}}}, function(err, result){
 		if (err){ console.log(err) }
 
-		console.log(result)
+		console.log('Has this question been used in a quiz? ', result)
 		
 		if (result && result.length > 0){
 			Question.update({ _id: req.body._id }, { $set: { deleted: true } }, function(err){
@@ -433,10 +433,31 @@ exports.removeQuestion = function(req, res){
 				res.send(200, 'Question set as deleted')
 			})
 		} else {
-			Question.findById(req.body._id).remove(function(err){
-				if (err){ return res.send(500, err) }
-				res.send(200, 'Question removed')
-			})
+
+			// remove study from casefiles
+			request.post({
+					url: casefiles.url + 'api/client/removeStudy',
+					json: {
+						email: req.user.email,
+						apikey: casefiles.apikey,
+						studyId: req.body.studyId
+					}
+				},
+				function(err, response, body) {
+					if (!err && response.statusCode !== 200 && response.statusCode !== 201){
+						err = body
+					}
+					if (err) {
+						return res.send(500, err)
+					}
+
+					console.log(body)
+
+					Question.findById(req.body._id).remove(function(err){
+						if (err){ return res.send(500, err) }
+						res.send(200, 'Question removed')
+					})
+				})
 		}
 	})
 	
@@ -537,14 +558,12 @@ exports.saveImages = function(req, res){
 			}
 		},
 		function(err, response, body) {
-			if (response.statusCode !== 200 && response.statusCode !== 201 && !err){
+			if (!err && response.statusCode !== 200 && response.statusCode !== 201){
 				err = body
 			}
 			if (err) {
 				return res.send(500, err)
 			}
-
-			console.log(response.statusCode)
 
 			res.send(200, body)
 		})
@@ -593,7 +612,7 @@ exports.removeImages = function(req, res){
 			}
 		},
 		function(err, response, body) {
-			if (response.statusCode !== 200 && !err){
+			if (!err && response.statusCode !== 200){
 				err = body
 			}
 			if (err) {
@@ -621,7 +640,7 @@ exports.clearImages = function(req, res){
 			}
 		},
 		function(err, response, body) {
-			if (response.statusCode !== 200 && !err){
+			if (!err && response.statusCode !== 200){
 				err = body
 			}
 			if (err) {
