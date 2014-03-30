@@ -178,6 +178,10 @@ li {
 	font-size: 16px;
 }
 
+.required {
+	color: rgb(153, 0, 0);
+}
+
 
 /*#textfields, #moretextfields {
 	color: #686868;

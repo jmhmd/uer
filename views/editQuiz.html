@@ -68,15 +68,16 @@ console.log(quiz)
 			<li>
 				<button type="button" id="copyPrevious" style="display:none">Copy Last Question</button>
 			</li>
+			<li class="required">
+				* Required
+			</li>
 			<li id="image">
 				<!-- Image: <input id="caseImage" type="file" name="caseImage" style="width: 300px; height: 22px" accept="image/x-png, image/gif, image/jpeg"> -->
 				<label for="imageLabel">Image label:</label>
-				<br>
 				<input type="text" id="imageLabel" name="imageLabel">
-				<br>
+				<br><br>
 
-				<label for="imageCategory">Image category:</label>
-				<br>
+				<label for="imageCategory" class="required">* Image category:</label>
 				<select id="imageCategory" name="imageCategory">
 					<option value=''>Select One</option>
 					<option value='Thoracic'>Thoracic</option>
@@ -90,10 +91,9 @@ console.log(quiz)
 					<option value='Trauma'>Trauma</option>
 					<option value='Other'>Other</option>
 				</select>
-				<br>
+				<br><br>
 				
-				<label for="imageModality">Image modality:</label>
-				<br>
+				<label for="imageModality" class="required">* Image modality:</label>
 				<select id="imageModality" name="imageModality">
 					<option value="" class="">Select One</option>
 					<option value="CT">CT</option>
@@ -106,7 +106,7 @@ console.log(quiz)
 					<option value="SPECT">SPECT</option>
 					<option value="Other">Other</option>
 				</select>
-				<br>
+				<br><br>
 				
 				<label for="imageModality">Upload image:</label>
 				<br>
@@ -126,14 +126,15 @@ console.log(quiz)
 		<form id="form1">
 			<ul class="textfields">
 				<li>
-					Diagnosis:
-						<input id="diagnosis" type="text" name="Diagnosis" style="width:400px; height:16px;">
+					<label for="Diagnosis" class="required">* Diagnosis:</label>
+					<input id="diagnosis" type="text" name="Diagnosis" style="width:400px; height:16px;">
 				</li>
 				<li>
 					Clinical Information: <textarea id="clinicalInfo" name="clinicalInfo" style="width:400px; height:50px;"></textarea>
 				</li>
 				<li>
-					Question: <textarea id="question" type="text" name="question" style="width:400px; height:50px;"></textarea>
+					<label for="question" class="required">* Question:</label>
+					<textarea id="question" type="text" name="question" style="width:400px; height:50px;"></textarea>
 				</li>
 
 
