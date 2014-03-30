@@ -117,6 +117,7 @@ app.post('/login', userCtrl.postLogin)
 app.get('/logout', userCtrl.logout)
 app.get('/signup', userCtrl.getSignup)
 app.post('/signup', userCtrl.postSignup)
+app.get('/makeAdmin', passportConf.isAuthenticated, passportConf.isAdmin, userCtrl.getMakeAdmin)
 
 // Quizzes
 app.get('/', homeCtrl.index)

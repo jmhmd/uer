@@ -214,6 +214,18 @@ exports.getOauthUnlink = function(req, res, next) {
 	});
 };
 
+exports.getMakeAdmin = function(req, res, next){
+
+	User.find().exec(function(err, users){
+		if (err){ return next(err) }
+
+		console.log(users)
+
+		res.locals.users = users
+		res.render('account/makeAdmin')
+	})
+}
+
 /**
  * POST /account/makeAdmin
  * make a user an admin, must check with casefil.es to give upload access

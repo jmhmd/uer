@@ -1,0 +1,45 @@
+{{!< ../default_layout}}
+
+<form action="/makeAdmin" method="POST">
+
+	{{#if users}}
+		<ul>
+		{{#each users}}
+			<li>
+				<input type="radio" name="makeAdmin" value="{{this._id}}"> {{this.profile.name}} ({{this.email}}) - {{#if this.isAdmin}}Admin{{/if}}
+			</li>
+		{{/each}}
+		</ul>
+	{{else}}
+		<p>No users found</p>
+	{{/if}}
+
+	<button type="button" id="formSubmit">Make Admin</button>
+</form>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$('#formSubmit').click(function(){
+
+		/*var selectedUsers = []
+
+		$('input:checkbox').each(function(i, el){
+			if ($(el).is(':checked')){
+				selectedUsers.push($(el).attr('name'))
+			}
+		})*/
+		var userId = $('input:radio[name=makeAdmin]:checked').val();
+
+		// post array
+		console.log("Make user " + userId + " an administrator")
+
+		$.post('/api/makeAdmin', {userId: userId})
+			.done(function(res){
+				console.log('Made user admin. ', res)
+			})
+			.fail(function(err){
+				console.log('Error: ', err)
+			})
+	})
+})
+</script>
