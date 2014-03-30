@@ -78,9 +78,15 @@ var addQuestion = function(){
 
   quiz.questions.push(new Question())
 
-  saveQuestion(function(){
-    goToQuestion(quiz.questions.length - 1)
-  })
+  if (currentQuestion === null){
+  // first question of quiz, don't need to save anything before loading
+    goToQuestion(0)
+  } else {
+  // moving from existing question, save it before loading new question
+    saveQuestion(function(){
+      goToQuestion(quiz.questions.length - 1)
+    })
+  }
 }
 
 var _loadCaseImage = function(studyId, cb){
@@ -196,6 +202,7 @@ var saveQuestion = function(index, cb){
   if (caseImageValidationErrors.length > 0){
     var errors = caseImageValidationErrors.reduce(function(sum, error){ return sum + error + '\n' }, '')
     window.alert('The following fields are required: \n\n' + errors)
+    return cb('Validation errors: ' + errors)
   } else {
 
     var sendObj = {
@@ -305,13 +312,9 @@ var saveToServer = function(){
 
 var registerEventHandlers = function(){
 
-  $("#editQuestionbutton").click(function() {
+  /*$("#editQuestionbutton").click(function() {
     removeReadOnly();
-  });
-
-  /**
-   * Save quiz
-   */
+  });*/
 
   $("#submitButton").click(function() {
 
@@ -329,7 +332,6 @@ var registerEventHandlers = function(){
   });
 
   $("#addChoiceButton").click(function() {
-
     addChoice()
   });
 
@@ -361,6 +363,7 @@ var registerEventHandlers = function(){
   })
 }
 
+
 //////////////////////
 // Helper functions //
 //////////////////////
@@ -374,6 +377,14 @@ function getChar(n) {
   }
   return s;
 }
+
+
+//////////////////
+// Constructors //
+//////////////////
+
+// Probably should do more with these constructors,
+// i.e. attach 'save' and other methods directly to them
 
 /**
  * Question object constructor
@@ -416,64 +427,50 @@ function QuestionImage(obj){
     ]
 }
 
+
+///////////////
+// Uploading //
+///////////////
+
 var setupUpload = function(){
 
   $('#uploadImages').on('click', function(){
 
-    // save any changes to the quiz object
-    saveQuestion()
+    // save any changes to the quiz object, this should also get an image
+    // container if we don't have one already
+    saveQuestion(function(err){
+      if (err){
+        return false
+      }
+      else {
 
-    var questionStudy = quiz.questions[currentQuestion].caseImage,
+        var questionStudy = quiz.questions[currentQuestion].caseImage,
         studyId = quiz.questions[currentQuestion].studyId
 
-    // see if study has id already (has been saved in the past), otherwise,
-    // save the object to get an id
-    if (studyId){
+        updateUploadKey(studyId)
 
-      updateUploadKey(studyId)
+        // if there are images already, delete them
+        if (questionStudy.imageStacks[0].imagePaths.length > 0){
+          $.post('/api/clearImages', {studyId: studyId})
+            .done(function(res){
 
-      // if there are images already, delete them
-      if (questionStudy.imageStacks[0].imagePaths.length > 0){
-        $.post('/api/clearImages', {studyId: studyId})
-          .done(function(res){
+              console.log('Images deleted from server', res)
 
-            console.log('Images deleted from server', res)
+              // images deleted from server
+              questionStudy.imageStacks[0].imagePaths = []
 
-            // images deleted from server
-            questionStudy.imageStacks[0].imagePaths = []
-
-            // go ahead and trigger upload
-            dropzone.processQueue()
-          })
-          .fail(function(err){
-            console.log(err)
-          })
-      } else {
-        // empty container exists, start upload
-        dropzone.processQueue()
+              // go ahead and trigger upload
+              dropzone.processQueue()
+            })
+            .fail(function(err){
+              console.log(err)
+            })
+        } else {
+          // empty container exists, start upload
+          dropzone.processQueue()
+        }
       }
-    } else {
-      // get container for images first so we know where to upload to
-      $.post('/api/saveImages', {studyId: false, studyObj: questionStudy})
-        .done(function(res){
-          console.log('Created image container: ', res)
-
-          if (res._id){
-
-            // add id, process upload
-            studyId = res._id
-
-            updateUploadKey(studyId)
-
-            dropzone.processQueue()
-          } else {
-            console.log('There was an error saving the Image data.')
-          }
-        })
-        .fail(function(err){
-          console.log('FAIL', err)
-        })
-    }
+    })
   })
 
   var newImagePaths = []
@@ -526,45 +523,22 @@ var setupUpload = function(){
       }
     })
 
-    var onAllUploaded = function(){
-      console.log('complete')
+  var onAllUploaded = function(){
+    console.log('complete')
 
-      var question = quiz.questions[currentQuestion]
+    var question = quiz.questions[currentQuestion]
 
-      // set new imagePaths on quiz object
-      question.caseImage.imageStacks[0].imagePaths = newImagePaths
+    // set new imagePaths on quiz object
+    question.caseImage.imageStacks[0].imagePaths = newImagePaths
 
-      // refresh DOM to display new image
-      loadQuestion(currentQuestion)
+    // refresh DOM to display new image
+    loadQuestion(currentQuestion)
 
-      // clear array for next time
-      newImagePaths = []
-      dropzone.removeAllFiles()
+    // clear array for next time
+    newImagePaths = []
+    dropzone.removeAllFiles()
 
-      // probably should auto-save quiz to server here
-      saveToServer()
-    }
-    /*.on('complete',function(){
-      if (this.getUploadingFiles().length > 0){
-        this.processQueue()
-        return false
-      }
-      
-      console.log('complete')
-
-      var question = quiz.questions[currentQuestion]
-
-      // set new imagePaths on quiz object
-      question.caseImage.imageStacks[0].imagePaths = newImagePaths
-
-      // refresh DOM to display new image
-      loadQuestion(currentQuestion)
-
-      // clear array for next time
-      newImagePaths = []
-      dropzone.removeAllFiles()
-
-      // probably should auto-save quiz to server here
-      saveToServer()
-    })*/
+    // probably should auto-save quiz to server here
+    saveToServer()
+  }
 }

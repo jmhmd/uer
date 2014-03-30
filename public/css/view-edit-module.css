@@ -152,7 +152,7 @@ td:hover {
 textarea {
 	vertical-align: top;
 	/*background-color: #C8C8C8;*/
-	color: #686868;
+	color: #000;
 	font-family: Verdana;
 	box-shadow: 3px 3px 3px #606060;
 }
@@ -160,7 +160,7 @@ textarea {
 
 input {
 	/*background-color: #C8C8C8;*/
-	color: #686868;
+	color: #000;
 	font-family: Verdana;
 	box-shadow: 3px 3px 3px #606060;
 
