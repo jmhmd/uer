@@ -114,6 +114,7 @@ var loadQuestion = function(index){
         $('#diagnosis').val(question.diagnosis);
         $('#category').val(question.category);
         $('#difficulty').val(question.difficulty);
+        $('#questionCategory').val(question.category);
 
         $('#imageLabel').val(question.caseImage.imageStacks[0].label);
         $('#imageModality').val(question.caseImage.imageStacks[0].modality);
@@ -121,6 +122,13 @@ var loadQuestion = function(index){
 
         var imageURL = question.caseImage.imageStacks[0].imagePaths[0] || 'http://placehold.it/512x512&text=No+image+for+this+case.'
         image.attr('src', imageURL)
+
+        // show/hide copyPrev button
+        if (index > 0){
+          $('#copyPrevious').show()
+        } else {
+          $('#copyPrevious').hide()
+        }
       };
 
   if (typeof question.caseImage === "undefined"){
@@ -150,6 +158,15 @@ var loadQuestion = function(index){
   }
 }
 
+var isValidCaseImage = function(caseImage){
+  var errors = []
+  if (caseImage.diagnosis === ''){errors.push('Diagnosis')}
+  if (caseImage.category === ''){errors.push('Category')}
+  if (caseImage.imageStacks[0].modality === ''){errors.push('Modality')}
+
+  return errors
+}
+
 var saveQuestion = function(index, cb){
 
   if (typeof index === "function"){
@@ -167,36 +184,45 @@ var saveQuestion = function(index, cb){
   question.diagnosis = $('#diagnosis').val()
   question.category = $('#category').val()
   question.difficulty = $('#difficulty').val()
+  question.category = $('#questionCategory').val()
 
   question.caseImage.category = $('#imageCategory').val()
   question.caseImage.diagnosis = question.diagnosis
   question.caseImage.imageStacks[0].label = $('#imageLabel').val()
   question.caseImage.imageStacks[0].modality = $('#imageModality').val()
 
-  var sendObj = {
-    studyId: question.studyId,
-    studyObj: question.caseImage
+  var caseImageValidationErrors = isValidCaseImage(question.caseImage)
+
+  if (caseImageValidationErrors.length > 0){
+    var errors = caseImageValidationErrors.reduce(function(sum, error){ return sum + error + '\n' }, '')
+    window.alert('The following fields are required: \n\n' + errors)
+  } else {
+
+    var sendObj = {
+      studyId: question.studyId,
+      studyObj: question.caseImage
+    }
+
+    $.post('/api/saveImages', sendObj)
+      .done(function(res){
+        console.log('saved images: ', res)
+
+        if (res._id && question.studyId && res._id !== question.studyId){ console.log('IDs do not match') }
+
+        // add images study id if not already set
+        if (!question.studyId && res._id){
+          question.studyId = res._id
+          console.log('studyId set to ', question.studyId)
+        }
+
+        if (cb){ cb(null, res) }
+      })
+      .fail(function(err){
+        console.log('error saving images: ', err)
+        window.alert('Error saving images.')
+        if (cb){ cb(err) }
+      })
   }
-
-  $.post('/api/saveImages', sendObj)
-    .done(function(res){
-      console.log('saved images: ', res)
-
-      if (res._id && question.studyId && res._id !== question.studyId){ console.log('IDs do not match') }
-
-      // add images study id if not already set
-      if (!question.studyId && res._id){
-        question.studyId = res._id
-        console.log('studyId set to ', question.studyId)
-      }
-
-      if (cb){ cb(null, res) }
-    })
-    .fail(function(err){
-      console.log('error saving images: ', err)
-      window.alert('Error saving images.')
-      if (cb){ cb(err) }
-    })
 }
 
 var getChoices = function(){
@@ -320,9 +346,17 @@ var registerEventHandlers = function(){
 
   $(document).on('click', '#copyPrevious', function() {
 
-    // load data from previous question into form
-    if (currentQuestion > 0){
-      loadQuestion(currentQuestion - 1)
+    if (confirm('Copy previous question? This will overwrite anything you have written in this question.')){
+      
+      // copy data from previous question
+      if (currentQuestion > 0){
+        // clone object
+        quiz.questions[currentQuestion] = JSON.parse(JSON.stringify(quiz.questions[currentQuestion - 1]))
+        // remove uploaded image paths
+        quiz.questions[currentQuestion].caseImage.imageStacks[0].imagePaths = []
+        // reload question
+        loadQuestion(currentQuestion)
+      }
     }
   })
 }
@@ -352,7 +386,7 @@ function getChar(n) {
  */
 function Question(caseImage, studyId, clinicalInfo, stem, choices, diagnosis, category, difficulty) {
 	this.caseImage = caseImage || new QuestionImage({category: category, diagnosis: diagnosis})
-  this.studyId = studyId || false;
+  this.studyId = studyId || '';
 	this.clinicalInfo = clinicalInfo || '';
 	this.stem = stem || ''; // changed this from this.question to match the database model that is set up, also to not confuse a question object with question parameter i.e. "question.question"
 	this.choices = choices || [];
@@ -375,7 +409,7 @@ function QuestionImage(obj){
   // that's why for now it's always caseImage.imageStacks[0] elsewhere in the code
   this.imageStacks = obj.imageStacks || [
       {
-        label: 'Series 1',
+        label: '',
         modality: '',
         imagePaths: [] // array of image urls
       }
@@ -452,6 +486,8 @@ var setupUpload = function(){
       paramName: 'file',
       maxThumbnailFilesize: 5,
       autoProcessQueue: false,
+      thumbnailWidth: 200,
+      thumbnailHeight: 200,
       dictDefaultMessage: '<div class="msg-primary">Drop files here to upload</div><div class="msg-secondary">(or click)</div>'
     })
     .on('addedfile', function(file){

@@ -65,6 +65,9 @@ console.log(quiz)
 
 	<div id="formdiv">
 		<ul class="textfields">
+			<li>
+				<button type="button" id="copyPrevious" style="display:none">Copy Last Question</button>
+			</li>
 			<li id="image">
 				<!-- Image: <input id="caseImage" type="file" name="caseImage" style="width: 300px; height: 22px" accept="image/x-png, image/gif, image/jpeg"> -->
 				<label for="imageLabel">Image label:</label>
@@ -104,7 +107,9 @@ console.log(quiz)
 					<option value="Other">Other</option>
 				</select>
 				<br>
-
+				
+				<label for="imageModality">Upload image:</label>
+				<br>
 				<form class="dropzone">
 					<input type="hidden" id="uploadKey" name="key" value="">
 					<input type="hidden" name="AWSAccessKeyId" value="{{ uploadCreds.s3Key }}"> 
