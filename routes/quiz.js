@@ -188,7 +188,7 @@ var _updateQuizObject = function(quiz, newQuiz, cb){
 	// check if questions array populated with documents or just ids.
 	// if ids, just update and save. If objects, we need to loop through
 	// and individually save each question document.
-	if (newQuiz.questions.length > 0 && _.isObject(newQuiz.questions[0])){
+	if (newQuiz.questions && newQuiz.questions.length > 0 && _.isObject(newQuiz.questions[0])){
 
 		var questions = []
 
@@ -303,7 +303,7 @@ exports.saveQuiz = function(req, res){
 
 		// use this function instead of the Quiz constructor directly
 		// so we get the object modifications before saving
-		_updateQuizObject(quiz, res.body, function(err, updatedQuiz){
+		_updateQuizObject(quiz, req.body, function(err, updatedQuiz){
 			if (err){ return res.send(500, err) }
 
 			updatedQuiz.save(function(err){

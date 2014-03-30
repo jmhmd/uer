@@ -17,18 +17,21 @@ var quiz = quiz,
 /////////////////
 
 $(document).ready(function() {
-
-	updateQuestionTabs()
+  
+  if (!quiz.questions || quiz.questions.length === 0){
+    if (!quiz.questions){
+      quiz.questions = []
+    }
+    addQuestion()
+  } else {
+    updateQuestionTabs()
+    goToQuestion(0)
+  }
 
   registerEventHandlers()
 
   setupUpload()
 
-  if (quiz.questions.length === 0){
-    addQuestion()
-  } else {
-    goToQuestion(0)
-  }
 
   /*var imageHeight = $('#imagepreviewDiv img').height();
   if (imageHeight < 540) {
@@ -132,9 +135,11 @@ var loadQuestion = function(index){
 
         choices.empty()
 
-        question.choices.forEach(function(choice, i){
-          addChoice(i, choice.option, choice.explanation, choice.correct)
-        })
+        if (question.choices){
+          question.choices.forEach(function(choice, i){
+            addChoice(i, choice.option, choice.explanation, choice.correct)
+          })
+        }
 
         $('#clinicalInfo').val(question.clinicalInfo);
         $('#question').val(question.stem);
@@ -308,29 +313,47 @@ var goToQuestion = function(index){
   $("#currentNumber").html(index + 1)
 }
 
+var isValidQuestion = function(index){
+
+  var errors = [],
+      question = quiz.questions[index]
+  if (question.diagnosis === ''){errors.push('Diagnosis')}
+  if (question.stem === ''){errors.push('Question')}
+
+  return errors
+}
+
 var saveToServer = function(){
 
   saveQuestion()
 
-  // send quiz object to the server
-  $.post('/api/saveQuiz', quiz)
-    .done(function(res){
-      console.log('Saved quiz to server ', res)
+  var errors = isValidQuestion(currentQuestion)
 
-      // assign ids to questions if they don't have yet
-      res.questions.forEach(function(question, i){
-        if (!quiz.questions[i]._id){
-          quiz.questions[i]._id = question
-        }
+  if (errors.length === 0){
+
+    // send quiz object to the server
+    $.post('/api/saveQuiz', quiz)
+      .done(function(res){
+        console.log('Saved quiz to server ', res)
+
+        // assign ids to questions if they don't have yet
+        res.questions.forEach(function(question, i){
+          if (!quiz.questions[i]._id){
+            quiz.questions[i]._id = question
+          }
+        })
+
+        $("#confirmationDiv").fadeIn(300).delay(200).fadeOut(300);
       })
+      .fail(function(err){
+        console.log('Error saving quiz to server: ', err)
 
-      $("#confirmationDiv").fadeIn(300).delay(200).fadeOut(300);
-    })
-    .fail(function(err){
-      console.log('Error saving quiz to server: ', err)
-
-      $("#failureDiv").fadeIn(300).delay(300).fadeOut(300);
-    })
+        $("#failureDiv").fadeIn(300).delay(300).fadeOut(300);
+      })
+  } else {
+    var errors = errors.reduce(function(sum, error){ return sum + error + '\n' }, '')
+    window.alert('The following fields are required:\n\n' + errors)
+  }
 }
 
 
@@ -345,10 +368,6 @@ var registerEventHandlers = function(){
   });*/
 
   $("#submitButton").click(function() {
-
-    if (!window.confirm("Save Quiz?")){
-      return false
-    }
 
     // send quiz object to the server
     saveToServer()
