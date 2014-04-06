@@ -4,3 +4,7 @@ a.selected {
 	cursor: default;
 	font-weight: bold;
 }
+
+ul.choice-list {
+	list-style: none;
+}
