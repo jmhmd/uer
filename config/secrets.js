@@ -41,7 +41,7 @@ casefiles.getUploadCreds = function(cb){
 			json: true
 		},
 		function(err, response, body){
-			if (response.statusCode !== 200 && !err){ err = body }
+			if (response && response.statusCode !== 200 && !err){ err = body }
 			cb(err, body)
 		})
 }

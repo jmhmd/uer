@@ -90,6 +90,7 @@ exports.showQuiz = function(req, res, next){
 		if (err){ return next(err) }
 
 		res.locals.quiz = quiz
+		res.locals.quiz.JSON = JSON.stringify(quiz)
 		// render template
 		res.render('quiz')
 	})

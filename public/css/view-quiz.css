@@ -1,0 +1,6 @@
+a.selected {
+	text-decoration: none;
+	color: black;
+	cursor: default;
+	font-weight: bold;
+}

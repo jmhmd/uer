@@ -59,7 +59,7 @@ var updateQuestionTabs = function(){
   $("#totalNumber").html(quiz.length);
 }
 
-var addReadOnly = function() {
+/*var addReadOnly = function() {
   $('textarea, input').prop('readonly', true);
   $('textarea, input').css("color", "#686868");
   $('textarea, input').css("background-color", "#C8C8C8");
@@ -72,7 +72,7 @@ var removeReadOnly = function() {
   $('textarea, input').css("color", "black");
   $('textarea, input').css("background-color", "white");
   $('#textfields, #moretextfields').css("color", "black");
-};
+};*/
 
 var addQuestion = function(){
   var questionRowLength = $('#questionRow tr').length;

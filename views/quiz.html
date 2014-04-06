@@ -1,0 +1,23 @@
+{{!< ./default_layout}}
+
+<script type="text/javascript">
+var quiz = {{{quiz.JSON}}}
+	//quizResult = {{{quizResult}}}
+
+console.log(quiz)
+</script>
+<script type="text/javascript" src="/js/lib/angular-1.2.16/angular.js"></script>
+<script type="text/javascript" src="/js/lib/angular-1.2.16/angular-ui-router.js"></script>
+<script type="text/javascript" src="/js/quiz-app/quiz-app.js"></script>
+<script type="text/javascript" src="/js/quiz-app/quiz-controller.js"></script>
+
+<link type="text/css" rel="stylesheet" href="/css/view-quiz.css"/>
+
+<div ng-app="quizApp">
+<div ng-controller="questionCtrl">
+	
+	<h3>{{quiz.title}}</h3>
+
+	<div id="question" ng-include src="'/html/quiz.question.html'"></div>
+</div>
+</div>

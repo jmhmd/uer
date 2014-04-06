@@ -1,0 +1,16 @@
+<p>
+	<span ng-repeat="question in quiz.questions">
+		<a href="#" ng-click="gotoQuestion($index)" ng-class="{selected: isCurrentQuestion($index)}">{{$index + 1}}</a>
+	</span>
+</p>
+
+<h4>Question: {{currentIndex + 1}}</h4>
+
+<p><strong>{{currentQuestion().stem}}</strong></p>
+
+
+<ul>
+	<li ng-repeat="choice in currentQuestion().choices">
+		<input type="radio" name="choices" value="{{$index}}"> {{choice.option}}
+	</li>
+</ul>
