@@ -8,3 +8,53 @@ a.selected {
 ul.choice-list {
 	list-style: none;
 }
+
+.nav-button {
+	cursor: pointer;
+	height:30px;
+    width:100px;
+    border: 2px solid black;
+    border-radius:5px;
+    text-align: center;
+    padding:5px;
+    background-color: #F5FAF8;
+}
+
+
+body {
+    background-color: #cccccc
+}
+
+#selections {
+    display: inline-;
+    position: relative;
+}
+
+img {
+    border: 1px solid black; 
+    position: relative;
+    margin-top: 80px
+}
+textarea {
+    border: 1px solid black;
+    position: relative;
+    margin-right: 50px;
+    margin-left: 600px;
+    margin-top: -110px;
+}
+
+p {
+    margin: 0px
+}
+    
+#next {
+    position: relative;
+    margin-top:-130px; 
+    margin-left:400px;    
+}
+
+#previous {
+    position: absolute;
+    margin-left: 400px;
+    margin-top: 20px;
+}

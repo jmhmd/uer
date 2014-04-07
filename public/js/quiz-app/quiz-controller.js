@@ -48,6 +48,20 @@ quizApp.controller('questionCtrl', ['$scope', '$http',
 			return index === $scope.currentIndex
 		}
 
+		$scope.nextQuestion = function(){
+
+			if ($scope.currentIndex + 1 !== $scope.quiz.questions.length){
+				$scope.gotoQuestion($scope.currentIndex + 1)
+			}
+		}
+
+		$scope.prevQuestion = function(){
+
+			if ($scope.currentIndex !== 0){
+				$scope.gotoQuestion($scope.currentIndex - 1)
+			}
+		}
+
 		var _loadImage = function(index){
 
 			var studyId = $scope.quiz.questions[index].studyId

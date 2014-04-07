@@ -8,10 +8,28 @@
 
 <p><strong>{{currentQuestion().stem}}</strong></p>
 
-<img src="{{currentQuestion().imageSeries[0].imagePaths[0]}}" alt="" height="512">
+<!-- <img src="{{currentQuestion().imageSeries[0].imagePaths[0]}}" alt="" height="512"> -->
 
-<ul class="choice-list">
-	<li ng-repeat="choice in currentQuestion().choices">
-		<input type="radio" name="choices" value="{{$index}}"> {{choice.option}}
-	</li>
-</ul>
+
+
+<div id="Selections"> 
+	<ul class="choice-list">
+		<li ng-repeat="choice in currentQuestion().choices">
+			<input type="radio" name="choices" value="{{$index}}"> {{choice.option}}
+		</li>
+	</ul>
+ </div>
+ <!-- <div id="text">
+ <textarea rows="4" cols="30"></textarea>
+
+ </div> -->
+ <div id="next" class="nav-button" ng-click="nextQuestion()"> 
+ Next study 
+ </div> 
+ 
+ <div id="previous" class="nav-button" ng-click="prevQuestion()">
+ Previous study
+ </div>
+ 
+ <div>
+ <img src="{{currentQuestion().imageSeries[0].imagePaths[0]}}" height="512">
