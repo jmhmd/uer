@@ -19,8 +19,8 @@ var casefiles = {},
 
 if (process.env.NODE_ENV === 'development'){
 
-	casefiles.apikey = '52f7caabff074a371800000b'
-	//casefiles.apikey = '52f7caabff074a37180000' // invalid for testing
+	// casefiles.apikey = '52f7caabff074a371800000b' // on powerbook
+	casefiles.apikey = '52faa514a225b71d13000005' // on imac
 	casefiles.url = 'http://localhost:8080/' // must include trailing slash
 	uploadKeyRoot = "uploads/temp/"
 } else if (process.env.NODE_ENV === 'testing'){

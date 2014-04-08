@@ -1,14 +1,15 @@
 {{!< ../default_layout}}
-<div id="gmaillogin">
 
 <form action="/login" method="POST">
+	<label for="email">Email: </label>
 	<input type="text" name="email">
+	<label for="password">Password: </label>
 	<input type="password" name="password">
 
 	<button type="submit">Go</button>
 
 </form>
 
-</div>
+<p>OR</p>
 
-<a href="/auth/google">Log in with Gmail</a>
+<a class="login-google" href="/auth/google"></a>

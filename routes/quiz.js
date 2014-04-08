@@ -26,7 +26,7 @@ exports.showQuizList = function(req, res, next){
 			if (err){ return next(err) }
 
 			if (quizzes.length === 0){
-				res.flash('info', {msg: 'No quizzes found.'})
+				req.flash('info', {msg: 'No quizzes found.'})
 			}
 
 			res.locals.quizzes = quizzes
@@ -86,14 +86,73 @@ exports.showQuiz = function(req, res, next){
 	
 	var quizId = req.params.quizId
 
-	_getLeanQuizObject(quizId, function(err, quiz){
+	Quiz
+	.findById(quizId)
+	.lean()
+	.exec(function(err, quiz){
 		if (err){ return next(err) }
 
 		res.locals.quiz = quiz
 		res.locals.quiz.JSON = JSON.stringify(quiz)
 		// render template
-		res.render('quiz')
+		res.render('quiz-landing')
 	})
+}
+
+/**
+ * load quiz angular-js app to take quiz (start)
+ * @param  {string} quizId
+ */
+exports.startQuiz = function(req, res, next){
+	
+	var quizId = req.params.quizId
+
+	_getLeanQuizObject(quizId, function(err, quiz){
+		if (err){ return next(err) }
+
+		QuizResult.findOne({user: req.user._id, quiz: quiz._id}, function(err, quizResult){
+			if (err){ return next(err) }
+
+			if (quizResult.length < 1){
+
+				quizResult = new QuizResult()
+
+				var quizQuestions = _.map(quiz.questions, function(q){ return q._id })
+
+				// randomize question order here...
+				
+
+				quizResult.user = req.user._id
+				quizResult.quiz = quiz._id
+
+				// fill in question ids
+				_.each(quizQuestions, function(question, i){
+					quizResult.quizQuestions[i]._id = question._id
+				})
+
+				quizResult.save(function(err){
+					if (err){ return next(err) }
+				
+					send(quiz, quizResult)
+				})
+			} else {
+				send(quiz, quizResult)
+			}
+		})
+
+
+	})
+
+	var send = function(quiz, quizResult){
+		res.locals.quiz = quiz
+		res.locals.quiz.JSON = JSON.stringify(quiz)
+		res.locals.quizResult = {
+			JSON: JSON.stringify(quizResult)
+		}
+
+		// render template
+		res.render('quiz')
+	}
 }
 
 /**

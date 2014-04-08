@@ -10,11 +10,14 @@ quizApp.controller('questionCtrl', ['$scope', '$http',
 		//var quiz = quiz
 		
 		$scope.quiz = quiz
+		$scope.quizResult = quizResult
 
 
 		var _init = function(){
 			
 			$scope.currentIndex = 0
+
+			$scope.gotoQuestion($scope.currentIndex)
 
 			// may want to preload all images in background at some point
 			_loadImage($scope.currentIndex)

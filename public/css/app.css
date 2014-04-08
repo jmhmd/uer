@@ -28,3 +28,16 @@
   content: "";
   padding: 0;
 }
+
+.login-google {
+  background-image: url('/img/icons/White-signin_Long_base_44dp.png');
+  width: 246px;
+  height: 54px;
+  display: block;
+}
+.login-google:hover {
+  background-image: url('/img/icons/White-signin_Long_hover_44dp.png');
+}
+.login-google:active {
+  background-image: url('/img/icons/White-signin_Long_press_44dp.png');
+}
