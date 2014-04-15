@@ -11,25 +11,24 @@ quizApp.controller('questionCtrl', ['$scope', '$http',
 		
 		$scope.quiz = quiz
 		$scope.quizResult = quizResult
+		$scope.currentIndex = null
 		$scope.currentQuestion = {}
 
 
 		var _init = function(){
 			
-			$scope.currentIndex = 0
-
-			$scope.gotoQuestion($scope.currentIndex)
+			$scope.gotoQuestion(0)
 
 			// may want to preload all images in background at some point
-			_loadImage($scope.currentIndex)
+			//_loadImage($scope.currentIndex)
 		}
 
-		$scope.currentQuestion = function(){
+		/*$scope.currentQuestion = function(){
 
 			//console.log('current question is: ', $scope.currentIndex, $scope.quiz.questions[$scope.currentIndex])
 
 			return $scope.quiz.questions[$scope.currentIndex]
-		}
+		}*/
 
 		var _getQuestion = function(index){
 
