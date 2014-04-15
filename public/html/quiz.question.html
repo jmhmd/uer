@@ -1,12 +1,12 @@
 <p>
-	<span ng-repeat="question in quiz.questions">
+	<span ng-repeat="question in quizResult.quizQuestions">
 		<a href="#" ng-click="gotoQuestion($index)" ng-class="{selected: isCurrentQuestion($index)}">{{$index + 1}}</a>
 	</span>
 </p>
 
 <h4>Question: {{currentIndex + 1}}</h4>
 
-<p><strong>{{currentQuestion().stem}}</strong></p>
+<p><strong>{{currentQuestion.stem}}</strong></p>
 
 <!-- <img src="{{currentQuestion().imageSeries[0].imagePaths[0]}}" alt="" height="512"> -->
 
@@ -14,8 +14,8 @@
 
 <div id="Selections"> 
 	<ul class="choice-list">
-		<li ng-repeat="choice in currentQuestion().choices">
-			<input type="radio" name="choices" value="{{$index}}" ng-model="quizResult.quizQuestions[$index]"> {{choice.option}}
+		<li ng-repeat="choice in currentQuestion.choices">
+			<input type="radio" name="choices" value="{{$index}}" ng-model="quizResult.quizQuestions[$index].userAnswer"> {{choice.option}}
 		</li>
 	</ul>
  </div>
@@ -32,4 +32,4 @@
  </div>
  
  <div>
- <img ng-src="{{currentQuestion().imageSeries[0].imagePaths[0]}}" height="512">
+ <img ng-src="{{currentQuestion.imageSeries[0].imagePaths[0]}}" height="512">

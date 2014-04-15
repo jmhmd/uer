@@ -11,6 +11,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http',
 		
 		$scope.quiz = quiz
 		$scope.quizResult = quizResult
+		$scope.currentQuestion = {}
 
 
 		var _init = function(){
@@ -30,7 +31,17 @@ quizApp.controller('questionCtrl', ['$scope', '$http',
 			return $scope.quiz.questions[$scope.currentIndex]
 		}
 
+		var _getQuestion = function(index){
+
+			var questionId = $scope.quizResult.quizQuestions[index].questionId,
+				question = _.find($scope.quiz.questions, {_id: questionId})
+
+			return question			
+		}
+
 		$scope.gotoQuestion = function(index){
+
+			var question = _getQuestion(index)
 
 			if ($scope.isCurrentQuestion(index)){
 				return false
@@ -38,9 +49,10 @@ quizApp.controller('questionCtrl', ['$scope', '$http',
 			
 			console.log('goto question: ', index)
 			
+			$scope.currentQuestion = question
 			$scope.currentIndex = index
 
-			if (!$scope.quiz.questions[index].imageSeries){
+			if (!question.imageSeries){
 				_loadImage(index)
 			}
 
@@ -67,7 +79,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http',
 
 		var _loadImage = function(index){
 
-			var studyId = $scope.quiz.questions[index].studyId
+			var studyId = _getQuestion(index).studyId
 
 			console.log('loading image with study id: ', studyId)
 
@@ -76,7 +88,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http',
 
 					console.log('loaded image: ', res)
 
-					$scope.quiz.questions[index].imageSeries = res.imageStacks
+					_getQuestion(index).imageSeries = res.imageStacks
 				})
 				.error(function(err) {
 

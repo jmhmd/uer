@@ -110,14 +110,14 @@ exports.startQuiz = function(req, res, next){
 	_getLeanQuizObject(quizId, function(err, quiz){
 		if (err){ return next(err) }
 
-		QuizResult.findOne({user: req.user._id, quiz: quiz._id}, function(err, quizResult){
+		QuizResult.findOne({user: req.user._id, quiz: quiz._id}).exec(function(err, quizResult){
 			if (err){ return next(err) }
 
-			if (quizResult.length < 1){
+			if (!quizResult){
 
 				quizResult = new QuizResult()
 
-				var quizQuestions = _.map(quiz.questions, function(q){ return q._id })
+				//var quizQuestions = _.map(quiz.questions, function(q){ return q })
 
 				// randomize question order here...
 				
@@ -126,8 +126,12 @@ exports.startQuiz = function(req, res, next){
 				quizResult.quiz = quiz._id
 
 				// fill in question ids
-				_.each(quizQuestions, function(question, i){
-					quizResult.quizQuestions[i]._id = question._id
+				// 
+				// BELOW IS NOT FILLING IN QUESTIONID, NOT SURE WHY YET
+				_.each(quiz.questions, function(question){
+					quizResult.quizQuestions.push({
+						questionId: question._id
+					})
 				})
 
 				quizResult.save(function(err){
