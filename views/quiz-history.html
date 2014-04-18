@@ -1,0 +1,26 @@
+{{!< ./default_layout}}
+
+<h1> Quiz history for {{user.profile.name}} </h1>
+
+{{#if messages.error}}
+	<p>{{messages.error}}</p>
+{{/if}}
+
+<table>
+	<tr>
+		<th>Quiz</th>
+		<th>Difficulty</th>
+		<th>Score</th>
+		<th>Date completed</th>
+		<th>Detail</th>
+	</tr>
+	{{#each quizzes}}
+		<tr>
+			<td>{{this.quiz.title}}</td>
+			<td>{{this.quiz.difficulty}}</td>
+			<td>{{this.percentCorrect}}%</td>
+			<td>{{this.updatedAt}}</td>
+			<td><a href="/quiz/result/{{this._id}}">Detailed report</a></td>
+		</tr>
+	{{/each}}
+</table>

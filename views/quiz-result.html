@@ -1,0 +1,16 @@
+{{!< ./default_layout}}
+<h1> Result for {{quizResult.quiz.title}} </h1>
+
+{{#if messages.error}}
+	<p>{{messages.error}}</p>
+{{/if}}
+
+
+Score: {{quizResult.percentCorrect}}%
+
+<br><br><br>
+
+/** TODO:
+Some more detail will be added here later, like a list of all the questions
+and the result. Also, here will be the heat maps on the images showing where
+everyone clicked.

@@ -15,7 +15,7 @@
 	<body>
 
 		<a href="/">Home</a>
-
+		|
 		{{#if messages.info}}
 			{{#each messages.info}}
 				{{this.msg}}
@@ -33,12 +33,15 @@
 			{{#if user.isAdmin}}
 				- Administrator
 			{{/if}}
+			|
+			<a href="/history">Quiz History</a>
+			|
 			<a href="/logout">Log out</a>
 		{{else}}
 			<a href="/login">Log in</a>
 		{{/if}}
 
-		<div id="loginoptioncontainer">
+		<div>
 
 		{{{body}}}
 			
