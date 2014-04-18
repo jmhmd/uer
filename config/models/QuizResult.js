@@ -12,7 +12,7 @@ var quizResultSchema = new mongoose.Schema({
 			questionId: {type: mongoose.Schema.Types.ObjectId, ref: 'Question'},
 
 			// maps to optionId of chosen answer in Question model
-			userAnswer: Number,
+			userAnswer: {type: mongoose.Schema.Types.ObjectId},
 
 			// store here to make quick calculations of percent wrong/right
 			// easier without needing to pull in whole question document
@@ -30,7 +30,8 @@ var quizResultSchema = new mongoose.Schema({
 			
 		}
 	],
-	percentCorrect: Number
+	percentCorrect: Number,
+	completed: Boolean
 })
 
 quizResultSchema.plugin(simpleTimestamps)

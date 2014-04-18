@@ -4,7 +4,7 @@
 	</span>
 </p>
 
-<h4>Question: {{currentIndex + 1}}</h4>
+<!-- <h4>Question: {{currentIndex + 1}}</h4> -->
 
 <p><strong>{{currentQuestion.stem}}</strong></p>
 
@@ -15,7 +15,7 @@
 <div id="Selections"> 
 	<ul class="choice-list">
 		<li ng-repeat="choice in currentQuestion.choices">
-			<input type="radio" name="choices" value="{{$index}}" ng-model="quizResult.quizQuestions[$index].userAnswer"> {{choice.option}}
+			<input type="radio" name="choices" value="{{choice._id}}" ng-model="quizResult.quizQuestions[currentIndex].userAnswer"> {{choice.option}}
 		</li>
 	</ul>
  </div>

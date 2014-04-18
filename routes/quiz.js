@@ -160,6 +160,48 @@ exports.startQuiz = function(req, res, next){
 }
 
 /**
+ * show quiz result page
+ */
+exports.quizResult = function(req, res, next){
+
+	var quizResultId = req.params.quizResultId
+
+	QuizResult.findById(quizResultId).populate('quizQuestions.questionId').populate('quiz').exec(function(err, quizResult){
+		if (err){ return next(err) }
+
+		if (!quizResult){ 
+			console.log('requested quiz not found')
+			return res.render('404')
+		}
+		else if (!quizResult.completed){
+			req.flash('error', 'The selected quiz has not been completed. <a href="/quiz/go/'+quizResultId+'">Click here to resume the quiz</a>')
+			return res.render('quiz-result')
+		}
+		else if (!quizResult.percentCorrect){
+
+			console.log('compute result')
+
+			var numberCorrect = 0
+
+			// check each answer
+			_.each(quizResult.quizQuestions, function(question){
+
+				var correctAnswer = _.find(question.questionId.choices, function(choice){ return choice.correct })
+
+				question.correct = question.userAnswer.equals(correctAnswer._id)
+
+				if (question.correct){ numberCorrect += 1 }
+			})
+
+			quizResult.percentCorrect = (numberCorrect / quizResult.quizQuestions.length * 100).toFixed(1)
+		}
+
+		res.locals.quizResult = quizResult
+		res.render('quiz-result')
+	})
+}
+
+/**
  * show page for new quiz
  * @param  {string} quizId
  */

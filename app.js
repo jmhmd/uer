@@ -50,7 +50,8 @@ var userCtrl = require('./routes/user'),
 	apiCtrl = require('./routes/api'),
 	homeCtrl = require('./routes/home'),
 	quizCtrl = require('./routes/quiz'),
-	testCtrl = require('./routes/test')
+	testCtrl = require('./routes/test'),
+	quizAppCtrl = require('./routes/quizApp')
 
 /**
  * Configuration
@@ -130,6 +131,7 @@ app.get('/quiz/edit/:quizId', passportConf.isAuthenticated, passportConf.isAdmin
 
 app.get('/quiz/:quizId', passportConf.isAuthenticated, quizCtrl.showQuiz)
 app.get('/quiz/go/:quizId', passportConf.isAuthenticated, quizCtrl.startQuiz)
+app.get('/quiz/result/:quizResultId', passportConf.isAuthenticated, quizCtrl.quizResult)
 // app.get('/quiz/:quizId/:questionId', passportConf.isAuthenticated, quizCtrl.showQuestion)
 app.get('/quiz/results/:quizId', passportConf.isAuthenticated, quizCtrl.showResults)
 
@@ -151,9 +153,17 @@ app.all('/api/*', function(req,res,next){
 
 app.post('/api/makeAdmin', passportConf.isAuthenticatedAPI, passportConf.isAdmin, userCtrl.makeAdmin)
 
+/*
+Quiz editing
+ */
 app.get('/api/getQuiz/:quizId', quizCtrl.getQuiz)
 app.post('/api/saveQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuiz)
 app.post('/api/removeQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeQuiz)
+
+/*
+Quiz taking app
+ */
+app.post('/api/saveQuizProgress', passportConf.isAuthenticatedAPI, quizAppCtrl.saveQuizProgress)
 
 app.get('/api/getQuestion/:questionId', quizCtrl.getQuestion)
 app.post('/api/saveQuestion', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuestion)
