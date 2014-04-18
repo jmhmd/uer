@@ -123,6 +123,7 @@ app.get('/makeAdmin', passportConf.isAuthenticated, passportConf.isAdmin, userCt
 // Quizzes
 app.get('/', homeCtrl.index)
 app.get('/quizzes', passportConf.isAuthenticated, quizCtrl.showQuizList)
+app.get('/history', passportConf.isAuthenticated, quizCtrl.showQuizHistory)
 
 app.get('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.showNewQuiz)
 app.post('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.saveQuiz)

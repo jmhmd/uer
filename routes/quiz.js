@@ -34,6 +34,32 @@ exports.showQuizList = function(req, res, next){
 		})
 }
 
+/**
+ * show quiz taking history
+ */
+exports.showQuizHistory = function(req, res, next){
+
+	var userId = req.user._id
+
+	if (!userId){ return next('Not logged in!') }
+
+	/**
+	 * Get all quizzes taken by current user
+	 */
+	QuizResult.find({user: userId})
+		.populate('quiz')
+		.exec(function(err, quizzes){
+			if (err){ return next(err) }
+
+			if (quizzes.length === 0){
+				req.flash('error', {msg: 'No quizzes found.'})
+			}
+
+			res.locals.quizzes = quizzes
+			res.render('quiz-history')
+		})
+}
+
 var _getLeanQuizObject = function(id, cb){
 
 	Quiz
@@ -44,38 +70,9 @@ var _getLeanQuizObject = function(id, cb){
 		})
 	.lean()
 	.exec(function(err, quiz){
-		if (err){ return cb(err) }
-
-/*
-		// get image objects for each question in the quiz from casefiles
-		if(quiz.questions.length > 0){
-
-			var setCaseImage = function(question, cb){
-
-				if (question.studyId){
-
-					_getImageObject(question.studyId, function(err, imageObject){
-						if (err){ return cb(err) }
-						console.log(imageObject)
-						question.studyId = imageObject
-						cb()
-					})
-				} else {
-					cb()
-				}
-			}
-
-			async.eachSeries(quiz.questions, setCaseImage, function(err){
-				if (err){ return cb(err) }
-				return cb(null, quiz)
-			})
-		} else {
-
+			if (err){ return cb(err) }
 			return cb(null, quiz)
-		}
-*/		
-		return cb(null, quiz)
-	})
+		})
 }
 
 /**
@@ -110,7 +107,11 @@ exports.startQuiz = function(req, res, next){
 	_getLeanQuizObject(quizId, function(err, quiz){
 		if (err){ return next(err) }
 
-		QuizResult.findOne({user: req.user._id, quiz: quiz._id}).exec(function(err, quizResult){
+		/**
+		 * Check if user has an incomplete instance of this quiz, if so, load it up. 
+		 * If not, create a new quiz instance and load it up.
+		 */
+		QuizResult.findOne({user: req.user._id, quiz: quiz._id, completed: false}).exec(function(err, quizResult){
 			if (err){ return next(err) }
 
 			if (!quizResult){
@@ -194,10 +195,18 @@ exports.quizResult = function(req, res, next){
 			})
 
 			quizResult.percentCorrect = (numberCorrect / quizResult.quizQuestions.length * 100).toFixed(1)
-		}
 
-		res.locals.quizResult = quizResult
-		res.render('quiz-result')
+			quizResult.save(function(err){
+				if (err){ return next(err) }
+
+				res.locals.quizResult = quizResult
+				res.render('quiz-result')
+			})
+		}
+		else {
+			res.locals.quizResult = quizResult
+			res.render('quiz-result')
+		}
 	})
 }
 
