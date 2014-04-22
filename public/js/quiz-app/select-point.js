@@ -9,7 +9,8 @@ quizApp.directive('selectPoint', [ '$interval',
 		return {
 			scope: {
 				'selectPoint': '=',
-				'imgSrc': '='
+				'imgSrc': '=',
+				'index': '='
 			},
 			link: function(scope, element, attrs){
 
@@ -44,17 +45,6 @@ quizApp.directive('selectPoint', [ '$interval',
 					marker.hide()
 				}
 
-				function onQuestionChange(){
-
-					image.attr('src', scope.imgSrc)
-
-					if (scope.selectPoint.coords.length > 0){
-						setMarker(scope.selectPoint.coords)
-					} else {
-						removeMarker()
-					}
-				}
-
 				image.on('click', function(e){
 
 					console.log('clicked image')
@@ -72,11 +62,20 @@ quizApp.directive('selectPoint', [ '$interval',
 					setMarker(coords)					
 				})
 
-				scope.$watch('imgSrc', function(){
-					onQuestionChange()
+				scope.$watch('index', function(){
+					if (scope.selectPoint.coords.length > 0){
+						setMarker(scope.selectPoint.coords)
+					} else {
+						removeMarker()
+					}
 				})
 
-				onQuestionChange()
+				scope.$watch('imgSrc', function(){
+					console.log('change image to: ', scope.imgSrc)
+					image.attr('src', scope.imgSrc)
+				})
+
+				// onQuestionChange()
 			}
 		}
 	}]
