@@ -8,7 +8,8 @@ angular.module('quizApp', [
   // 'myApp.filters',
   // 'myApp.services',
   // 'myApp.directives',
-  'quizApp.controllers'
+  'quizApp.controllers',
+  'quizApp.select-point'
 ])/*.
 config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/view1', {templateUrl: 'partials/partial1.html', controller: 'MyCtrl1'});

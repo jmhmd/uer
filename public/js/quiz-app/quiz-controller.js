@@ -121,5 +121,11 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window',
 		}		
 
 		_init()
+
+
+		/**
+		 * test
+		 */
+		$scope.test = true
 	}
 ])
