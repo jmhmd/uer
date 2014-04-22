@@ -91,7 +91,7 @@ exports.showQuiz = function(req, res, next){
 		if (err){ return next(err) }
 
 		// get quiz history
-		QuizResult.find({user: userId, quiz: quizId}).lean().exec(function(err, quizHistory){
+		QuizResult.find({user: userId, quiz: quizId}).sort('-updatedAt').lean().exec(function(err, quizHistory){
 			if (err){ return next(err) }
 
 			res.locals.quizHistory = quizHistory
