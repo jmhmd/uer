@@ -4,4 +4,34 @@
 <a href="/quiz/go/{{quiz._id}}"><button type="button">Start Quiz!</button></a>
 <br><br>
 
+<h4>History</h4>
+
+<table>
+	<tr>
+		<th>Date completed/updated</th>
+		<th>Score</th>
+		<th>Detail</th>
+	</tr>
+	{{#each quizHistory}}
+		<tr>
+			<td>{{this.updatedAt}}</td>
+			{{#if this.completed}}
+				<td>
+					{{this.percentCorrect}}%
+				</td>
+				<td>
+					<a href="/quiz/result/{{this._id}}">Detailed report</a>
+				</td>
+			{{else}}
+				<td>
+					--
+				</td>
+				<td>
+					<a href="/quiz/go/{{quiz._id}}">Resume</a>
+				</td>
+			{{/if}}
+		</tr>
+	{{/each}}
+</table>
+
 <a href="/quizzes">Back to all quizzes</a>

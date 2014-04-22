@@ -81,7 +81,8 @@ var _getLeanQuizObject = function(id, cb){
  */
 exports.showQuiz = function(req, res, next){
 	
-	var quizId = req.params.quizId
+	var quizId = req.params.quizId,
+		userId = req.user._id
 
 	Quiz
 	.findById(quizId)
@@ -89,10 +90,17 @@ exports.showQuiz = function(req, res, next){
 	.exec(function(err, quiz){
 		if (err){ return next(err) }
 
-		res.locals.quiz = quiz
-		res.locals.quiz.JSON = JSON.stringify(quiz)
-		// render template
-		res.render('quiz-landing')
+		// get quiz history
+		QuizResult.find({user: userId, quiz: quizId}).lean().exec(function(err, quizHistory){
+			if (err){ return next(err) }
+
+			res.locals.quizHistory = quizHistory
+			res.locals.quiz = quiz
+			res.locals.quiz.JSON = JSON.stringify(quiz)
+			// render template
+			res.render('quiz-landing')
+		})
+
 	})
 }
 
