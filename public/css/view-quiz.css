@@ -30,11 +30,6 @@ body {
     position: relative;
 }
 
-img {
-    border: 1px solid black; 
-    position: relative;
-    margin-top: 80px
-}
 textarea {
     border: 1px solid black;
     position: relative;
@@ -46,15 +41,17 @@ textarea {
 p {
     margin: 0px
 }
+
+#case-image {
+    margin-top: 20px;
+}
     
 #next {
-    position: relative;
     margin-top:-130px; 
     margin-left:400px;    
 }
 
 #previous {
-    position: absolute;
     margin-left: 400px;
     margin-top: 20px;
 }

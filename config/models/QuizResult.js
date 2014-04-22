@@ -31,7 +31,7 @@ var quizResultSchema = new mongoose.Schema({
 		}
 	],
 	percentCorrect: Number,
-	completed: Boolean
+	completed: {type: Boolean, default: false}
 })
 
 quizResultSchema.plugin(simpleTimestamps)

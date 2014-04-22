@@ -29,12 +29,35 @@ quizApp.directive('selectPoint', [ '$interval',
 						display: 'none',
 						'z-index': '1'
 					}),
-					image = $('<img/>')
+					image = $('<img/>').css('height', '512px')
 
 				element.append(marker)
 				element.append(image)
 
+				function setMarker(coords){
+
+					marker.css('left', coords[0] - 13).css('top', coords[1] - 13)
+					marker.show()
+				}
+
+				function removeMarker(){
+					marker.hide()
+				}
+
+				function onQuestionChange(){
+
+					image.attr('src', scope.imgSrc)
+
+					if (scope.selectPoint.coords.length > 0){
+						setMarker(scope.selectPoint.coords)
+					} else {
+						removeMarker()
+					}
+				}
+
 				image.on('click', function(e){
+
+					console.log('clicked image')
 
 					var offset = element.offset(),
 						coords = [
@@ -46,14 +69,14 @@ quizApp.directive('selectPoint', [ '$interval',
 						scope.selectPoint.coords = coords
 					})
 
-					marker.css('left', coords[0] - 13).css('top', coords[1] - 13)
-
-					marker.show()
+					setMarker(coords)					
 				})
 
-				scope.$watch('imgSrc', function(val){
-					image.attr('src', val)
+				scope.$watch('imgSrc', function(){
+					onQuestionChange()
 				})
+
+				onQuestionChange()
 			}
 		}
 	}]
