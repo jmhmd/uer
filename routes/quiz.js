@@ -273,30 +273,30 @@ exports.showQuestion = function(req, res, next){
 	})
 }
 
-/**
- * Show aggregated quiz results, comparisons, etc
- * @param  {string}   quizId
- */
-exports.showResults = function(req, res, next){
+// /**
+//  * Show aggregated quiz results, comparisons, etc
+//  * @param  {string}   quizId
+//  */
+// exports.showResults = function(req, res, next){
 
-	var quizResultId = req.params.quizResultId
+// 	var quizResultId = req.params.quizResultId
 	
-	// get question object and render template
-	QuizResult
-	.findById(quizResultId)
-	.exec(function(err, quizResult){
-		if (err){ return next(err) }
+// 	// get question object and render template
+// 	QuizResult
+// 	.findById(quizResultId)
+// 	.exec(function(err, quizResult){
+// 		if (err){ return next(err) }
 
-		/**
-		 * @todo Pull in all other answers to each question to calculate
-		 *       percent right/wrong, and calculate overall quiz performance
-		 *       for all users
-		 */
+// 		/**
+// 		 * @todo Pull in all other answers to each question to calculate
+// 		 *       percent right/wrong, and calculate overall quiz performance
+// 		 *       for all users
+// 		 */
 
-		// render template
-		res.render('quizResults', quizResult)
-	})
-}
+// 		// render template
+// 		res.render('quizResults', quizResult)
+// 	})
+// }
 
 ///////////////////////
 // Private functions //

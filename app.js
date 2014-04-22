@@ -130,11 +130,11 @@ app.post('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCt
 
 app.get('/quiz/edit/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.showQuizEdit)
 
-app.get('/quiz/:quizId', passportConf.isAuthenticated, quizCtrl.showQuiz)
 app.get('/quiz/go/:quizId', passportConf.isAuthenticated, quizCtrl.startQuiz)
 app.get('/quiz/result/:quizResultId', passportConf.isAuthenticated, quizCtrl.quizResult)
+app.get('/quiz/:quizId', passportConf.isAuthenticated, quizCtrl.showQuiz)
 // app.get('/quiz/:quizId/:questionId', passportConf.isAuthenticated, quizCtrl.showQuestion)
-app.get('/quiz/results/:quizId', passportConf.isAuthenticated, quizCtrl.showResults)
+//app.get('/quiz/results/:quizId', passportConf.isAuthenticated, quizCtrl.showResults)
 
 // Partials
 app.get('/partials/:partial', homeCtrl.partials)
