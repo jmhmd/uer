@@ -175,7 +175,11 @@ exports.quizResult = function(req, res, next){
 
 	var quizResultId = req.params.quizResultId
 
-	QuizResult.findById(quizResultId).populate('quizQuestions.questionId').populate('quiz').exec(function(err, quizResult){
+	QuizResult
+	.findById(quizResultId)
+	.populate('quizQuestions.questionId')
+	.populate('quiz')
+	.exec(function(err, quizResult){
 		if (err){ return next(err) }
 
 		if (!quizResult){ 

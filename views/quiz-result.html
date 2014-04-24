@@ -5,12 +5,64 @@
 	<p>{{messages.error}}</p>
 {{/if}}
 
+<p>
+	Score: {{quizResult.percentCorrect}}%
+</p>
 
-Score: {{quizResult.percentCorrect}}%
 
-<br><br><br>
+<h4>
+	Answers:
+</h4>
 
-/** TODO:
-Some more detail will be added here later, like a list of all the questions
-and the result. Also, here will be the heat maps on the images showing where
-everyone clicked.
+<table>
+	<tr>
+		<th>Number</th>
+		<th>Image</th>
+		<th>Correct</th>
+		<th>Your answer</th>
+		<th>Correct answer</th>
+		<th>Explanation</th>
+	</tr>
+	{{#each quizResult.quizQuestions}}
+		<tr>
+			<td>{{math @index "+" 1}}</td>
+			<td>
+				<img height="200" width="200" class="lazy-load" data-src="{{this.questionId.studyId}}">
+			</td>
+			<td>
+				{{#if this.correct}}
+					Y
+				{{else}}
+					N
+				{{/if}}
+			</td>
+			<td>{{userAnswer this "option"}}</td>
+			<td>{{correctAnswer this "option"}}</td>
+			<td>{{correctAnswer this "explanation"}}</td>
+		</tr>
+	{{/each}}
+</table>
+
+<script type="text/javascript">
+$(document).ready(function(){
+
+	var lazyImages = $('.lazy-load')
+
+	lazyImages.each(function(i, img){
+
+		var studyId = $(img).attr('data-src')
+
+		$.getJSON('/api/getImageObject/' + studyId)
+				.done(function(res) {
+
+					console.log('loaded image: ', res)
+
+					$(img).attr('src', res.imageStacks[0].imagePaths[0])
+				})
+				.fail(function(err) {
+
+					console.error(err)
+				})
+	})
+})
+</script>

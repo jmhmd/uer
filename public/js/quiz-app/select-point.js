@@ -10,6 +10,8 @@ quizApp.directive('selectPoint', [ '$interval',
 			scope: {
 				'selectPoint': '=',
 				'imgSrc': '=',
+				'imgHeight': '=',
+				'imgWidth': '=',
 				'index': '='
 			},
 			link: function(scope, element, attrs){
@@ -30,14 +32,22 @@ quizApp.directive('selectPoint', [ '$interval',
 						display: 'none',
 						'z-index': '1'
 					}),
-					image = $('<img/>').css('height', '512px')
+					image = $('<img/>').css({
+						'height': scope.imgHeight,
+						'width': scope.imgWidth
+					})
 
 				element.append(marker)
 				element.append(image)
 
 				function setMarker(coords){
 
-					marker.css('left', coords[0] - 13).css('top', coords[1] - 13)
+					console.log('image dim: ', image.width(), image.height())
+
+					var x = coords[0] * image.width(),
+						y = coords[1] * image.height()
+
+					marker.css('left', x - 13).css('top', y - 13)
 					marker.show()
 				}
 
@@ -49,10 +59,12 @@ quizApp.directive('selectPoint', [ '$interval',
 
 					console.log('clicked image')
 
-					var offset = element.offset(),
+					var offset = image.offset(),
+						iWidth = image.width(),
+						iHeight = image.height(),
 						coords = [
-							e.pageX - offset.left,
-							e.pageY - offset.top
+							(e.pageX - offset.left) / iWidth,
+							(e.pageY - offset.top) / iHeight
 						]
 
 					scope.$apply(function(){
@@ -73,6 +85,14 @@ quizApp.directive('selectPoint', [ '$interval',
 				scope.$watch('imgSrc', function(){
 					console.log('change image to: ', scope.imgSrc)
 					image.attr('src', scope.imgSrc)
+				})
+
+				scope.$watch('imgHeight', function(height){
+					image.css('height', height)
+				})
+
+				scope.$watch('imgWidth', function(width){
+					image.css('width', width)
 				})
 
 				// onQuestionChange()

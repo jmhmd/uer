@@ -13,7 +13,8 @@ var express = require('express'),
 	path = require('path'),
 	hbs = require('express-hbs'),
 	fs = require('fs'),
-	CORS = require('cors')
+	CORS = require('cors'),
+	_ = require('underscore')
 
 var app = module.exports = express()
 
@@ -56,6 +57,31 @@ var userCtrl = require('./routes/user'),
 /**
  * Configuration
  */
+
+hbs.registerHelper("math", function(lvalue, operator, rvalue) {
+	lvalue = parseFloat(lvalue)
+	rvalue = parseFloat(rvalue)
+
+	return {
+		"+": lvalue + rvalue,
+		"-": lvalue - rvalue,
+		"*": lvalue * rvalue,
+		"/": lvalue / rvalue,
+		"%": lvalue % rvalue
+	}[operator]
+})
+
+hbs.registerHelper("correctAnswer", function(question, property) {
+
+	var correctAnswer = _.find(question.questionId.choices, function(choice){ return choice.correct })
+	return correctAnswer[property]
+})
+
+hbs.registerHelper("userAnswer", function(question, property) {
+
+	var correctAnswer = _.find(question.questionId.choices, function(choice){ return choice._id.equals(question.userAnswer) })
+	return correctAnswer[property]
+})
 
 // all environments
 app.use(CORS())
