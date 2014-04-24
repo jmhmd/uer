@@ -22,7 +22,7 @@ console.log(quiz)
 <div id="questionRowcontainer">
 	<table>
 		<tr>
-			<td class="saveQuizButton">Save</td>
+			<td class="saveQuizButton btn btn-success">Save</td>
 		</tr>
 		<!-- <tr>
 			<td id="editQuestionbutton">Edit</td>
@@ -124,7 +124,7 @@ console.log(quiz)
 					<input type="hidden" name="Content-Type" value="image/jpeg">
 				</form>
 
-				<button type="button" id="uploadImages">Upload</button>
+				<button type="button" class="btn" id="uploadImages">Upload</button>
 			</li>
 		</ul>
 		<form id="form1">
@@ -134,10 +134,11 @@ console.log(quiz)
 					<input id="diagnosis" type="text" name="Diagnosis">
 				</li>
 				<li>
-					Clinical Information: <textarea id="clinicalInfo" name="clinicalInfo" style="width:400px; height:50px;"></textarea>
+					Clinical Information: <br>
+					<textarea id="clinicalInfo" name="clinicalInfo" style="width:400px; height:50px;"></textarea>
 				</li>
 				<li>
-					<label for="question" class="required">* Question:</label>
+					<label for="question" class="required">* Question:</label> <br>
 					<textarea id="question" type="text" name="question"></textarea>
 				</li>
 
@@ -157,7 +158,7 @@ console.log(quiz)
 			</ul>
 
 			<ul>
-				<button type="button" id="addChoiceButton">Add</button>
+				<button type="button" class="btn" id="addChoiceButton">Add Answer Choice</button>
 			</ul>
 
 			<!-- <ul>
@@ -175,49 +176,43 @@ console.log(quiz)
 
 
 		<form>
-			<ul id="moretextfields">
-				<li>
-					Difficulty Level:
-				</li>
-				<li>
-					<select id="difficulty">
-						<option value="1">Easy</option>
-						<option value="2">Intermediate</option>
-						<option value="3">Difficult</option>
-					</select>
-				</li>
-
-				<li>
-					Subspecialty:
-				</li>
-				<li>
-					<select id="questionCategory">
-						<option value="">Select One</option>
-						<option value="breast">Breast</option>
-						<option value="cardiac">Cardiac</option>
-						<option value="CT">CT</option>
-						<option value="GI">GI</option>
-						<option value="IR">IR</option>
-						<option value="MR">MR</option>
-						<option value="MSK">MSK</option>
-						<option value="neuro">Neuro</option>
-						<option value="nuclear">Nuclear Medicine</option>
-						<option value="pediatric">Pediatric</option>
-						<option value="physics">Physics</option>
-						<option value="radiography-fluoroscopy">Radiography/Fluoroscopy</option>
-						<option value="reproductive-endocrine">Reproductive/Endocrine</option>
-						<option value="safety">Safety</option>
-						<option value="thoracic">Thoracic</option>
-						<option value="ultrasound">Ultrasound</option>
-						<option value="urinary">Urinary</option>
-						<option value="vascular">Vascular</option>
-					</select>
-					<!--These are based on the 18 categories in the ABR Core exam.-->
-				</li>
-		</ul>
-	</form>
-	<button type="button" id="removeQuestion">Delete Question</button>
-	<button type="button" class="saveQuizButton">Save Quiz</button>
+			<div class="form-group">
+				<label for="difficulty">Difficulty Level:</label>
+				<select id="difficulty">
+					<option value="1">Easy</option>
+					<option value="2">Intermediate</option>
+					<option value="3">Difficult</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label for="questionCategory">Subspecialty:</label>
+				<select id="questionCategory">
+					<option value="">Select One</option>
+					<option value="breast">Breast</option>
+					<option value="cardiac">Cardiac</option>
+					<option value="CT">CT</option>
+					<option value="GI">GI</option>
+					<option value="IR">IR</option>
+					<option value="MR">MR</option>
+					<option value="MSK">MSK</option>
+					<option value="neuro">Neuro</option>
+					<option value="nuclear">Nuclear Medicine</option>
+					<option value="pediatric">Pediatric</option>
+					<option value="physics">Physics</option>
+					<option value="radiography-fluoroscopy">Radiography/Fluoroscopy</option>
+					<option value="reproductive-endocrine">Reproductive/Endocrine</option>
+					<option value="safety">Safety</option>
+					<option value="thoracic">Thoracic</option>
+					<option value="ultrasound">Ultrasound</option>
+					<option value="urinary">Urinary</option>
+					<option value="vascular">Vascular</option>
+				</select>
+			</div>
+		</form>
+		<button type="button" class="btn btn-danger" id="removeQuestion">Delete Question</button>
+		<br>
+		<button type="button" class="btn saveQuizButton btn-success">Save Quiz</button>
+	</div>
 </div>
 
 

@@ -106,7 +106,7 @@ td:hover {
 }
 
 
-.saveQuizButton {
+/*.saveQuizButton {
 	width: 70px;
 	background-color: #FF6699;
 	color: yellow;
@@ -119,7 +119,7 @@ td:hover {
 	clear: left;
 	text-align: center;
 	text-shadow: 1px 1px 1px #606060;
-}
+}*/
 
 
 #addQuestionbutton:hover, #editQuestionbutton:hover, #submitButton:hover {

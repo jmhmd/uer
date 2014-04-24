@@ -287,7 +287,7 @@ var addChoice = function(index, option, explanation, correct){
   choiceContainer.append('<li class="choice">'+
       getChar(index).toUpperCase() + '. <input id="choice'+index+'" value="'+option+'">'+
     '<br>'+
-      'Explanation: <textarea id="explanation'+index+'">'+
+      'Explanation: <br> <textarea id="explanation'+index+'">'+
       explanation +
       '</textarea>'+
     '<br>'+
