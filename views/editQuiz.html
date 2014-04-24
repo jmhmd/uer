@@ -22,18 +22,18 @@ console.log(quiz)
 <div id="questionRowcontainer">
 	<table>
 		<tr>
-			<td id="submitButton">Save</td>
+			<td class="saveQuizButton">Save</td>
 		</tr>
 		<!-- <tr>
 			<td id="editQuestionbutton">Edit</td>
 		</tr> -->
-		<tr>
+		<!-- <tr>
 			<td id="addQuestionbutton">Add</td>
-		</tr>
+		</tr> -->
 	</table>
 
 	<table id="questionRow">
-		
+		<tr><td class="questionTab" class="clicked">' + (questionRowLength + 1) + '</td></tr>
 		<!-- <tr>
 			<td id="questionTab" class="clicked">1</td>
 		</tr>
@@ -58,6 +58,9 @@ console.log(quiz)
 		<tr>
 			<td id="questionTab">8</td>
 		</tr> -->
+	</table>
+	<table>
+		<tr><td id="addQuestionbutton" class="questionTab">New</td></tr>
 	</table>
 </div>
 
@@ -128,14 +131,14 @@ console.log(quiz)
 			<ul class="textfields">
 				<li>
 					<label for="Diagnosis" class="required">* Diagnosis:</label>
-					<input id="diagnosis" type="text" name="Diagnosis" style="width:400px; height:16px;">
+					<input id="diagnosis" type="text" name="Diagnosis">
 				</li>
 				<li>
 					Clinical Information: <textarea id="clinicalInfo" name="clinicalInfo" style="width:400px; height:50px;"></textarea>
 				</li>
 				<li>
 					<label for="question" class="required">* Question:</label>
-					<textarea id="question" type="text" name="question" style="width:400px; height:50px;"></textarea>
+					<textarea id="question" type="text" name="question"></textarea>
 				</li>
 
 
@@ -214,6 +217,7 @@ console.log(quiz)
 		</ul>
 	</form>
 	<button type="button" id="removeQuestion">Delete Question</button>
+	<button type="button" class="saveQuizButton">Save Quiz</button>
 </div>
 
 

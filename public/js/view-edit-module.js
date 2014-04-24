@@ -53,7 +53,7 @@ var updateQuestionTabs = function(){
 
   // repopulate
   for (var i = 1; i <= quiz.questions.length; i++) {
-    $("#questionRow").append('<tr><td id="questionTab">' + (i) + '</td></tr>');
+    $("#questionRow").append('<tr><td class="questionTab">' + (i) + '</td></tr>');
   }
 
   $("#totalNumber").html(quiz.length);
@@ -78,7 +78,7 @@ var addQuestion = function(){
   var questionRowLength = $('#questionRow tr').length;
 
   $("#questionRow td").removeClass('clicked');
-  $("#questionRow").append('<tr><td id="questionTab" class="clicked">' + (questionRowLength + 1) + '</td></tr>');
+  $("#questionRow").append('<tr><td class="questionTab" class="clicked">' + (questionRowLength + 1) + '</td></tr>');
 
   quiz.questions.push(new Question())
 
@@ -285,11 +285,9 @@ var addChoice = function(index, option, explanation, correct){
   correct = correct ? "checked" : ""
 
   choiceContainer.append('<li class="choice">'+
-      getChar(index).toUpperCase() + '. <textarea id="choice'+index+'" style="width:400px; height:16px;">'+
-      option +
-      '</textarea>'+
+      getChar(index).toUpperCase() + '. <input id="choice'+index+'" value="'+option+'">'+
     '<br>'+
-      'Explanation: <textarea id="explanation'+index+'" style="width:600px; height:40px;">'+
+      'Explanation: <textarea id="explanation'+index+'">'+
       explanation +
       '</textarea>'+
     '<br>'+
@@ -367,7 +365,7 @@ var registerEventHandlers = function(){
     removeReadOnly();
   });*/
 
-  $("#submitButton").click(function() {
+  $(".saveQuizButton").click(function() {
 
     // send quiz object to the server
     saveToServer()
