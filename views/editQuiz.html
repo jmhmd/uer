@@ -1,7 +1,7 @@
 {{!< ./default_layout}}
 
 <script type="text/javascript">
-var quiz = {{{quiz}}},
+var quiz = {{{JSONquiz}}},
 	uploadURL = '{{uploadCreds.s3URL}}',
 	uploadKeyRoot = '{{uploadKeyRoot}}'
 
@@ -65,155 +65,164 @@ console.log(quiz)
 </div>
 
 
-<div id="questionNav">Question <p id="currentNumber">1</p> of <p id="totalNumber">_</p></div>
+<div class="container-fluid">
+	<div class="row">
 
-	<div id="formdiv">
-		<ul class="textfields">
-			<li>
-				<button type="button" id="copyPrevious" style="display:none">Copy Last Question</button>
-			</li>
-			<li class="required">
-				* Required
-			</li>
-			<li id="image">
-				<!-- Image: <input id="caseImage" type="file" name="caseImage" style="width: 300px; height: 22px" accept="image/x-png, image/gif, image/jpeg"> -->
-				<label for="imageLabel">Image label:</label>
-				<input type="text" id="imageLabel" name="imageLabel">
-				<br><br>
+		<div class="col-xs-8">
 
-				<label for="imageCategory" class="required">* Image category:</label>
-				<select id="imageCategory" name="imageCategory">
-					<option value=''>Select One</option>
-					<option value='Thoracic'>Thoracic</option>
-					<option value='Abdominal'>Abdominal</option>
-					<option value='Interventional'>Interventional</option>
-					<option value='Breast'>Breast</option>
-					<option value='Musculoskeletal'>Musculoskeletal</option>
-					<option value='Neuroradiology'>Neuroradiology</option>
-					<option value='Nuclear Medicine'>Nuclear Medicine</option>
-					<option value='Pediatric'>Pediatric</option>
-					<option value='Trauma'>Trauma</option>
-					<option value='Other'>Other</option>
-				</select>
-				<br><br>
-				
-				<label for="imageModality" class="required">* Image modality:</label>
-				<select id="imageModality" name="imageModality">
-					<option value="" class="">Select One</option>
-					<option value="CT">CT</option>
-					<option value="MRI">MRI</option>
-					<option value="Ultrasound">Ultrasound</option>
-					<option value="Fluoroscopy">Fluoroscopy</option>
-					<option value="X-ray plain">X-ray plain</option>
-					<option value="Mammography">Mammography</option>
-					<option value="PET">PET</option>
-					<option value="SPECT">SPECT</option>
-					<option value="Other">Other</option>
-				</select>
-				<br><br>
-				
-				<label for="imageModality">Upload image:</label>
-				<br>
-				<form class="dropzone">
-					<input type="hidden" id="uploadKey" name="key" value="">
-					<input type="hidden" name="AWSAccessKeyId" value="{{ uploadCreds.s3Key }}"> 
-					<input type="hidden" name="acl" value="public-read"> 
-					<input type="hidden" name="success_action_status" value="201">
-					<input type="hidden" name="policy" value="{{ uploadCreds.s3Policy64 }}">
-					<input type="hidden" name="signature" value="{{ uploadCreds.s3Signature }}">
-					<input type="hidden" name="Content-Type" value="image/jpeg">
+			<div id="questionNav">Question <p id="currentNumber">1</p> of <p id="totalNumber">_</p></div>
+
+			<div id="formdiv">
+				<ul class="textfields">
+					<li>
+						<button type="button" id="copyPrevious" style="display:none">Copy Last Question</button>
+					</li>
+					<li class="required">
+						* Required
+					</li>
+					<li id="image">
+						<!-- Image: <input id="caseImage" type="file" name="caseImage" style="width: 300px; height: 22px" accept="image/x-png, image/gif, image/jpeg"> -->
+						<label for="imageLabel">Image label:</label>
+						<input type="text" id="imageLabel" name="imageLabel">
+						<br><br>
+
+						<label for="imageCategory" class="required">* Image category:</label>
+						<select id="imageCategory" name="imageCategory">
+							<option value=''>Select One</option>
+							<option value='Thoracic'>Thoracic</option>
+							<option value='Abdominal'>Abdominal</option>
+							<option value='Interventional'>Interventional</option>
+							<option value='Breast'>Breast</option>
+							<option value='Musculoskeletal'>Musculoskeletal</option>
+							<option value='Neuroradiology'>Neuroradiology</option>
+							<option value='Nuclear Medicine'>Nuclear Medicine</option>
+							<option value='Pediatric'>Pediatric</option>
+							<option value='Trauma'>Trauma</option>
+							<option value='Other'>Other</option>
+						</select>
+						<br><br>
+						
+						<label for="imageModality" class="required">* Image modality:</label>
+						<select id="imageModality" name="imageModality">
+							<option value="" class="">Select One</option>
+							<option value="CT">CT</option>
+							<option value="MRI">MRI</option>
+							<option value="Ultrasound">Ultrasound</option>
+							<option value="Fluoroscopy">Fluoroscopy</option>
+							<option value="X-ray plain">X-ray plain</option>
+							<option value="Mammography">Mammography</option>
+							<option value="PET">PET</option>
+							<option value="SPECT">SPECT</option>
+							<option value="Other">Other</option>
+						</select>
+						<br><br>
+						
+						<label for="imageModality">Upload image:</label>
+						<br>
+						<form class="dropzone">
+							<input type="hidden" id="uploadKey" name="key" value="">
+							<input type="hidden" name="AWSAccessKeyId" value="{{ uploadCreds.s3Key }}"> 
+							<input type="hidden" name="acl" value="public-read"> 
+							<input type="hidden" name="success_action_status" value="201">
+							<input type="hidden" name="policy" value="{{ uploadCreds.s3Policy64 }}">
+							<input type="hidden" name="signature" value="{{ uploadCreds.s3Signature }}">
+							<input type="hidden" name="Content-Type" value="image/jpeg">
+						</form>
+
+						<button type="button" class="btn" id="uploadImages">Upload</button>
+					</li>
+				</ul>
+				<form id="form1">
+					<ul class="textfields">
+						<li>
+							<label for="Diagnosis" class="required">* Diagnosis:</label>
+							<input id="diagnosis" type="text" name="Diagnosis">
+						</li>
+						<li>
+							Clinical Information: <br>
+							<textarea id="clinicalInfo" name="clinicalInfo" style="width:400px; height:50px;"></textarea>
+						</li>
+						<li>
+							<label for="question" class="required">* Question:</label> <br>
+							<textarea id="question" type="text" name="question"></textarea>
+						</li>
+
+
+						<li>
+							Answer choices and explanations:
+						</li>
+					</ul>
+
+					<ul id="choices">
+						<!--<li class="choice">
+							A: <textarea id="choiceA" type="text" name="choiceA" style="width:400px; height:16px;"></textarea>
+						</li>
+						<li>
+							Explanation: <textarea id="explanationA" type="text" name="explanationA" style="width:600px; height:40px;"></textarea>
+						</li>-->
+					</ul>
+
+					<ul>
+						<button type="button" class="btn" id="addChoiceButton">Add Answer Choice</button>
+					</ul>
+
+					<!-- <ul>
+						<li>
+							Additional Keywords (including classic signs, etc.):
+								<input type="text" name="keyword" style="width:150px; height:16px;">
+								<input type="text" name="keyword" style="width:150px; height:16px;">
+								<input type="text" name="keyword" style="width:150px; height:16px;">
+								<input type="text" name="keyword" style="width:150px; height:16px;">
+								<input type="text" name="keyword" style="width:150px; height:16px;">
+								<input type="text" name="keyword" style="width:150px; height:16px;">
+						</li>
+					</ul> -->
 				</form>
 
-				<button type="button" class="btn" id="uploadImages">Upload</button>
-			</li>
-		</ul>
-		<form id="form1">
-			<ul class="textfields">
-				<li>
-					<label for="Diagnosis" class="required">* Diagnosis:</label>
-					<input id="diagnosis" type="text" name="Diagnosis">
-				</li>
-				<li>
-					Clinical Information: <br>
-					<textarea id="clinicalInfo" name="clinicalInfo" style="width:400px; height:50px;"></textarea>
-				</li>
-				<li>
-					<label for="question" class="required">* Question:</label> <br>
-					<textarea id="question" type="text" name="question"></textarea>
-				</li>
 
-
-				<li>
-					Answer choices and explanations:
-				</li>
-			</ul>
-
-			<ul id="choices">
-				<!--<li class="choice">
-					A: <textarea id="choiceA" type="text" name="choiceA" style="width:400px; height:16px;"></textarea>
-				</li>
-				<li>
-					Explanation: <textarea id="explanationA" type="text" name="explanationA" style="width:600px; height:40px;"></textarea>
-				</li>-->
-			</ul>
-
-			<ul>
-				<button type="button" class="btn" id="addChoiceButton">Add Answer Choice</button>
-			</ul>
-
-			<!-- <ul>
-				<li>
-					Additional Keywords (including classic signs, etc.):
-						<input type="text" name="keyword" style="width:150px; height:16px;">
-						<input type="text" name="keyword" style="width:150px; height:16px;">
-						<input type="text" name="keyword" style="width:150px; height:16px;">
-						<input type="text" name="keyword" style="width:150px; height:16px;">
-						<input type="text" name="keyword" style="width:150px; height:16px;">
-						<input type="text" name="keyword" style="width:150px; height:16px;">
-				</li>
-			</ul> -->
-		</form>
-
-
-		<form>
-			<div class="form-group">
-				<label for="difficulty">Difficulty Level:</label>
-				<select id="difficulty">
-					<option value="1">Easy</option>
-					<option value="2">Intermediate</option>
-					<option value="3">Difficult</option>
-				</select>
+				<form>
+					<div class="form-group">
+						<label for="difficulty">Difficulty Level:</label>
+						<select id="difficulty">
+							<option value="1">Easy</option>
+							<option value="2">Intermediate</option>
+							<option value="3">Difficult</option>
+						</select>
+					</div>
+					<div class="form-group">
+						<label for="questionCategory">Subspecialty:</label>
+						<select id="questionCategory">
+							<option value="">Select One</option>
+							<option value="breast">Breast</option>
+							<option value="cardiac">Cardiac</option>
+							<option value="CT">CT</option>
+							<option value="GI">GI</option>
+							<option value="IR">IR</option>
+							<option value="MR">MR</option>
+							<option value="MSK">MSK</option>
+							<option value="neuro">Neuro</option>
+							<option value="nuclear">Nuclear Medicine</option>
+							<option value="pediatric">Pediatric</option>
+							<option value="physics">Physics</option>
+							<option value="radiography-fluoroscopy">Radiography/Fluoroscopy</option>
+							<option value="reproductive-endocrine">Reproductive/Endocrine</option>
+							<option value="safety">Safety</option>
+							<option value="thoracic">Thoracic</option>
+							<option value="ultrasound">Ultrasound</option>
+							<option value="urinary">Urinary</option>
+							<option value="vascular">Vascular</option>
+						</select>
+					</div>
+				</form>
+				<button type="button" class="btn btn-danger" id="removeQuestion">Delete Question</button>
+				<br>
+				<button type="button" class="btn saveQuizButton btn-success">Save Quiz</button>
 			</div>
-			<div class="form-group">
-				<label for="questionCategory">Subspecialty:</label>
-				<select id="questionCategory">
-					<option value="">Select One</option>
-					<option value="breast">Breast</option>
-					<option value="cardiac">Cardiac</option>
-					<option value="CT">CT</option>
-					<option value="GI">GI</option>
-					<option value="IR">IR</option>
-					<option value="MR">MR</option>
-					<option value="MSK">MSK</option>
-					<option value="neuro">Neuro</option>
-					<option value="nuclear">Nuclear Medicine</option>
-					<option value="pediatric">Pediatric</option>
-					<option value="physics">Physics</option>
-					<option value="radiography-fluoroscopy">Radiography/Fluoroscopy</option>
-					<option value="reproductive-endocrine">Reproductive/Endocrine</option>
-					<option value="safety">Safety</option>
-					<option value="thoracic">Thoracic</option>
-					<option value="ultrasound">Ultrasound</option>
-					<option value="urinary">Urinary</option>
-					<option value="vascular">Vascular</option>
-				</select>
-			</div>
-		</form>
-		<button type="button" class="btn btn-danger" id="removeQuestion">Delete Question</button>
-		<br>
-		<button type="button" class="btn saveQuizButton btn-success">Save Quiz</button>
+
+		</div>
+
+		<div class="col-xs-4">
+			<div id="imagepreviewDiv"><img id="imagePreview" src="http://placehold.it/512x512&text=No+image+for+this+case."/></div>
+		</div>
 	</div>
 </div>
-
-
-<div id="imagepreviewDiv"><img id="imagePreview" src="http://placehold.it/512x512&text=No+image+for+this+case."/></div>

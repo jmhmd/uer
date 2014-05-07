@@ -51,13 +51,9 @@ body {
 
 
 #moduleName {
-	display: inline-block;
-	float: left;
 	margin-left: 10px;
-	text-align: center;
 	font-size: 35px;
 	font-weight: 2px;
-	margin-bottom: 10px;
 	font-family: Verdana;
 	text-shadow: 3px 3px 3px #606060;
 }
@@ -217,12 +213,8 @@ li {
 
 
 #imagepreviewDiv {
-	display: inline-block;
-	float: right;
 	background-color: #080808;
-	width: 36%;
 	margin-top: 30px;
-	margin-right: 10px;
 	border: 1px solid black;
 	color: white;
 	position: relative;

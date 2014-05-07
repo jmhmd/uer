@@ -48,6 +48,8 @@ exports.showQuizHistory = function(req, res, next){
 	 */
 	QuizResult.find({user: userId})
 		.populate('quiz')
+		.sort('-updatedAt')
+		.lean()
 		.exec(function(err, quizzes){
 			if (err){ return next(err) }
 
@@ -248,7 +250,8 @@ exports.showQuizEdit = function(req, res, next){
 			if (err){ return next(err) }
 
 			res.locals.uploadCreds = creds			
-			res.locals.quiz = JSON.stringify(quiz)
+			res.locals.JSONquiz = JSON.stringify(quiz)
+			res.locals.quiz = quiz
 			res.locals.uploadKeyRoot = secrets.uploadKeyRoot
 
 			// render template
