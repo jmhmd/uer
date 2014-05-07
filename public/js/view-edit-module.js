@@ -557,6 +557,10 @@ var setupUpload = function(){
     })
   })
 
+  $('#clearQueue').on('click', function(){
+    dropzone.removeAllFiles()
+  })
+
   var newImagePaths = []
 
   Dropzone.autoDiscover = false
