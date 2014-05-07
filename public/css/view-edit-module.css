@@ -124,12 +124,9 @@ td:hover {
 
 
 #questionNav {
-	position: absolute;
-	margin-top: 50px;
-	margin-left: 40%;
-	width: 500px;
 	font-size: 30px;
 	font-family: Verdana;
+	text-align: center;
 }
 
 
@@ -197,11 +194,6 @@ li {
 
 #question {
 	margin-bottom: 15px;
-}
-
-
-#difficulty {
-	margin-top: 35px;
 }
 
 
