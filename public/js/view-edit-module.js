@@ -292,6 +292,7 @@ var addChoice = function(index, option, explanation, correct){
       '</textarea>'+
     '<br>'+
       'Is correct: <input type="radio" id="isCorrect'+index+'" name="isCorrect" value="'+index+'" '+correct+'>'+
+      '<hr>'+
     '</li>')
 }
 

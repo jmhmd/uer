@@ -16,12 +16,16 @@ console.log('quizResult: ',quizResult)
 <link type="text/css" rel="stylesheet" href="/css/view-quiz.css"/>
 
 <div ng-app="quizApp">
-<div ng-controller="questionCtrl">
+<div ng-controller="questionCtrl" class="container-fluid">
+	<div class="row">
+		<div class="col-xs-12">
 	
-	<h3>{{quiz.title}}</h3>
+			<h3>{{quiz.title}}</h3>
 
-	<div id="question" ng-include src="'/html/quiz.question.html'"></div>
+			<div id="question" ng-include src="'/html/quiz.question.html'"></div>
 
-	<button type="button" ng-click="submitAndFinish()">Submit and Finish</button>
+			<button type="button" class="btn btn-primary" ng-click="submitAndFinish()">Submit and Finish</button>
+		</div>
+	</div>
 </div>
 </div>

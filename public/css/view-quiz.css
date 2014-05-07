@@ -10,9 +10,6 @@ ul.choice-list {
 }
 
 .nav-button {
-	cursor: pointer;
-	height:30px;
-    width:100px;
     border: 2px solid black;
     border-radius:5px;
     text-align: center;
@@ -38,20 +35,6 @@ textarea {
     margin-top: -110px;
 }
 
-p {
-    margin: 0px
-}
-
 #case-image {
-    margin-top: 20px;
-}
-    
-#next {
-    margin-top:-130px; 
-    margin-left:400px;    
-}
-
-#previous {
-    margin-left: 400px;
     margin-top: 20px;
 }

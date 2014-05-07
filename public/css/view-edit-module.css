@@ -1,7 +1,7 @@
 
 
 body {
-	background-color: #909090;
+	background-color: #d8d8d8;
 
 	/*background: -webkit-repeating-linear-gradient(left, #0A1429, #0F1F3D 0.5%, #142952 1%); /* For Safari */
 	/*background: -o-repeating-linear-gradient(right, #0A1429, #0F1F3D 0.5%, #142952 1%); /* For Opera 11.1 to 12.0 */
@@ -206,8 +206,6 @@ li {
 
 #difficulty {
 	margin-top: 35px;
-	font-size: 16px;
-	font-style: bold;
 }
 
 

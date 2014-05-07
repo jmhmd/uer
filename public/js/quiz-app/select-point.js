@@ -47,7 +47,7 @@ quizApp.directive('selectPoint', [ '$interval',
 					var x = coords[0] * image.width(),
 						y = coords[1] * image.height()
 
-					marker.css('left', x - 13).css('top', y - 13)
+					marker.css('left', x - 10).css('top', y - 10)
 					marker.show()
 				}
 
