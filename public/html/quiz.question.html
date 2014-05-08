@@ -8,6 +8,10 @@
 			</p>
 
 			<!-- <h4>Question: {{currentIndex + 1}}</h4> -->
+			<p ng-show="{{currentQuestion.clinicalInfo}}">
+				<strong>History:</strong><br>
+				{{currentQuestion.clinicalInfo}}
+			</p>
 
 			<p><strong>{{currentQuestion.stem}}</strong></p>
 
