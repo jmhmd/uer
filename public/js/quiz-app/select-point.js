@@ -33,12 +33,26 @@ quizApp.directive('selectPoint', [ '$interval',
 						'z-index': '1'
 					}),
 					image = $('<img/>').css({
-						'height': scope.imgHeight,
-						'width': scope.imgWidth
+						'height': scope.imgHeight || '100%',
+						'width': scope.imgWidth || '100%'
 					})
 
 				element.append(marker)
 				element.append(image)
+
+				/*imagesLoaded(image).on('done', function(){
+
+					console.log('image done loading')
+
+					scope.$apply(function(){
+
+						if (scope.selectPoint.coords.length > 0){
+							setMarker(scope.selectPoint.coords)
+						} else {
+							removeMarker()
+						}
+					})
+				})*/
 
 				function setMarker(coords){
 
@@ -74,17 +88,33 @@ quizApp.directive('selectPoint', [ '$interval',
 					setMarker(coords)					
 				})
 
-				scope.$watch('index', function(){
+				/*scope.$watch('index', function(){
 					if (scope.selectPoint.coords.length > 0){
 						setMarker(scope.selectPoint.coords)
 					} else {
 						removeMarker()
 					}
-				})
+				})*/
 
-				scope.$watch('imgSrc', function(){
+				scope.$watch('imgSrc', function(newSrc, oldSrc){
+					if (newSrc === oldSrc){ return false }
+
 					console.log('change image to: ', scope.imgSrc)
 					image.attr('src', scope.imgSrc)
+
+					imagesLoaded(image).on('done', function(){
+
+						console.log('image done loading')
+
+						scope.$apply(function(){
+
+							if (scope.selectPoint.coords.length > 0){
+								setMarker(scope.selectPoint.coords)
+							} else {
+								removeMarker()
+							}
+						})
+					})
 				})
 
 				scope.$watch('imgHeight', function(height){

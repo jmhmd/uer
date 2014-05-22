@@ -249,13 +249,15 @@ exports.makeAdmin = function(req, res, next){
 				json: {
 					email: user.email,
 					apikey: casefiles.apikey
-				}},
-				function(err, response, body){
-					if (err){ return next(err) }
+				}
+			},
+			function(err, response, body){
+				if (err){ return next(err) }
+				if (response.statusCode !== '200'){ return next(body) }
 
-					// user successfully created, make admin
-					setAsAdmin(user)
-				})
+				// user successfully created, make admin
+				setAsAdmin(user)
+			})
 	})
 
 	function setAsAdmin(user){
