@@ -76,6 +76,11 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window',
 			return index === $scope.currentIndex
 		}
 
+		$scope.isLastQuestion = function(){
+
+			return $scope.currentIndex === $scope.quiz.questions.length - 1
+		}
+
 		$scope.nextQuestion = function(){
 
 			if ($scope.currentIndex + 1 !== $scope.quiz.questions.length){

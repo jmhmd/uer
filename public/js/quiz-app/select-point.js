@@ -3,8 +3,8 @@
 /* Select point on image directive */
 
 var quizApp = angular.module('quizApp.select-point', [])	
-quizApp.directive('selectPoint', [ '$interval',
-	function($interval) {
+quizApp.directive('selectPoint', [ '$timeout',
+	function($timeout) {
 
 		return {
 			scope: {
@@ -56,7 +56,17 @@ quizApp.directive('selectPoint', [ '$interval',
 
 				function setMarker(coords){
 
-					console.log('image dim: ', image.width(), image.height())
+					var imgRatio = image.height() / image.width(),
+						natImgRatio = image.get(0).naturalHeight / image.get(0).naturalWidth
+
+					console.log('image ratio: ', imgRatio)
+					console.log('natural image ratio: ', natImgRatio)
+
+					// check if image rendered properly yet. if ratio is the same, marker will
+					// be in the same place anyway
+					/*if (imgRatio !== natImgRatio){
+						$timeout(function(){setMarker(coords)}, 50)
+					}*/
 
 					var x = coords[0] * image.width(),
 						y = coords[1] * image.height()
@@ -109,6 +119,7 @@ quizApp.directive('selectPoint', [ '$interval',
 						scope.$apply(function(){
 
 							if (scope.selectPoint.coords.length > 0){
+								// $timeout(function(){setMarker(scope.selectPoint.coords)}, 10)
 								setMarker(scope.selectPoint.coords)
 							} else {
 								removeMarker()

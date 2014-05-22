@@ -41,11 +41,11 @@
 						Previous study
 					</div>
 				</div>
-				<div class="col-xs-6 text-right" ng-switch on="currentIndex">
+				<div class="col-xs-6 text-right" ng-switch on="isLastQuestion()">
 					<div id="next" class="nav-button btn" ng-click="nextQuestion()" ng-switch-default> 
 						Next study 
 					</div>
-					<button type="button" class="btn btn-primary" ng-click="submitAndFinish()" ng-switch-when="{{quiz.questions.length - 1}}">Submit and Finish</button>
+					<button type="button" class="btn btn-primary" ng-click="submitAndFinish()" ng-switch-when="true">Submit and Finish</button>
 				</div>
 			</div>
 			<div class="row">
