@@ -15,7 +15,7 @@
 
 			<p><strong>{{currentQuestion.stem}}</strong></p>
 
-			<!-- <img src="{{currentQuestion().imageSeries[0].imagePaths[0]}}" alt="" height="512"> -->
+			<!-- <spanmg src="{{currentQuestion().imageSeries[0].imagePaths[0]}}" alt="" height="512"> -->
 		</div>
 	</div>
 	<div class="row">
@@ -24,7 +24,7 @@
 			<div id="Selections"> 
 				<ul class="choice-list">
 					<li ng-repeat="choice in currentQuestion.choices">
-						<input type="radio" name="choices" value="{{choice._id}}" ng-model="quizResult.quizQuestions[currentIndex].userAnswer"> {{choice.option}}
+						<spannput type="radio" name="choices" value="{{choice._id}}" ng-model="quizResult.quizQuestions[currentIndex].userAnswer"> {{choice.option}}
 					</li>
 				</ul>
 			</div>
@@ -51,7 +51,7 @@
 			<div class="row">
 				<div class="col-xs-12">
 					
-					<div id="cine_container" class="cine_container case-image" style="width:700px;height:700px;"stack-view select-point="quizResult.quizQuestions[currentIndex].abnormalityLoc" index="currentIndex" img-src="currentQuestion.imageSeries[0].imagePaths[0]">
+					<div id="stackview" class="cine_container case-image" style="width:700px;height:700px;"stack-view select-point="quizResult.quizQuestions[currentIndex].abnormalityLoc" index="currentIndex" img-src="currentQuestion.imageSeries[0].imagePaths[0]">
 						<div class="progressBar">
 							<div class="loadProgress">
 							</div>
@@ -60,32 +60,32 @@
 							</div>
 						</div>
 						<div class="viewer-controls">
-							<div class="fullScreen controlButton btn btn-inverse pull-right" title="Fullscreen"><i class="icon-fullscreen icon-white"></i></div>
+							<!-- <div class="fullScreen controlButton btn btn-inverse pull-right" title="Fullscreen"><span class="glyphicon glyphicon-fullscreen icon-fullscreen icon-white"></span></div>
 							<div class="btn-group pull-right">
 								<a class="controlButton btn btn-inverse dropdown-toggle" data-toggle="dropdown" href="#">
-									<i class="icon-cog icon-white"></i>
+									<span class="glyphicon glyphicon-cog icon-cog icon-white"></span>
 									<span class="caret"></span>
 								</a>
 								<ul class="dropdown-menu">
 									<li>
 										<label class="checkbox">
-											<input class="scrollByPos" type="checkbox"> Lock scroll to mouse position<br><small>(may skip images)</small>
+											<spannput class="scrollByPos" type="checkbox"> Lock scroll to mouse position<br><small>(may skip images)</small>
 										</label>
 									</li>
 								</ul>
-							</div>
+							</div> -->
 							<div class="btn-group">
-								<div class="playToggle controlButton pull-left btn btn-inverse" title="Cine mode"><i class="icon-play icon-white"></i></div>
-								<div class="scrollControl controlButton pull-left btn btn-inverse" title="Scroll"><i class="icon-resize-vertical icon-white"></i></div>
-								<div class="panControl controlButton pull-left btn btn-inverse" title="Pan"><i class="icon-move icon-white"></i></div>
-								<div class="zoomControl controlButton pull-left btn btn-inverse" title="Zoom"><i class="icon-zoom-in icon-white"></i></div>
+								<!-- <div class="playToggle controlButton pull-left btn btn-inverse" title="Cine mode"><span class="glyphicon glyphicon-play icon-play icon-white"></span></div>
+								<div class="scrollControl controlButton pull-left btn btn-inverse" title="Scroll"><span class="icon-resize-vertical icon-white"></span></div> -->
+								<div class="panControl controlButton pull-left btn btn-inverse" title="Pan"><span class="glyphicon glyphicon-move icon-move icon-white"></span></div>
+								<div class="zoomControl controlButton pull-left btn btn-inverse" title="Zoom"><span class="glyphicon glyphicon-zoom-in icon-zoom-in icon-white"></span></div>
 								<div class="actualSizeButton controlButton pull-left btn btn-inverse" title="Actual size">1:1</div>
-								<div class="fitButton controlButton pull-left btn btn-inverse" title="Fit"><i class="icon-resize-full icon-white"></i></div>
+								<div class="fitButton controlButton pull-left btn btn-inverse" title="Fit"><span class="glyphicon glyphicon-resize-full icon-resize-full icon-white"></span></div>
 							</div>
 							<div class="btn-group">
-								<div class="markPointControl controlButton pull-left btn btn-inverse" title="Mark a point"><i class="icon-screenshot icon-white"></i></div>
-								<div class="markArrowControl controlButton pull-left btn btn-inverse" title="Draw an arrow"><i class="icon-arrow-right icon-white"></i></div>
-								<div class="removeAnnotationsControl controlButton pull-left btn btn-inverse" title="Erase annotations"><i class="icon-remove icon-white"></i></div>
+								<div class="markPointControl controlButton pull-left btn btn-inverse" title="Mark a point"><span class="glyphicon glyphicon-screenshot icon-screenshot icon-white"></span></div>
+								<div class="markArrowControl controlButton pull-left btn btn-inverse" title="Draw an arrow"><span class="glyphicon glyphicon-arrow-right icon-arrow-right icon-white"></span></div>
+								<div class="removeAnnotationsControl controlButton pull-left btn btn-inverse" title="Erase annotations"><span class="glyphicon glyphicon-remove icon-remove icon-white"></span></div>
 							</div>
 						</div>
 						<div id="canvas_container"></div>

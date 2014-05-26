@@ -41,6 +41,10 @@ quizApp.directive('stackView', [
 					}				
 				})
 
+				$(viewer).on('mark-point', function(){
+					console.log(viewer.getAnnotations())
+				})
+
 				/*scope.$watch('imgSrc', function(newSrc, oldSrc){
 					if (newSrc === oldSrc){ return false }
 
