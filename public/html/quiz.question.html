@@ -1,41 +1,32 @@
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-xs-12">
-			<p>
-				<span ng-repeat="question in quizResult.quizQuestions">
-					<a href="#" ng-click="gotoQuestion($index)" ng-class="{selected: isCurrentQuestion($index)}">{{$index + 1}}</a>
-				</span>
-			</p>
-
-			<!-- <h4>Question: {{currentIndex + 1}}</h4> -->
-			<p ng-show="{{currentQuestion.clinicalInfo}}">
-				<strong>History:</strong><br>
-				{{currentQuestion.clinicalInfo}}
-			</p>
-
-			<p><strong>{{currentQuestion.stem}}</strong></p>
-
-			<!-- <spanmg src="{{currentQuestion().imageSeries[0].imagePaths[0]}}" alt="" height="512"> -->
-		</div>
-	</div>
-	<div class="row">
 		<div class="col-xs-4">
-
-			<div id="Selections"> 
-				<ul class="choice-list">
-					<li ng-repeat="choice in currentQuestion.choices">
-						<input type="radio" name="choices" value="{{choice._id}}" ng-model="quizResult.quizQuestions[currentIndex].userAnswer"> {{choice.option}}
-					</li>
-				</ul>
-			</div>
-			<!-- <div id="text">
-			<textarea rows="4" cols="30"></textarea>
-
-			</div> -->
-		</div>
-
-		<div class="col-xs-8">
 			<div class="row">
+				<div class="col-xs-12">
+					<p>
+						<span ng-repeat="question in quizResult.quizQuestions">
+							<a href="#" ng-click="gotoQuestion($index)" ng-class="{selected: isCurrentQuestion($index)}">{{$index + 1}}</a>
+						</span>
+					</p>
+
+					<!-- <h4>Question: {{currentIndex + 1}}</h4> -->
+					<p ng-show="{{currentQuestion.clinicalInfo}}">
+						<strong>History:</strong><br>
+						{{currentQuestion.clinicalInfo}}
+					</p>
+
+					<p><strong>{{currentQuestion.stem}}</strong></p>
+
+					<div id="Selections"> 
+						<ul class="choice-list">
+							<li ng-repeat="choice in currentQuestion.choices">
+								<input type="radio" name="choices" value="{{choice._id}}" ng-model="quizResult.quizQuestions[currentIndex].userAnswer"> {{choice.option}}
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="row" style="margin-top:50px;">
 				<div class="col-xs-6">
 					<div id="previous" class="nav-button btn" ng-click="prevQuestion()">
 						Previous study
@@ -48,10 +39,17 @@
 					<button type="button" class="btn btn-primary" ng-click="submitAndFinish()" ng-switch-when="true">Submit and Finish</button>
 				</div>
 			</div>
+			<!-- <div id="text">
+			<textarea rows="4" cols="30"></textarea>
+
+			</div> -->
+		</div>
+
+		<div class="col-xs-8">
 			<div class="row">
 				<div class="col-xs-12">
 					
-					<div id="stackview" class="cine_container case-image" style="width:700px;height:700px;"stack-view select-point="quizResult.quizQuestions[currentIndex].abnormalityLoc" index="currentIndex" img-src="currentQuestion.imageSeries[0].imagePaths[0]">
+					<div id="stackview" class="cine_container case-image" style="width:100%;height:800px;" stack-view select-point="quizResult.quizQuestions[currentIndex].abnormalityLoc" index="currentIndex" img-src="currentQuestion.imageSeries[0].imagePaths[0]">
 						<div class="progressBar">
 							<div class="loadProgress">
 							</div>
@@ -90,10 +88,6 @@
 						</div>
 						<div id="canvas_container"></div>
 					</div>
-
-					<!-- <div id="case-image" select-point="quizResult.quizQuestions[currentIndex].abnormalityLoc" index="currentIndex" img-src="currentQuestion.imageSeries[0].imagePaths[0]"></div> -->
-
-					<!-- {{quizResult.quizQuestions[currentIndex].abnormalityLoc.coords}} -->
 				</div>
 			</div>
 		</div>
