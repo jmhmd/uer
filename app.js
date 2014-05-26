@@ -79,8 +79,12 @@ hbs.registerHelper("correctAnswer", function(question, property) {
 
 hbs.registerHelper("userAnswer", function(question, property) {
 
-	var correctAnswer = _.find(question.questionId.choices, function(choice){ return choice._id.equals(question.userAnswer) })
-	return correctAnswer[property]
+	if(question.userAnswer){
+		var correctAnswer = _.find(question.questionId.choices, function(choice){ return choice._id.equals(question.userAnswer) })
+		return correctAnswer[property]
+	} else {
+		return "No answer choice selected"
+	}
 })
 
 // all environments

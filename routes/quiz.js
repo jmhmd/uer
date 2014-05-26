@@ -203,7 +203,7 @@ exports.quizResult = function(req, res, next){
 
 				var correctAnswer = _.find(question.questionId.choices, function(choice){ return choice.correct })
 
-				question.correct = correctAnswer ? question.userAnswer.equals(correctAnswer._id) : false
+				question.correct = correctAnswer && question.userAnswer ? question.userAnswer.equals(correctAnswer._id) : false
 
 				if (question.correct){ numberCorrect += 1 }
 			})
