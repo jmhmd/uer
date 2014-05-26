@@ -33,49 +33,34 @@ quizApp.directive('stackView', [
 						// setup watch for change if loaded
 						unbindSrcWatch = scope.$watch('imgSrc', function(newSrc, oldSrc){
 							if (!newSrc){ return false }
-							viewer.render({images: [newSrc]}, element)
+
+							viewer.render({images: [newSrc]}, element, {activeControl: 'markPoint'})
+							viewer.addHook('beforeAddAnnotation', function(next){
+								viewer.clearAnnotations()
+								next()
+							})
+							viewer.loadAnnotations([{type:'point', image: 0, coords: scope.selectPoint.coords}])
+
 							unbindSrcWatch()
 						})
 					} else {
-						viewer.render({images: [scope.imgSrc]}, element)
+						viewer.render({images: [scope.imgSrc]}, element, {activeControl: 'markPoint'})
+						viewer.addHook('beforeAddAnnotation', function(next){
+							viewer.clearAnnotations()
+							next()
+						})
+						viewer.loadAnnotations([{type:'point', image: 0, coords: scope.selectPoint.coords}])
 					}				
 				})
 
 				$(viewer).on('mark-point', function(){
-					console.log(viewer.getAnnotations())
+					var annotations = viewer.getAnnotations()
+
+					if (annotations[0]){
+						scope.selectPoint.coords = annotations[0].coords
+					}
 				})
 
-				/*scope.$watch('imgSrc', function(newSrc, oldSrc){
-					if (newSrc === oldSrc){ return false }
-
-					console.log('change image to: ', scope.imgSrc)
-					image.attr('src', scope.imgSrc)
-
-					imagesLoaded(image).on('done', function(){
-
-						console.log('image done loading')
-
-						scope.$apply(function(){
-
-							if (scope.selectPoint.coords.length > 0){
-								// $timeout(function(){setMarker(scope.selectPoint.coords)}, 10)
-								setMarker(scope.selectPoint.coords)
-							} else {
-								removeMarker()
-							}
-						})
-					})
-				})
-
-				scope.$watch('imgHeight', function(height){
-					image.css('height', height)
-				})
-
-				scope.$watch('imgWidth', function(width){
-					image.css('width', width)
-				})*/
-
-				// onQuestionChange()
 			}
 		}
 	}]

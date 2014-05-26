@@ -24,7 +24,7 @@
 			<div id="Selections"> 
 				<ul class="choice-list">
 					<li ng-repeat="choice in currentQuestion.choices">
-						<spannput type="radio" name="choices" value="{{choice._id}}" ng-model="quizResult.quizQuestions[currentIndex].userAnswer"> {{choice.option}}
+						<input type="radio" name="choices" value="{{choice._id}}" ng-model="quizResult.quizQuestions[currentIndex].userAnswer"> {{choice.option}}
 					</li>
 				</ul>
 			</div>
@@ -69,7 +69,7 @@
 								<ul class="dropdown-menu">
 									<li>
 										<label class="checkbox">
-											<spannput class="scrollByPos" type="checkbox"> Lock scroll to mouse position<br><small>(may skip images)</small>
+											<input class="scrollByPos" type="checkbox"> Lock scroll to mouse position<br><small>(may skip images)</small>
 										</label>
 									</li>
 								</ul>
