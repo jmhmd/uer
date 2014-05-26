@@ -1,9 +1,9 @@
 var request = require('request')
 
 module.exports = {
-	db: 'mongodb://localhost:27017/call-practice',
+	db: 'mongodb://localhost:27017/uer',
 
-	sessionSecret: 'call-practice-umb',
+	sessionSecret: 'uer',
 
 	// https://cloud.google.com/console/project
 	google: {
@@ -17,22 +17,25 @@ module.exports = {
 var casefiles = {},
 	uploadKeyRoot = "uploads/temp/"
 
-if (process.env.NODE_ENV === 'development'){
+/*if (process.env.NODE_ENV === 'development'){
 
 	// casefiles.apikey = '52f7caabff074a371800000b' // on powerbook
 	casefiles.apikey = '52faa514a225b71d13000005' // on imac
 	casefiles.url = 'http://localhost:8080/' // must include trailing slash
 	uploadKeyRoot = "uploads/temp/"
-} else if (process.env.NODE_ENV === 'testing'){
+} else */
 
-	casefiles.apikey = '530676deece97f623cfc7428'
-	casefiles.url = 'http://dev.casefil.es/' // must include trailing slash
-	uploadKeyRoot = "uploads/temp/"
-} else if (process.env.NODE_ENV === 'production'){
+if (process.env.NODE_ENV === 'production'){
 
 	casefiles.apikey = ''
 	casefiles.url = 'http://casefil.es/' // must include trailing slash
 	uploadKeyRoot = "uploads/"
+}
+else {
+
+	casefiles.apikey = '53829e6a33738ebc673df6a1'
+	casefiles.url = 'http://dev.casefil.es/' // must include trailing slash
+	uploadKeyRoot = "uploads/temp/"
 }
 
 casefiles.getUploadCreds = function(cb){
