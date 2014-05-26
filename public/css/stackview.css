@@ -1,0 +1,107 @@
+.cine_container {
+	background: black;
+	position: relative;
+	overflow: hidden;
+}
+.cine_container .controlButton {
+	cursor: pointer;
+	font-size: 12px;
+	padding: 6px;
+	color: white;
+	font-weight: bold;
+	width: 25px;
+}
+.activeControl {
+	background-color: #333;
+}
+.cine_container .progressBar {
+	position: relative;
+	z-index: 1;
+}
+.cine_container .loadProgress {
+	width: 100%;
+	height: 2px;
+	position: relative;
+}
+.cine_container .loadProgress div {
+	float: left;
+	height: 2px;
+}
+.loadProgress .image-loaded {
+	background: #555;
+}
+.loadProgress .image-load-error {
+	background: red;
+}
+.cine_container .progressFill {
+	width: 1px;
+	height: 12px;
+	background: #BBBBBB;
+	position: relative;
+}
+.cine_container .progressLabel {
+	color: #fff;
+	font-size: 12px;
+	margin-top: 0;
+	margin-left: 3px;
+	position: absolute;
+	top: -4px;
+}
+.viewer-controls {
+	position: absolute;
+	width: 100%;
+  	z-index: 1;
+}
+.viewer-controls .dropdown-menu li {
+	padding: 0 10px;
+}
+#cine_container .speedControl {
+	clear: both;
+	padding-top: 5px;
+}
+#cine_container .speedSlider {
+	/*display: none;*/
+	width: 150px;
+	height: 5px;
+	border-radius: 2px;
+}
+#cine_container .speedSlider .ui-slider-handle {
+	height: 15px;
+	width: 10px;
+	top: -0.4em;
+}
+.toggle {
+	border-bottom: 1px solid #555555;
+    cursor: pointer;
+    padding-bottom: 3px;
+}
+.collapse-body { padding: 10px 5px; }
+h2 { margin-bottom: 20px; }
+#list_controls {
+	float: left;
+    margin-bottom: 10px;
+    width: 100%;
+}
+:-webkit-full-screen {
+	width: 100% !important;
+	height: 100% !important;
+}
+:-moz-full-screen {
+	width: 100% !important;
+	height: 100% !important;
+}
+.btn-inverse {
+	color: #fff;
+	text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+	background-color: #363636;
+	background-image: -moz-linear-gradient(top,#444,#222);
+	background-image: -webkit-gradient(linear,0 0,0 100%,from(#444),to(#222));
+	background-image: -webkit-linear-gradient(top,#444,#222);
+	background-image: -o-linear-gradient(top,#444,#222);
+	background-image: linear-gradient(to bottom,#444,#222);
+	background-repeat: repeat-x;
+	border-color: #222 #222 #000;
+	border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff444444',endColorstr='#ff222222',GradientType=0);
+	filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+}

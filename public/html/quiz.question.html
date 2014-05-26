@@ -1,41 +1,32 @@
 <div class="container-fluid">
 	<div class="row">
-		<div class="col-xs-12">
-			<p>
-				<span ng-repeat="question in quizResult.quizQuestions">
-					<a href="#" ng-click="gotoQuestion($index)" ng-class="{selected: isCurrentQuestion($index)}">{{$index + 1}}</a>
-				</span>
-			</p>
-
-			<!-- <h4>Question: {{currentIndex + 1}}</h4> -->
-			<p ng-show="{{currentQuestion.clinicalInfo}}">
-				<strong>History:</strong><br>
-				{{currentQuestion.clinicalInfo}}
-			</p>
-
-			<p><strong>{{currentQuestion.stem}}</strong></p>
-
-			<!-- <img src="{{currentQuestion().imageSeries[0].imagePaths[0]}}" alt="" height="512"> -->
-		</div>
-	</div>
-	<div class="row">
 		<div class="col-xs-4">
-
-			<div id="Selections"> 
-				<ul class="choice-list">
-					<li ng-repeat="choice in currentQuestion.choices">
-						<input type="radio" name="choices" value="{{choice._id}}" ng-model="quizResult.quizQuestions[currentIndex].userAnswer"> {{choice.option}}
-					</li>
-				</ul>
-			</div>
-			<!-- <div id="text">
-			<textarea rows="4" cols="30"></textarea>
-
-			</div> -->
-		</div>
-
-		<div class="col-xs-8">
 			<div class="row">
+				<div class="col-xs-12">
+					<p>
+						<span ng-repeat="question in quizResult.quizQuestions">
+							<a href="#" ng-click="gotoQuestion($index)" ng-class="{selected: isCurrentQuestion($index)}">{{$index + 1}}</a>
+						</span>
+					</p>
+
+					<!-- <h4>Question: {{currentIndex + 1}}</h4> -->
+					<p ng-show="{{currentQuestion.clinicalInfo}}">
+						<strong>History:</strong><br>
+						{{currentQuestion.clinicalInfo}}
+					</p>
+
+					<p><strong>{{currentQuestion.stem}}</strong></p>
+
+					<div id="Selections"> 
+						<ul class="choice-list">
+							<li ng-repeat="choice in currentQuestion.choices">
+								<input type="radio" name="choices" value="{{choice._id}}" ng-model="quizResult.quizQuestions[currentIndex].userAnswer"> {{choice.option}}
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div class="row" style="margin-top:50px;">
 				<div class="col-xs-6">
 					<div id="previous" class="nav-button btn" ng-click="prevQuestion()">
 						Previous study
@@ -48,11 +39,55 @@
 					<button type="button" class="btn btn-primary" ng-click="submitAndFinish()" ng-switch-when="true">Submit and Finish</button>
 				</div>
 			</div>
+			<!-- <div id="text">
+			<textarea rows="4" cols="30"></textarea>
+
+			</div> -->
+		</div>
+
+		<div class="col-xs-8">
 			<div class="row">
 				<div class="col-xs-12">
-					<div id="case-image" select-point="quizResult.quizQuestions[currentIndex].abnormalityLoc" index="currentIndex" img-src="currentQuestion.imageSeries[0].imagePaths[0]"></div>
-
-					<!-- {{quizResult.quizQuestions[currentIndex].abnormalityLoc.coords}} -->
+					
+					<div id="stackview" class="cine_container case-image" style="width:100%;height:800px;" stack-view select-point="quizResult.quizQuestions[currentIndex].abnormalityLoc" index="currentIndex" img-src="currentQuestion.imageSeries[0].imagePaths[0]">
+						<div class="progressBar">
+							<div class="loadProgress">
+							</div>
+							<div class="progressFill">
+								<span class="progressLabel"></span>
+							</div>
+						</div>
+						<div class="viewer-controls">
+							<!-- <div class="fullScreen controlButton btn btn-inverse pull-right" title="Fullscreen"><span class="glyphicon glyphicon-fullscreen icon-fullscreen icon-white"></span></div>
+							<div class="btn-group pull-right">
+								<a class="controlButton btn btn-inverse dropdown-toggle" data-toggle="dropdown" href="#">
+									<span class="glyphicon glyphicon-cog icon-cog icon-white"></span>
+									<span class="caret"></span>
+								</a>
+								<ul class="dropdown-menu">
+									<li>
+										<label class="checkbox">
+											<input class="scrollByPos" type="checkbox"> Lock scroll to mouse position<br><small>(may skip images)</small>
+										</label>
+									</li>
+								</ul>
+							</div> -->
+							<div class="btn-group">
+								<!-- <div class="playToggle controlButton pull-left btn btn-inverse" title="Cine mode"><span class="glyphicon glyphicon-play icon-play icon-white"></span></div>
+								<div class="scrollControl controlButton pull-left btn btn-inverse" title="Scroll"><span class="icon-resize-vertical icon-white"></span></div> -->
+								<div class="panControl controlButton pull-left btn btn-inverse" title="Pan"><span class="glyphicon glyphicon-move icon-move icon-white"></span></div>
+								<div class="zoomControl controlButton pull-left btn btn-inverse" title="Zoom"><span class="glyphicon glyphicon-zoom-in icon-zoom-in icon-white"></span></div>
+								<div class="actualSizeButton controlButton pull-left btn btn-inverse" title="Actual size">1:1</div>
+								<div class="fitButton controlButton pull-left btn btn-inverse" title="Fit"><span class="glyphicon glyphicon-resize-full icon-resize-full icon-white"></span></div>
+							</div>
+							<div class="btn-group">
+								<div class="markPointControl controlButton pull-left btn btn-inverse" title="Mark a point"><span class="glyphicon glyphicon-screenshot icon-screenshot icon-white"></span></div>
+								<!-- <div class="markArrowControl controlButton pull-left btn btn-inverse" title="Draw an arrow"><span class="glyphicon glyphicon-arrow-right icon-arrow-right icon-white"></span></div> -->
+								<div class="removeAnnotationsControl controlButton pull-left btn btn-inverse" title="Erase annotations"><span class="glyphicon glyphicon-remove icon-remove icon-white"></span></div>
+							</div>
+						</div>
+						<div id="canvas_container"></div>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -27,7 +27,7 @@
 		<tr>
 			<td>{{math @index "+" 1}}</td>
 			<td>
-				<img height="200" width="200" class="lazy-load" data-src="{{this.questionId.studyId}}">
+				<img height="200" width="200" class="lazy-load" data-src="{{this.questionId.studyId}}" data-loc="{{this.abnormalityLoc.coords}}">
 			</td>
 			<td>
 				{{#if this.correct}}
@@ -57,7 +57,29 @@ $(document).ready(function(){
 
 					console.log('loaded image: ', res)
 
-					$(img).attr('src', res.imageStacks[0].imagePaths[0])
+					$(img)
+						.one('load', function(){
+
+							// put crosshairs on it
+							var w = img.naturalWidth,
+								//h = img.naturalHeight,
+								ratio = w / $(img).width(),
+								offset = $(img).offset(),
+								marker = $('<span></span>').addClass('glyphicon glyphicon-screenshot icon-red').css('position', 'absolute'),
+								loc = $(img).attr('data-loc').split(',').map(function(i){return parseInt(i)}),
+								mTop = offset.top + (loc[1] / ratio),
+								mLeft = offset.left + (loc[0] / ratio)
+
+							marker.css({'top': mTop, 'left': mLeft})
+							$('body').append(marker)
+
+						})
+						.attr('src', res.imageStacks[0].imagePaths[0])
+						.each(function() {
+							//Cache fix for browsers that don't trigger .load()
+							if(this.complete){ $(this).trigger('load') }
+						})
+					
 				})
 				.fail(function(err) {
 

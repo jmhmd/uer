@@ -41,3 +41,9 @@
 .login-google:active {
   background-image: url('/img/icons/White-signin_Long_press_44dp.png');
 }
+.icon-white {
+  color: white;
+}
+.icon-red {
+  color: red;
+}
