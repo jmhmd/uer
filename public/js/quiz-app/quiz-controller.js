@@ -22,9 +22,23 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 
 			$interval(function(){
 				var elapsed = moment.duration(Timer.getTotalElapsed())
-				$scope.elapsedTime = elapsed.minutes() + ':' + elapsed.seconds()
-				console.log($scope.elapsedTime)
-			}, 3000)
+				$scope.elapsedTime = msToTime(Timer.getTotalElapsed())
+			}, 1000)
+		}
+
+		var msToTime = function(s) {
+			function addZ(n) {
+				return (n < 10 ? '0' : '') + n;
+			}
+
+			var ms = s % 1000;
+			s = (s - ms) / 1000;
+			var secs = s % 60;
+			s = (s - secs) / 60;
+			var mins = s % 60;
+			var hrs = (s - mins) / 60;
+
+			return addZ(hrs) + ':' + addZ(mins) + ':' + addZ(secs) // + '.' + ms;
 		}
 
 		var _getQuestion = function(index){
@@ -68,6 +82,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 		}
 
 		var _onQuestionUnload = function(index){
+			console.log('unload question '+index)
 
 			$scope.saveProgress()
 			
@@ -81,7 +96,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 				return false
 			}
 
-			if ($scope.currentIndex){
+			if (!_.isNull($scope.currentIndex)){
 				_onQuestionUnload($scope.currentIndex)
 			}
 

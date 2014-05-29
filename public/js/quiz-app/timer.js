@@ -17,13 +17,13 @@ quizApp.factory('Timer', [
 				timerStart: false, // set to date when timer is active
 				timeElapsed: 0, // in ms
 				getElapsed: function(){
-					return this.timerStart ? moment().diff(this.timerStart, 'milliseconds') : this.timeElapsed
+					return this.timerStart ? this.timeElapsed + moment().diff(this.timerStart, 'milliseconds') : this.timeElapsed
 				},
 				startTimer: function(){
 					this.timerStart = moment()
 				},
 				stopTimer: function(){
-					this.timeElapsed = moment().diff(this.timerStart, 'milliseconds')
+					this.timeElapsed += moment().diff(this.timerStart, 'milliseconds')
 					this.timerStart = false
 				}
 			}
@@ -95,6 +95,7 @@ quizApp.factory('Timer', [
 			isTimedObject: isTimedObject,
 			createTimedObject: createTimedObject,
 			startTimer: startTimer,
+			stopAll: stopAll,
 			getTotalElapsed: getTotalElapsed,
 			getObjectElapsed: getObjectElapsed
 		}
