@@ -41,7 +41,7 @@ console.log('quizResult: ',quizResult)
 		<div class="col-xs-12">
 			
 			<!-- Using html include so the handlebars and angular bracket syntaxes don't collide -->
-			<div id="question" ng-include src="'/html/quiz.question.html'"></div>
+			<div id="question" ng-include src="questionPartial"></div>
 
 			<button type="button" class="btn btn-primary" ng-click="submitAndFinish()">Submit and Finish</button>
 		</div>

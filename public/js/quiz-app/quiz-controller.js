@@ -11,6 +11,12 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 		$scope.currentIndex = null
 		$scope.currentQuestion = {}
 		$scope.elapsedTime = "00:00:00" // should be time formatted string
+		var partials = {
+			question: '/html/quiz.question.html',
+			paused: '/html/quiz.paused.html'
+		}
+		$scope.questionPartial = partials.question
+		$scope.paused = false
 
 
 		var _init = function(){
@@ -165,7 +171,23 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 
 				$window.location.href = '/quiz/result/' + $scope.quizResult._id
 			})
-		}		
+		}
+
+		$scope.pause = function(){
+
+			Timer.stopAll()
+
+			$scope.questionPartial = partials.paused
+			$scope.paused = true
+		}
+
+		$scope.resume = function(){
+
+			$scope.questionPartial = partials.question
+			$scope.paused = false
+
+			Timer.startTimer($scope.currentIndex)
+		}
 
 		_init()
 
