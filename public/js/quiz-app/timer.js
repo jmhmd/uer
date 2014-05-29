@@ -87,8 +87,23 @@ quizApp.factory('Timer', [
 			return totalElapsed
 		}
 
+		function msToTime (s) {
+			function addZ(n) {
+				return (n < 10 ? '0' : '') + n;
+			}
+
+			var ms = s % 1000;
+			s = (s - ms) / 1000;
+			var secs = s % 60;
+			s = (s - secs) / 60;
+			var mins = s % 60;
+			var hrs = (s - mins) / 60;
+
+			return addZ(hrs) + ':' + addZ(mins) + ':' + addZ(secs) // + '.' + ms;
+		}
+
 		function getObjectElapsed (id){
-			return _.find(timedObjects, {id: id}).timeElapsed
+			return _.find(timedObjects, {id: id}).getElapsed()
 		}
 		
 		return {
@@ -97,7 +112,8 @@ quizApp.factory('Timer', [
 			startTimer: startTimer,
 			stopAll: stopAll,
 			getTotalElapsed: getTotalElapsed,
-			getObjectElapsed: getObjectElapsed
+			getObjectElapsed: getObjectElapsed,
+			msToTime: msToTime
 		}
 	}
 ])

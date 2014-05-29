@@ -27,7 +27,7 @@ var _updateQuizProgress = function(oldObj, newObj, cb){
 		
 		question.userAnswer = nq.userAnswer
 		question.abnormalityLoc = nq.abnormalityLoc
-		question.timeTotal = nq.timeTotal
+		question.questionTime = nq.questionTime
 	})
 
 	oldObj.completed = (newObj.completed === 'false' || newObj.completed === '0') ? false : newObj.completed

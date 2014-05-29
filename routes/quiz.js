@@ -226,7 +226,7 @@ exports.quizResult = function(req, res, next){
 			quizResult.numberCorrect = numberCorrect
 			quizResult.percentCorrect = (numberCorrect / quizResult.quizQuestions.length * 100).toFixed(1)
 			quizResult.totalQuizTime = totalQuizTime
-
+			
 			quizResult.save(function(err){
 				if (err){ return next(err) }
 

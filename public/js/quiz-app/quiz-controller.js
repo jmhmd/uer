@@ -10,7 +10,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 		$scope.quizResult = quizResult
 		$scope.currentIndex = null
 		$scope.currentQuestion = {}
-		$scope.elapsedTime = "0:00" // should be time formatted string
+		$scope.elapsedTime = "00:00:00" // should be time formatted string
 
 
 		var _init = function(){
@@ -21,24 +21,8 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 			// ...
 
 			$interval(function(){
-				var elapsed = moment.duration(Timer.getTotalElapsed())
-				$scope.elapsedTime = msToTime(Timer.getTotalElapsed())
+				$scope.elapsedTime = Timer.msToTime(Timer.getTotalElapsed())
 			}, 1000)
-		}
-
-		var msToTime = function(s) {
-			function addZ(n) {
-				return (n < 10 ? '0' : '') + n;
-			}
-
-			var ms = s % 1000;
-			s = (s - ms) / 1000;
-			var secs = s % 60;
-			s = (s - secs) / 60;
-			var mins = s % 60;
-			var hrs = (s - mins) / 60;
-
-			return addZ(hrs) + ':' + addZ(mins) + ':' + addZ(secs) // + '.' + ms;
 		}
 
 		var _getQuestion = function(index){
@@ -81,8 +65,17 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 			Timer.startTimer(index)
 		}
 
+		var _saveQuestionTime = function(index){
+
+			// save time for question
+			var questionResult = $scope.quizResult.quizQuestions[index]
+			questionResult.questionTime = Timer.getObjectElapsed(index)
+		}
+
 		var _onQuestionUnload = function(index){
 			console.log('unload question '+index)
+
+			_saveQuestionTime(index)
 
 			$scope.saveProgress()
 			
@@ -160,6 +153,10 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 			if(!window.confirm('Are you sure? Once you submit you cannot go back and change answers.')){
 				return false
 			}
+
+			_saveQuestionTime($scope.currentIndex)
+
+			Timer.stopAll()
 
 			$scope.quizResult.completed = true
 
