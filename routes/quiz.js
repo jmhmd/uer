@@ -135,10 +135,10 @@ exports.startQuiz = function(req, res, next){
 
 				quizResult.user = req.user._id
 				quizResult.quiz = quiz._id
+				quizResult.startDate = new Date()
+				quizResult.totalQuizTime = 0
 
 				// fill in question ids
-				// 
-				// BELOW IS NOT FILLING IN QUESTIONID, NOT SURE WHY YET
 				_.each(quiz.questions, function(question){
 					quizResult.quizQuestions.push({
 						questionId: question._id
@@ -184,31 +184,48 @@ exports.quizResult = function(req, res, next){
 	.exec(function(err, quizResult){
 		if (err){ return next(err) }
 
-		if (!quizResult){ 
+		if (!quizResult){
+		// no quiz found matching given id
+		
 			console.log('requested quiz not found')
 			return res.render('404')
 		}
 		else if (!quizResult.completed){
+		// quiz not finished yet
+
 			req.flash('error', 'The selected quiz has not been completed. <a href="/quiz/go/'+quizResultId+'">Click here to resume the quiz</a>')
 			return res.render('quiz-result')
 		}
 		else if (!quizResult.percentCorrect){
+		// computing results for the first time
+		
+			// mark end time
+			quizResult.endDate = new Date()
 
 			console.log('compute result')
 
-			var numberCorrect = 0
+			var numberCorrect = 0,
+				totalQuizTime = 0
 
-			// check each answer
+			// check each answer and add up total time
 			_.each(quizResult.quizQuestions, function(question){
 
+				// find the correct answer
 				var correctAnswer = _.find(question.questionId.choices, function(choice){ return choice.correct })
 
+				// see if it matches the user's answer or not
 				question.correct = correctAnswer && question.userAnswer ? question.userAnswer.equals(correctAnswer._id) : false
 
+				// log correct answer
 				if (question.correct){ numberCorrect += 1 }
+
+				// log time taken for question
+				if (question.questionTime > 0){ totalQuizTime += question.questionTime }
 			})
 
+			quizResult.numberCorrect = numberCorrect
 			quizResult.percentCorrect = (numberCorrect / quizResult.quizQuestions.length * 100).toFixed(1)
+			quizResult.totalQuizTime = totalQuizTime
 
 			quizResult.save(function(err){
 				if (err){ return next(err) }
@@ -218,6 +235,8 @@ exports.quizResult = function(req, res, next){
 			})
 		}
 		else {
+		// results/performance already computed, just generate the page
+		
 			res.locals.quizResult = quizResult
 			res.render('quiz-result')
 		}

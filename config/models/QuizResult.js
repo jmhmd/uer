@@ -26,12 +26,17 @@ var quizResultSchema = new mongoose.Schema({
 			},
 
 			// time taken to answer question in ms
-			timeTotal: Number
-			
+			questionTime: Number
 		}
 	],
+	numberCorrect: Number,
 	percentCorrect: Number,
-	completed: {type: Boolean, default: false}
+	completed: {type: Boolean, default: false},
+
+	// Timing
+	totalQuizTime: Number,
+	startDate: Date,
+	endDate: Date
 })
 
 quizResultSchema.plugin(simpleTimestamps)

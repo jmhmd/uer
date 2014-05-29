@@ -10,7 +10,8 @@ angular.module('quizApp', [
   // 'myApp.directives',
   'quizApp.controllers',
   //'quizApp.select-point'
-  'quizApp.stack-view'
+  'quizApp.stack-view',
+  'quizApp.timer'
 ])/*.
 config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/view1', {templateUrl: 'partials/partial1.html', controller: 'MyCtrl1'});

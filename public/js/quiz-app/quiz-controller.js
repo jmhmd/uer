@@ -3,16 +3,14 @@
 /* Controllers */
 
 var quizApp = angular.module('quizApp.controllers', [])	
-quizApp.controller('questionCtrl', ['$scope', '$http', '$window',
-	function($scope, $http, $window) {
-
-		// make linter happy
-		//var quiz = quiz
+quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', 'Timer',
+	function($scope, $http, $window, $interval, Timer) {
 		
 		$scope.quiz = quiz
 		$scope.quizResult = quizResult
 		$scope.currentIndex = null
 		$scope.currentQuestion = {}
+		$scope.elapsedTime = "0:00" // should be time formatted string
 
 
 		var _init = function(){
@@ -20,7 +18,13 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window',
 			$scope.gotoQuestion(0)
 
 			// may want to preload all images in background at some point
-			
+			// ...
+
+			$interval(function(){
+				var elapsed = moment.duration(Timer.getTotalElapsed())
+				$scope.elapsedTime = elapsed.minutes() + ':' + elapsed.seconds()
+				console.log($scope.elapsedTime)
+			}, 3000)
 		}
 
 		var _getQuestion = function(index){
@@ -31,7 +35,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window',
 			return question			
 		}
 
-		var _loadImage = function(index){
+		var _loadImage = function(index, cb){
 
 			var studyId = _getQuestion(index).studyId
 
@@ -43,6 +47,8 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window',
 					console.log('loaded image: ', res)
 
 					_getQuestion(index).imageSeries = res.imageStacks
+
+					if ($.isFunction(cb)){ cb() }
 				})
 				.error(function(err) {
 
@@ -50,25 +56,49 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window',
 				})
 		}
 
-		$scope.gotoQuestion = function(index){
+		var _onQuestionLoad = function(index){
 
-			var question = _getQuestion(index)
+			// create timer for question if not already created
+			if (!Timer.isTimedObject(index)){
+				Timer.createTimedObject(index)
+			}
+
+			// start timer
+			Timer.startTimer(index)
+		}
+
+		var _onQuestionUnload = function(index){
+
+			$scope.saveProgress()
+			
+			// stop question timer
+			Timer.stopAll()
+		}
+
+		$scope.gotoQuestion = function(index){
 
 			if ($scope.isCurrentQuestion(index)){
 				return false
 			}
-			
+
+			if ($scope.currentIndex){
+				_onQuestionUnload($scope.currentIndex)
+			}
+
 			console.log('goto question: ', index)
+
+			var question = _getQuestion(index)
 			
 			$scope.currentQuestion = question
 			$scope.currentIndex = index
 
 			if (!question.imageSeries){
-				_loadImage(index)
+				_loadImage(index, function(){
+					_onQuestionLoad(index)
+				})
+			} else {
+				_onQuestionLoad(index)
 			}
-
-			$scope.saveProgress()
-
 		}
 
 		$scope.isCurrentQuestion = function(index){
