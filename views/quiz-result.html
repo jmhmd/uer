@@ -54,12 +54,12 @@ $(document).ready(function(){
 
 		var studyId = $(img).attr('data-src')
 
-		$.getJSON('/api/getImageObject/' + studyId)
+		$.ajax({url: '/api/getImageObject/' + studyId, dataType: 'json', context: img})
 				.done(function(res) {
 
 					console.log('loaded image: ', res)
 
-					$(img)
+					$(this)
 						.one('load', function(e){
 
 							var el = e.target
