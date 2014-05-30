@@ -19,6 +19,11 @@ quizApp.factory('Timer', [
 				getElapsed: function(){
 					return this.timerStart ? this.timeElapsed + moment().diff(this.timerStart, 'milliseconds') : this.timeElapsed
 				},
+				setElapsed: function(ms){
+					ms = _.parseInt(ms)
+					this.timeElapsed = ms
+					return ms
+				},
 				startTimer: function(){
 					this.timerStart = moment()
 				},
@@ -103,7 +108,17 @@ quizApp.factory('Timer', [
 		}
 
 		function getObjectElapsed (id){
-			return _.find(timedObjects, {id: id}).getElapsed()
+			
+			var obj = _.find(timedObjects, {id: id})
+
+			return obj ? obj.getElapsed() : false
+		}
+
+		function setObjectElapsed (id, ms){
+
+			var obj = _.find(timedObjects, {id: id})
+
+			return obj ? obj.setElapsed(ms) : false
 		}
 		
 		return {
@@ -113,6 +128,7 @@ quizApp.factory('Timer', [
 			stopAll: stopAll,
 			getTotalElapsed: getTotalElapsed,
 			getObjectElapsed: getObjectElapsed,
+			setObjectElapsed: setObjectElapsed,
 			msToTime: msToTime
 		}
 	}

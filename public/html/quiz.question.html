@@ -1,3 +1,22 @@
+<script type="text/javascript">
+$(document).ready(function(){
+
+	//
+	// set up resizing of view area
+	//
+	function sizeViewer() {
+		var viewer = $('#stackview'),
+			winHeight = $(window).height()
+
+		viewer.height( winHeight - viewer.offset().top )
+	}
+	$(window).on('resize', function(){
+		sizeViewer()
+	})
+	
+	sizeViewer()
+})
+</script>
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-xs-4">
@@ -44,8 +63,9 @@
 
 			</div> -->
 		</div>
-
-		<div class="col-xs-8">
+		
+		<!-- set padding-right for viewer right side gutter -->
+		<div class="col-xs-8" style="padding-right:5px;">
 			<div class="row">
 				<div class="col-xs-12">
 					

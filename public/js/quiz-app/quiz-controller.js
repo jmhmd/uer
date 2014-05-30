@@ -20,12 +20,28 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 
 
 		var _init = function(){
+
+			/*
+				if resuming a quiz, load in elapsed times for all questions
+			 */
 			
+			_.each($scope.quizResult.quizQuestions, function(question, i){
+					if (question.questionTime && question.questionTime > 0){
+						if (Timer.isTimedObject(i)){
+							Timer.setObjectElapsed(i, question.questionTime)
+						} else {
+							Timer.createTimedObject(i)
+							Timer.setObjectElapsed(i, question.questionTime)
+						}
+					}
+				})
+
 			$scope.gotoQuestion(0)
 
 			// may want to preload all images in background at some point
 			// ...
 
+			// interval for timer
 			$interval(function(){
 				$scope.elapsedTime = Timer.msToTime(Timer.getTotalElapsed())
 			}, 1000)
@@ -78,15 +94,18 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 			questionResult.questionTime = Timer.getObjectElapsed(index)
 		}
 
-		var _onQuestionUnload = function(index){
+		var _onQuestionUnload = function(index, cb){
+
+			cb = cb || angular.noop
+
 			console.log('unload question '+index)
 
 			_saveQuestionTime(index)
 
-			$scope.saveProgress()
-			
 			// stop question timer
 			Timer.stopAll()
+
+			$scope.saveProgress(cb)
 		}
 
 		$scope.gotoQuestion = function(index){
@@ -189,12 +208,12 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 			Timer.startTimer($scope.currentIndex)
 		}
 
+		/*// catch url change or tab exit and save progress
+		angular.element($window).bind("beforeunload", function(){
+			return 'Are you sure?'
+		})*/
+
 		_init()
 
-
-		/**
-		 * test
-		 */
-		$scope.test = true
 	}
 ])
