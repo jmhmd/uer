@@ -62,6 +62,8 @@ $(document).ready(function(){
 					$(img)
 						.one('load', function(){
 
+							if ($(img).attr('data-loc') === ''){ return false }
+								
 							// put crosshairs on it
 							var w = img.naturalWidth,
 								//h = img.naturalHeight,
