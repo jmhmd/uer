@@ -60,17 +60,19 @@ $(document).ready(function(){
 					console.log('loaded image: ', res)
 
 					$(img)
-						.one('load', function(){
+						.one('load', function(e){
 
-							if ($(img).attr('data-loc') === ''){ return false }
-								
+							var el = e.target
+
+							if ($(el).attr('data-loc') === ''){ return false }
+
 							// put crosshairs on it
-							var w = img.naturalWidth,
-								//h = img.naturalHeight,
-								ratio = w / $(img).width(),
-								offset = $(img).offset(),
+							var w = el.naturalWidth,
+								//h = el.naturalHeight,
+								ratio = w / $(el).width(),
+								offset = $(el).offset(),
 								marker = $('<span></span>').addClass('glyphicon glyphicon-screenshot icon-red').css('position', 'absolute'),
-								loc = $(img).attr('data-loc').split(',').map(function(i){return parseInt(i)}),
+								loc = $(el).attr('data-loc').split(',').map(function(i){return parseInt(i)}),
 								mTop = offset.top + (loc[1] / ratio),
 								mLeft = offset.left + (loc[0] / ratio)
 
