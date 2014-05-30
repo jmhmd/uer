@@ -141,12 +141,12 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 
 		$scope.isLastQuestion = function(){
 
-			return $scope.currentIndex === $scope.quiz.questions.length - 1
+			return $scope.currentIndex === $scope.quizResult.quizQuestions.length - 1
 		}
 
 		$scope.nextQuestion = function(){
 
-			if ($scope.currentIndex + 1 !== $scope.quiz.questions.length){
+			if ($scope.currentIndex + 1 !== $scope.quizResult.quizQuestions.length){
 				$scope.gotoQuestion($scope.currentIndex + 1)
 			}
 		}
