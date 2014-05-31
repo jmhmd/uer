@@ -64,6 +64,8 @@ $(document).ready(function(){
 
 							var el = e.target
 
+							console.log('imgheight: ', el.naturalHeight)
+
 							if ($(el).attr('data-loc') === ''){ return false }
 
 							// put crosshairs on it
@@ -82,6 +84,7 @@ $(document).ready(function(){
 						})
 						.attr('src', res.imageStacks[0].imagePaths[0])
 						.each(function() {
+							console.log('imgh: ', this.naturalHeight)
 							//Cache fix for browsers that don't trigger .load()
 							if(this.complete){ $(this).trigger('load') }
 						})
