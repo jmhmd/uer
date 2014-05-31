@@ -28,7 +28,9 @@
 		<tr>
 			<td>{{math @index "+" 1}}</td>
 			<td>
-				<img height="200" width="200" class="lazy-load" data-src="{{this.questionId.studyId}}" data-loc="{{this.abnormalityLoc.coords}}">
+				<div style="position:relative;">
+					<img width="200" class="lazy-load" data-src="{{this.questionId.studyId}}" data-loc="{{this.abnormalityLoc.coords}}">
+				</div>
 			</td>
 			<td>
 				{{#if this.correct}}
@@ -75,11 +77,12 @@ $(document).ready(function(){
 								offset = $(el).offset(),
 								marker = $('<span></span>').addClass('glyphicon glyphicon-screenshot icon-red').css('position', 'absolute'),
 								loc = $(el).attr('data-loc').split(',').map(function(i){return parseInt(i)}),
-								mTop = offset.top + (loc[1] / ratio),
-								mLeft = offset.left + (loc[0] / ratio)
+								mTop = (loc[1] / ratio),
+								mLeft = (loc[0] / ratio)
 
 							marker.css({'top': mTop, 'left': mLeft})
-							$('body').append(marker)
+							// $('body').append(marker)
+							$(el).parent().append(marker)
 
 						})
 						.attr('src', res.imageStacks[0].imagePaths[0])
