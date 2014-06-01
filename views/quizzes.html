@@ -13,6 +13,7 @@
 
 			{{#if ../user.isAdmin}}
 				- <a href="/quiz/edit/{{this._id}}">edit</a>
+				| <a href="/quiz/delete/{{this._id}}" onclick="return confirm('Are you sure?')">delete</a>
 			{{/if}}
 		</li>
 	{{/each}}

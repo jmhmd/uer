@@ -1,7 +1,7 @@
 'use strict';
 
 var util = require('util'),
-	_ = require('underscore'),
+	_ = require('lodash'),
 	mongoose = require('mongoose'),
 	Quiz = mongoose.model('Quiz'),
 	Question = mongoose.model('Question'),

@@ -5,7 +5,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var User = require('./models/User');
 var secrets = require('./secrets');
-var _ = require('underscore');
+var _ = require('lodash');
 
 passport.serializeUser(function(user, done) {
 	done(null, user.id);

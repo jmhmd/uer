@@ -13,6 +13,8 @@ var quizSchema = new mongoose.Schema({
 		default: 'module'
 	},
 	questions: [{type: mongoose.Schema.Types.ObjectId, ref: 'Question'}],
+	enabled: {type: Boolean, default: false},
+	attempts: {type: Number, default: -1}, // a value of -1 denotes infinite attempts
 	deleted: {type: Boolean, default: false}
 })
 

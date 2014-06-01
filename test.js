@@ -1,5 +1,5 @@
 var util = require('util'),
-	_ = require('underscore'),
+	_ = require('lodash'),
 	mongoose = require('mongoose'),
 	fs = require('fs'),
 	path = require('path')

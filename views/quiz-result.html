@@ -56,6 +56,7 @@ $(document).ready(function(){
 
 		var studyId = $(img).attr('data-src')
 
+		// load image object and set 'this' in callback to <img> element
 		$.ajax({url: '/api/getImageObject/' + studyId, dataType: 'json', context: img})
 				.done(function(res) {
 

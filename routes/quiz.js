@@ -1,11 +1,11 @@
 'use strict';
 
 var util = require('util'),
-	_ = require('underscore'),
+	_ = require('lodash'),
 	mongoose = require('mongoose'),
 	Quiz = mongoose.model('Quiz'),
-	Question = mongoose.model('Question'),
 	QuizResult = mongoose.model('QuizResult'),
+	QuestionRoute = require('./question.js'),
 	validator = require('validator'),
 	request = require('request'),
 	secrets = require('../config/secrets'),
@@ -20,7 +20,7 @@ exports.showQuizList = function(req, res, next){
 	/**
 	 * Get list of quizzes meeting criteria
 	 */
-	Quiz.find()
+	Quiz.find({deleted: {'$ne': true}})
 		.limit(50)
 		.exec(function(err, quizzes){
 			if (err){ return next(err) }
@@ -279,26 +279,6 @@ exports.showQuizEdit = function(req, res, next){
 	})
 }
 
-/**
- * show page for individual question
- * @param  {string}   quizId
- * @param  {string}   questionId
- */
-exports.showQuestion = function(req, res, next){
-
-	var questionId = req.params.questionId
-	
-	// get question object and render template
-	Question
-	.findById(questionId)
-	.exec(function(err, question){
-		if (err){ return next(err) }
-
-		// render template
-		res.render('question', question)
-	})
-}
-
 // /**
 //  * Show aggregated quiz results, comparisons, etc
 //  * @param  {string}   quizId
@@ -343,7 +323,7 @@ var _updateQuizObject = function(quiz, newQuiz, cb){
 
 		// save each question document and collect ids
 		var saveQuestion = function(question, cb){
-			_saveQuestion(question, function(err, question){
+			QuestionRoute._saveQuestion(question, function(err, question){
 				if (err){ return cb(err) }
 				questions.push(question._id)
 				return cb()
@@ -364,19 +344,6 @@ var _updateQuizObject = function(quiz, newQuiz, cb){
 		quiz.questions = newQuiz.questions
 		cb(null, quiz)
 	}
-}
-
-var _updateQuestionObject = function(question, newQuestion){
-
-	question.clinicalInfo = newQuestion.clinicalInfo
-	question.stem = newQuestion.stem
-	question.choices = newQuestion.choices
-	question.category = newQuestion.category
-	question.difficulty = newQuestion.difficulty
-	question.diagnosis = newQuestion.diagnosis
-	question.studyId = newQuestion.studyId
-
-	return question
 }
 
 
@@ -471,152 +438,49 @@ exports.saveQuiz = function(req, res){
 	}
 }
 
-exports.removeQuiz = function(req, res){
+var _deleteQuiz = function(quizId, cb){
 
-	
 	// Check if quiz has ever been taken. If so, just mark
 	// as deleted and don't actually delete the record so users
 	// who have taken it can still see their results.
 	
-	QuizResult.findOne({quiz: req.body._id}, function(err, result){
+	cb = _.isFunction(cb) ? cb : _.noop
+	
+	QuizResult.findOne({quiz: quizId}, function(err, result){
 		if (err){ console.log(err) }
-
-		console.log(result)
 		
-		if (result && result.length > 0){
-			Quiz.update({ _id: req.body._id }, { $set: { deleted: true } }, function(err){
-				if (err){ return res.send(500, err) }
-				res.send(200, 'Quiz set as deleted')
-			})
-		} else {
-			Quiz.findById(req.body._id).remove(function(err){
-				if (err){ return res.send(500, err) }
-				res.send(200, 'Quiz removed')
-			})
-		}
-	})
-}
+		if (result){
 
-
-////////////////////////
-// Question functions //
-////////////////////////
-
-exports.getQuestion = function(req,res){
-
-	/**
-	 * Read question object from db
-	 */
-	var questionId = req.params.questionId
-
-	if (!questionId){ return res.send(400, 'Question Id is required') }
-
-	Question.findById(questionId)
-		.populate({
-			path: 'questions',
-			match: { deleted: false }
-		})
-		.exec(function(err, question) {
-			if (err) {
-				return res.send(500, err)
-			}
-			if (!question) {
-				return res.send(404, 'Question not found')
-			}
-
-			return res.send(200, question)
-		})
-}
-
-function _saveQuestion (questionObj, cb){
-	/**
-	 * Updating an existing question
-	 */
-	if (questionObj._id){
-
-		Question.findById(questionObj._id, function(err, question){
-			if (err){ return cb(err) }
-
-			question = _updateQuestionObject(question, questionObj)
-
-			question.save(function(err){
+			Quiz.update({ _id: quizId }, { $set: { deleted: true } }, function(err){
 				if (err){ return cb(err) }
-				cb(null, question, 200)
-			})
-		})
-	}
 
-	/**
-	 * Saving a new question
-	 */
-	else {
-		var	question = new Question(questionObj);
-	
-		question.save(function(err){
-			if(err){ cb(err) }
-			cb(null, question, 201)
-		})
-	}
-}
-
-exports.saveQuestion = function(req, res){
-
-	_saveQuestion(req.body, function(err, question, code){
-		if (err){ return res.send(500, err) }
-		res.send(code, question)
-	})
-}
-
-exports.removeQuestion = function(req, res){
-
-	// Check if question has ever been used in quiz. If so, just mark
-	// as deleted and don't actually delete the record so users
-	// who have taken it can still see their results.
-	
-	QuizResult.findOne({'quizQuestions': { $elemMatch: {'questionId': req.body._id}}}, function(err, result){
-		if (err){ console.log(err) }
-
-		console.log('Has this question been used in a quiz? ', result)
-		
-		if (result && result.length > 0){
-			Question.update({ _id: req.body._id }, { $set: { deleted: true } }, function(err){
-				if (err){ return res.send(500, err) }
-				res.send(200, 'Question set as deleted')
+				console.log('Quiz set as deleted: ', quizId)
+				cb(null, 'Quiz set as deleted')
 			})
 		} else {
 
-			// remove study from casefiles
-			request.post({
-					url: casefiles.url + 'api/client/removeStudy',
-					json: {
-						email: req.user.email,
-						apikey: casefiles.apikey,
-						studyId: req.body.studyId
-					}
-				},
-				function(err, response, body) {
-					if (!err && response.statusCode !== 200 && response.statusCode !== 201){
-						err = body
-					}
-					if (err) {
-						return res.send(500, err)
-					}
+			// delete all questions and images associated with quiz
+			
+			Quiz.findById(quizId).remove(function(err){
+				if (err){ return cb(err) }
 
-					console.log(body)
-
-					Question.findById(req.body._id).remove(function(err){
-						if (err){ return res.send(500, err) }
-						res.send(200, 'Question removed')
-					})
-				})
+				console.log('Quiz deleted: ', quizId)
+				cb(null, 'Quiz removed')
+			})
 		}
 	})
-	
-	/*if (QuizResult.findOne({'quizQuestions': { $elemMatch: {'questionId': req.body._id}}})) {
-		
-	} else {
-		
-	}*/
+}
+
+exports.removeQuiz = function(req, res, next){
+
+	var quizId = req.params.quizId
+
+	_deleteQuiz(quizId, function(err, msg){
+		if (err){ return next(err) }
+
+		req.flash('info', {msg: msg})
+		res.redirect('/quizzes')
+	})
 }
 
 /**
@@ -667,7 +531,7 @@ exports.saveImages = function(req, res){
 	errors = req.validationErrors()
 
 	if (req.body.studyObj.imageStacks && req.body.studyObj.imageStacks.length > 0){
-		_.each(req.body.studyObj.imageStacks, function(stack, i){
+		_.each(req.body.studyObj.imageStacks, function(stack){
 			if (!validator.isLength(stack.modality, 1)){
 				if (!errors){ errors = [] }
 				errors.push({param: 'modality', msg: 'modality required', value: stack.modality })
