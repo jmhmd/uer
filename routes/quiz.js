@@ -438,19 +438,20 @@ exports.saveQuiz = function(req, res){
 	}
 }
 
-var _deleteQuiz = function(quizId, cb){
-
+var _deleteQuiz = function(quizId, user, cb){
+	
+	cb = _.isFunction(cb) ? cb : _.noop
+	
 	// Check if quiz has ever been taken. If so, just mark
 	// as deleted and don't actually delete the record so users
 	// who have taken it can still see their results.
-	
-	cb = _.isFunction(cb) ? cb : _.noop
 	
 	QuizResult.findOne({quiz: quizId}, function(err, result){
 		if (err){ console.log(err) }
 		
 		if (result){
-
+		// quiz has been taken, mark as deleted
+		
 			Quiz.update({ _id: quizId }, { $set: { deleted: true } }, function(err){
 				if (err){ return cb(err) }
 
@@ -458,14 +459,36 @@ var _deleteQuiz = function(quizId, cb){
 				cb(null, 'Quiz set as deleted')
 			})
 		} else {
-
-			// delete all questions and images associated with quiz
+		// quiz has never been taken, can just remove permanently
 			
-			Quiz.findById(quizId).remove(function(err){
+			// retrieve quiz
+			Quiz.findById(quizId).exec(function(err, quiz){
 				if (err){ return cb(err) }
+				if (!quiz){ return cb('Quiz '+quizId+' not found')}
+				
+				var removeQuestion = function(questionId, cb1){
 
-				console.log('Quiz deleted: ', quizId)
-				cb(null, 'Quiz removed')
+					QuestionRoute._removeQuestion(questionId, user, function(err){
+						if (err){ return cb1(err) }
+						return cb1()
+					})
+				}
+
+				// delete all questions and images associated with quiz
+				async.each(quiz.questions, removeQuestion, function(err){
+					if (err){ return cb(err) }
+
+					console.log('All quiz questions deleted')
+					
+					// delete quiz
+					quiz.remove(function(err){
+						if (err){ return cb(err) }
+
+						console.log('Quiz deleted: ', quizId)
+						cb(null, 'Quiz removed')
+					})	
+				})
+
 			})
 		}
 	})
@@ -475,7 +498,7 @@ exports.removeQuiz = function(req, res, next){
 
 	var quizId = req.params.quizId
 
-	_deleteQuiz(quizId, function(err, msg){
+	_deleteQuiz(quizId, req.user, function(err, msg){
 		if (err){ return next(err) }
 
 		req.flash('info', {msg: msg})

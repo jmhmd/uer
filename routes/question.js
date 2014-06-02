@@ -7,7 +7,8 @@ var mongoose = require('mongoose'),
 	QuizResult = mongoose.model('QuizResult'),
 	request = require('request'),
 	secrets = require('../config/secrets'),
-	casefiles = secrets.casefiles
+	casefiles = secrets.casefiles,
+	_ = require('lodash')
 
 var _updateQuestionObject = function(question, newQuestion){
 
@@ -149,6 +150,7 @@ function _removeQuestion (questionId, user, cb){
 		
 	}*/
 }
+exports._removeQuestion = _removeQuestion
 
 exports.removeQuestion = function(req, res){
 
