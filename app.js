@@ -58,6 +58,12 @@ var userCtrl = require('./routes/user'),
  * Configuration
  */
 
+hbs.registerHelper("selected", function(selected, value, display) {
+	if (!display){ display = value }
+	var option = selected === value ? '<option value="'+value+'" selected>'+display+'</option>' : '<option value="'+value+'">'+display+'</option>'
+	return new hbs.SafeString(option)
+})
+
 hbs.registerHelper("math", function(lvalue, operator, rvalue) {
 	lvalue = parseFloat(lvalue)
 	rvalue = parseFloat(rvalue)
@@ -168,6 +174,8 @@ app.post('/login', userCtrl.postLogin)
 app.get('/logout', userCtrl.logout)
 app.get('/signup', userCtrl.getSignup)
 app.post('/signup', userCtrl.postSignup)
+app.get('/profile', passportConf.isAuthenticated, userCtrl.getAccount)
+app.post('/profile', passportConf.isAuthenticated, userCtrl.postUpdateProfile)
 app.get('/makeAdmin', passportConf.isAuthenticated, passportConf.isAdmin, userCtrl.getMakeAdmin)
 
 // Quizzes

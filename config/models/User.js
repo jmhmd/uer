@@ -37,7 +37,8 @@ var userSchema = new mongoose.Schema({
 		specialty: {
 			type: String,
 			default: ''
-		}
+		},
+		otherSpecialty: String // should only be set if specialty is set to "Other"
 	}
 })
 

@@ -122,19 +122,24 @@ exports.getAccount = function(req, res) {
 
 exports.postUpdateProfile = function(req, res, next) {
 	User.findById(req.user.id, function(err, user) {
-		if (err) return next(err);
-		user.email = req.body.email || '';
-		user.profile.name = req.body.name || '';
-		user.profile.gender = req.body.gender || '';
-		user.profile.location = req.body.location || '';
-		user.profile.website = req.body.website || '';
+		if (err){ return next(err) }
+
+		user.profile.name = req.body.name || ''
+		user.profile.gender = req.body.gender || ''
+		user.profile.trainingLevel = req.body.trainingLevel || ''
+		user.profile.specialty = req.body.specialty || ''
+		if (req.body.specialty === 'Other'){
+			user.profile.otherSpecialty = req.body.otherSpecialty || ''
+		} else {
+			user.profile.otherSpecialty = ''
+		}
 
 		user.save(function(err) {
-			if (err) return next(err);
+			if (err){ return next(err) }
 			req.flash('success', {
 				msg: 'Profile information updated.'
 			});
-			res.redirect('/account');
+			res.redirect('/profile')
 		});
 	});
 };

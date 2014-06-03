@@ -17,6 +17,12 @@
 
 		<a href="/">Home</a>
 		|
+		{{#if messages.success}}
+			{{#each messages.success}}
+				{{this.msg}}
+			{{/each}}
+		{{/if}}
+
 		{{#if messages.info}}
 			{{#each messages.info}}
 				{{this.msg}}
