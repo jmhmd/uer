@@ -259,7 +259,7 @@ var saveQuestion = function(index, cb){
     if (caseImageValidationErrors.length > 0){
       var errors = caseImageValidationErrors.reduce(function(sum, error){ return sum + error + '\n' }, '')
       window.alert('The following fields are required: \n\n' + errors)
-      return cb('Validation errors: ' + errors)
+      if (cb){ return cb('Validation errors: ' + errors) }
     } else {
 
       var sendObj = {
@@ -521,12 +521,13 @@ var registerEventHandlers = function(){
         delete quiz.questions[currentQuestion]._id
         delete quiz.questions[currentQuestion].createdAt
         delete quiz.questions[currentQuestion].updatedAt
+        delete quiz.questions[currentQuestion].caseImage
 
-        if (quiz.questions[currentQuestion].caseImage && quiz.questions[currentQuestion].caseImage.imageStacks[0]){
+        /*if (quiz.questions[currentQuestion].caseImage && quiz.questions[currentQuestion].caseImage.imageStacks[0]){
           delete quiz.questions[currentQuestion].caseImage.imageStacks[0]._id
           delete quiz.questions[currentQuestion].caseImage.imageStacks[0].id
           quiz.questions[currentQuestion].caseImage.imageStacks[0].imagePaths = []
-        }
+        }*/
 
         // reload question
         loadQuestion(currentQuestion)
