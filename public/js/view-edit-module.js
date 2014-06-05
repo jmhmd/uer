@@ -209,9 +209,6 @@ var removeImageFromQuestion = function(cb){
       question.caseImage = null
       question.studyId = null
 
-      // save
-      saveToServer()
-
       if (cb){ cb(null, res) }
     })
     .fail(function(err){
@@ -250,7 +247,7 @@ var saveQuestion = function(index, cb){
   question.diagnosis = $('#diagnosis').val()
 
   // only try to save images if question has images
-  if (question.hasImage){
+  if (question.caseImage){
 
     question.caseImage.category = $('#imageCategory').val()
     question.caseImage.diagnosis = question.diagnosis
@@ -438,7 +435,9 @@ var registerEventHandlers = function(){
         // enable fields
         $('#image-form').show()
       } else {
-        console.error('question already has image')
+      // probably switching to question with image already
+        // enable fields
+        $('#image-form').show()
       }
 
     } else {
@@ -456,8 +455,14 @@ var registerEventHandlers = function(){
             
             question.hasImage = false
 
-            // disable fields
-            $('#image-form').hide()
+            // save
+            saveToServer()
+
+            // refresh DOM
+            loadQuestion(currentQuestion)
+
+            /*// disable fields
+            $('#image-form').hide()*/
           })
 
         } else {
