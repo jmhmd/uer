@@ -18,6 +18,9 @@ var quiz = quiz,
 
 $(document).ready(function() {
   
+  registerEventHandlers()
+  setupUpload()
+  
   if (!quiz.questions || quiz.questions.length === 0){
     if (!quiz.questions){
       quiz.questions = []
@@ -27,17 +30,6 @@ $(document).ready(function() {
     updateQuestionTabs()
     goToQuestion(0)
   }
-
-  registerEventHandlers()
-
-  setupUpload()
-
-
-  /*var imageHeight = $('#imagepreviewDiv img').height();
-  if (imageHeight < 540) {
-    var margintop = (540 - imageHeight) / 2;
-    $('#imagepreviewDiv img').css('margin-top', margintop);
-  }*/
 });
 
 ///////////////////
@@ -58,21 +50,6 @@ var updateQuestionTabs = function(){
 
   $("#totalNumber").html(quiz.length);
 }
-
-/*var addReadOnly = function() {
-  $('textarea, input').prop('readonly', true);
-  $('textarea, input').css("color", "#686868");
-  $('textarea, input').css("background-color", "#C8C8C8");
-  $('#textfields, #moretextfields').css("color", "#686868");
-};
-
-
-var removeReadOnly = function() {
-  $('textarea, input').removeAttr('readonly');
-  $('textarea, input').css("color", "black");
-  $('textarea, input').css("background-color", "white");
-  $('#textfields, #moretextfields').css("color", "black");
-};*/
 
 var addQuestion = function(){
   var questionRowLength = $('#questionRow tr').length;
@@ -127,6 +104,16 @@ var _loadCaseImage = function(studyId, cb){
 var loadQuestion = function(index){
 
   var question = quiz.questions[index]
+
+  if (question.studyId){
+    question.hasImage = true
+    $('#hasImage').prop('checked', true)
+    $('#hasImage').trigger('change')
+  } else {
+    question.hasImage = false
+    $('#hasImage').prop('checked', false)
+    $('#hasImage').trigger('change')
+  }
   
   var updateDOM = function(){
 
@@ -135,25 +122,37 @@ var loadQuestion = function(index){
 
         choices.empty()
 
+        // load all choice DOM nodes
         if (question.choices){
           question.choices.forEach(function(choice, i){
             addChoice(i, choice.option, choice.explanation, choice.correct)
           })
         }
 
+        // set form inputs to loaded values
         $('#clinicalInfo').val(question.clinicalInfo);
         $('#question').val(question.stem);
-        $('#diagnosis').val(question.diagnosis);
         $('#category').val(question.category);
         $('#difficulty').val(question.difficulty);
         $('#questionCategory').val(question.category);
+        $('#diagnosis').val(question.diagnosis);
 
-        $('#imageLabel').val(question.caseImage.imageStacks[0].label);
-        $('#imageModality').val(question.caseImage.imageStacks[0].modality);
-        $('#imageCategory').val(question.caseImage.category);
+        if (question.studyId){
 
-        var imageURL = question.caseImage.imageStacks[0].imagePaths[0] || 'http://placehold.it/512x512&text=No+image+for+this+case.'
-        image.attr('src', imageURL)
+          $('#imageLabel').val(question.caseImage.imageStacks[0].label);
+          $('#imageModality').val(question.caseImage.imageStacks[0].modality);
+          $('#imageCategory').val(question.caseImage.category);
+
+          var imageURL = question.caseImage.imageStacks[0].imagePaths[0] || 'http://placehold.it/512x512&text=No+image+for+this+case.'
+          image.attr('src', imageURL)
+        } else {
+
+          // clear input fields
+          $('#imageLabel').val('');
+          $('#imageModality').val('');
+          $('#imageCategory').val('');
+          image.attr('src', 'http://placehold.it/512x512&text=No+image+for+this+case.')
+        }
 
         // show/hide copyPrev button
         if (index > 0){
@@ -161,7 +160,8 @@ var loadQuestion = function(index){
         } else {
           $('#copyPrevious').hide()
         }
-      };
+
+      }
 
   if (typeof question.caseImage === "undefined"){
 
@@ -180,14 +180,45 @@ var loadQuestion = function(index){
       })
     }
     else {
+    // no image at all for this question yet
 
-      question.caseImage = new QuestionImage()
+      // question.caseImage = new QuestionImage()
       updateDOM()
     }
   }
   else {
     updateDOM()
   }
+}
+
+var removeImageFromQuestion = function(cb){
+
+  var question = quiz.questions[currentQuestion],
+      studyId = question.studyId
+
+  if (!studyId){
+    console.log('No images for this question')
+    return false
+  }
+
+  $.post('/api/removeImages', {_id: studyId})
+    .done(function(res){
+      console.log('removed images: ', res)
+
+      // remove caseImage, studyId
+      question.caseImage = null
+      question.studyId = null
+
+      // save
+      saveToServer()
+
+      if (cb){ cb(null, res) }
+    })
+    .fail(function(err){
+      console.log('error removing images: ', err)
+      window.alert('Error removing images.')
+      if (cb){ cb(err) }
+    })
 }
 
 var isValidCaseImage = function(caseImage){
@@ -213,48 +244,54 @@ var saveQuestion = function(index, cb){
   question.clinicalInfo = $('#clinicalInfo').val()
   question.stem = $('#question').val()
   question.choices = getChoices()
-  question.diagnosis = $('#diagnosis').val()
   question.category = $('#category').val()
   question.difficulty = $('#difficulty').val()
   question.category = $('#questionCategory').val()
+  question.diagnosis = $('#diagnosis').val()
 
-  question.caseImage.category = $('#imageCategory').val()
-  question.caseImage.diagnosis = question.diagnosis
-  question.caseImage.imageStacks[0].label = $('#imageLabel').val()
-  question.caseImage.imageStacks[0].modality = $('#imageModality').val()
+  // only try to save images if question has images
+  if (question.hasImage){
 
-  var caseImageValidationErrors = isValidCaseImage(question.caseImage)
+    question.caseImage.category = $('#imageCategory').val()
+    question.caseImage.diagnosis = question.diagnosis
+    question.caseImage.imageStacks[0].label = $('#imageLabel').val()
+    question.caseImage.imageStacks[0].modality = $('#imageModality').val()
 
-  if (caseImageValidationErrors.length > 0){
-    var errors = caseImageValidationErrors.reduce(function(sum, error){ return sum + error + '\n' }, '')
-    window.alert('The following fields are required: \n\n' + errors)
-    return cb('Validation errors: ' + errors)
-  } else {
+    var caseImageValidationErrors = isValidCaseImage(question.caseImage)
 
-    var sendObj = {
-      studyId: question.studyId,
-      studyObj: question.caseImage
+    if (caseImageValidationErrors.length > 0){
+      var errors = caseImageValidationErrors.reduce(function(sum, error){ return sum + error + '\n' }, '')
+      window.alert('The following fields are required: \n\n' + errors)
+      return cb('Validation errors: ' + errors)
+    } else {
+
+      var sendObj = {
+        studyId: question.studyId,
+        studyObj: question.caseImage
+      }
+
+      $.post('/api/saveImages', sendObj)
+        .done(function(res){
+          console.log('saved images: ', res)
+
+          if (res._id && question.studyId && res._id !== question.studyId){ console.log('IDs do not match') }
+
+          // add images study id if not already set
+          if (!question.studyId && res._id){
+            question.studyId = res._id
+            console.log('studyId set to ', question.studyId)
+          }
+
+          if (cb){ cb(null, res) }
+        })
+        .fail(function(err){
+          console.log('error saving images: ', err)
+          window.alert('Error saving images.')
+          if (cb){ cb(err) }
+        })
     }
-
-    $.post('/api/saveImages', sendObj)
-      .done(function(res){
-        console.log('saved images: ', res)
-
-        if (res._id && question.studyId && res._id !== question.studyId){ console.log('IDs do not match') }
-
-        // add images study id if not already set
-        if (!question.studyId && res._id){
-          question.studyId = res._id
-          console.log('studyId set to ', question.studyId)
-        }
-
-        if (cb){ cb(null, res) }
-      })
-      .fail(function(err){
-        console.log('error saving images: ', err)
-        window.alert('Error saving images.')
-        if (cb){ cb(err) }
-      })
+  } else {
+    if (cb){ cb(null, 'Saved') }
   }
 }
 
@@ -298,9 +335,9 @@ var addChoice = function(index, option, explanation, correct){
 
 var goToQuestion = function(index){
 
-  loadQuestion(index)
-
   currentQuestion = index
+
+  loadQuestion(index)
 
   // add 'clicked' class to tab
   var questionTabs = $('#questionRow td')
@@ -316,8 +353,13 @@ var isValidQuestion = function(index){
 
   var errors = [],
       question = quiz.questions[index]
-  if (question.diagnosis === ''){errors.push('Diagnosis')}
+  
   if (question.stem === ''){errors.push('Question')}
+  if (question.choices.length < 1){errors.push('Need at least one answer choice')}
+
+  if (question.hasImage){
+    if (question.diagnosis === ''){errors.push('Diagnosis')}
+  }
 
   return errors
 }
@@ -381,6 +423,71 @@ var registerEventHandlers = function(){
     addChoice()
   });
 
+  // set question has image flag
+  $("#hasImage").on('change', function(){
+    
+    var question = quiz.questions[currentQuestion]
+    
+    if ($(this).is(":checked")){
+    // box checked
+      
+      if (!question.studyId){
+        question.hasImage = true
+        question.caseImage = new QuestionImage()
+
+        // enable fields
+        $('#image-form').show()
+      } else {
+        console.error('question already has image')
+      }
+
+    } else {
+    // box unchecked
+      
+      if (question.hasImage){
+
+        if (window.confirm('Delete images from this question? This cannot be undone.')){
+        // question has images and we're deleting them
+          
+          console.log('Delete images...')
+
+          removeImageFromQuestion(function(err){
+            if (err){ console.log(err) }
+            
+            question.hasImage = false
+
+            // disable fields
+            $('#image-form').hide()
+          })
+
+        } else {
+
+          if (question.studyId){
+          // question has images, we canceled deleting them
+            
+            console.log('Cancel deleting images')
+
+            question.hasImage = true
+            $('#hasImage').prop('checked', true)
+
+          } else {
+            console.error('question.hasImage true while question.studyId false')
+          } 
+        }
+
+      } else {
+      // question doesn't have images, box not checked, probably loading question without images
+        
+        console.log('Loading question without images')
+
+        question.hasImage = false
+      
+        // disable fields
+        $('#image-form').hide()
+      }
+    }
+  })
+
   $(document).on('click', '#questionRow td', function(event) {
 
     // set current question
@@ -398,7 +505,7 @@ var registerEventHandlers = function(){
 
   $(document).on('click', '#copyPrevious', function() {
 
-    if (confirm('Copy previous question? This will overwrite anything you have written in this question.')){
+    if (window.confirm('Copy previous question? This will overwrite anything you have written in this question.')){
       
       // copy data from previous question
       if (currentQuestion > 0){
@@ -424,7 +531,7 @@ var registerEventHandlers = function(){
 
   $(document).on('click', '#removeQuestion', function() {
 
-    if (confirm('Delete question? This cannot be undone.')){
+    if (window.confirm('Delete question? This cannot be undone.')){
       
       if (quiz.questions[currentQuestion].studyId){
 
@@ -480,7 +587,7 @@ function getChar(n) {
  * @param {Number} difficulty
  */
 function Question(caseImage, studyId, clinicalInfo, stem, choices, diagnosis, category, difficulty) {
-	this.caseImage = caseImage || new QuestionImage({category: category, diagnosis: diagnosis})
+	this.caseImage = caseImage || null//new QuestionImage({category: category, diagnosis: diagnosis})
   this.studyId = studyId || '';
 	this.clinicalInfo = clinicalInfo || '';
 	this.stem = stem || ''; // changed this from this.question to match the database model that is set up, also to not confuse a question object with question parameter i.e. "question.question"
