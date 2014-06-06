@@ -421,7 +421,9 @@ exports.saveQuiz = function(req, res){
 	else {
 
 		// create new mongoose quiz object
-		var	quiz = new Quiz();
+		var	quiz = new Quiz()
+
+		quiz.creator = req.user._id
 
 		// use this function instead of the Quiz constructor directly
 		// so we get the object modifications before saving
