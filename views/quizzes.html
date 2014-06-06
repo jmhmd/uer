@@ -43,9 +43,19 @@ $(document).ready(function(){
 
 	$('.availableCheck').on('change', function(){
 
-		var state = $(this).is(':checked')
+		var checkbox = $(this)
+			state = checkbox.is(':checked'),
+			quizId = checkbox.val()
 
-		$.post('')
+		$.post('/api/quiz/'+quizId+'/setAvailability', {enabled: state})
+			.done(function(res){
+				console.log('Quiz ', quizId, 'enabled: ', state)
+			})
+			.fail(function(err){
+				console.error(err)
+				// reset checkbox
+				checkbox.attr('checked', !state)
+			})
 	})
 })
 </script>

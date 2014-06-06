@@ -510,7 +510,9 @@ exports.setAvailability = function(req, res){
 
 	var quizId = req.params.quizId,
 		quizState = req.body.enabled
-
+	
+	//return res.send(500, 'test error')
+	
 	if (!quizId || !quizState){
 		return res.send(500, 'Must specify quiz and availability')
 	}

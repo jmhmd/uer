@@ -17,8 +17,6 @@
 
 		<a href="/quizzes">Quizzes</a>
 		|
-		<a href="/history">Quiz History</a>
-		|
 		{{#if user.email}}
 			Logged in as {{user.email}}
 			{{#if user.isAdmin}}
@@ -26,6 +24,8 @@
 			{{/if}}
 			|
 			<a href="/profile">Profile</a>
+			|
+			<a href="/history">Quiz History</a>
 			|
 			<a href="/logout">Log out</a>
 		{{else}}
