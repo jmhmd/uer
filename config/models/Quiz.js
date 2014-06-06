@@ -2,6 +2,7 @@ var mongoose = require('mongoose'),
 	simpleTimestamps = require('mongoose-simpletimestamps').SimpleTimestamps
 
 var quizSchema = new mongoose.Schema({
+	creator: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
 	title: {type: String, required: 'A title is required'},
 	difficulty: {type: Number, required: 'Must select difficulty'},
 	type: {

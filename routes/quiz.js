@@ -506,6 +506,23 @@ exports.removeQuiz = function(req, res, next){
 	})
 }
 
+exports.setAvailability = function(req, res){
+
+	var quizId = req.params.quizId,
+		quizState = req.body.enabled
+
+	if (!quizId || !quizState){
+		return res.send(500, 'Must specify quiz and availability')
+	}
+
+	Quiz.update({ _id: quizId }, { $set: { enabled: quizState } }, function(err){
+		if (err){ return res.send(500, err) }
+
+		console.log('Quiz availability updated: ', quizId, quizState)
+		res.send(200, 'Quiz availability updated')
+	})
+}
+
 /**
  * Send images to casefiles as a study object
  * @param  {Object} req.body:

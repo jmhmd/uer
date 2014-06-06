@@ -64,6 +64,11 @@ hbs.registerHelper("selected", function(selected, value, display) {
 	return new hbs.SafeString(option)
 })
 
+hbs.registerHelper("checked", function(value) {
+	var rtn = value ? 'checked' : ''
+	return rtn
+})
+
 hbs.registerHelper("math", function(lvalue, operator, rvalue) {
 	lvalue = parseFloat(lvalue)
 	rvalue = parseFloat(rvalue)
@@ -217,6 +222,7 @@ Quiz editing
  */
 app.get('/api/getQuiz/:quizId', quizCtrl.getQuiz)
 app.post('/api/saveQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuiz)
+app.post('/api/quiz/:quizId/setAvailability', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.setAvailability)
 //app.post('/api/removeQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeQuiz)
 
 /*

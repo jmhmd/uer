@@ -1,23 +1,51 @@
 {{!< ./default_layout}}
 <h1> Available Quizzes </h1>
 
-{{#if user.isAdmin}}
-	<a href="/quiz/new">Create new quiz</a>
-{{/if}}
-
 {{#if quizzes}}
-	<ul>
-	{{#each quizzes}}
-		<li>
-			<a href="/quiz/{{this._id}}">{{this.title}}</a>
-
+	<table class="table">
+		<tr>
+			<th>Quiz</th>
 			{{#if ../user.isAdmin}}
-				- <a href="/quiz/edit/{{this._id}}">edit</a>
-				| <a href="/quiz/delete/{{this._id}}" onclick="return confirm('Are you sure?')">delete</a>
+				<th>Available</th>
+				<th>Edit</th>
+				<th>Delete</th>
 			{{/if}}
-		</li>
+		</tr>
+	{{#each quizzes}}
+		<tr>
+			<td>
+				<a href="/quiz/{{this._id}}">{{this.title}}</a>
+			</td>
+			{{#if ../user.isAdmin}}
+				<td>
+					<input type="checkbox" class="availableCheck" value="{{this._id}}" {{checked this.enabled}}>
+				</td>
+				<td>
+					<a href="/quiz/edit/{{this._id}}">edit</a>
+				</td>
+				<td>
+					<a href="/quiz/delete/{{this._id}}" onclick="return confirm('Are you sure?')">delete</a>
+				</td>
+			{{/if}}
+		</tr>
 	{{/each}}
-	</ul>
+	</table>
 {{else}}
 	<p>No quizzes found</p>
 {{/if}}
+
+{{#if user.isAdmin}}
+	<a class="btn btn-primary" href="/quiz/new">Create new quiz</a>
+{{/if}}
+
+<script type="text/javascript">
+$(document).ready(function(){
+
+	$('.availableCheck').on('change', function(){
+
+		var state = $(this).is(':checked')
+
+		$.post('')
+	})
+})
+</script>
