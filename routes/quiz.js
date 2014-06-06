@@ -20,7 +20,13 @@ exports.showQuizList = function(req, res, next){
 	/**
 	 * Get list of quizzes meeting criteria
 	 */
-	Quiz.find({deleted: {'$ne': true}})
+	var query = {deleted: {'$ne': true}}
+	
+	if (!req.user.isAdmin){
+		query.enabled = true
+	}
+	
+	Quiz.find(query)
 		.limit(50)
 		.exec(function(err, quizzes){
 			if (err){ return next(err) }
@@ -520,7 +526,7 @@ exports.setAvailability = function(req, res){
 	Quiz.update({ _id: quizId }, { $set: { enabled: quizState } }, function(err){
 		if (err){ return res.send(500, err) }
 
-		console.log('Quiz availability updated: ', quizId, quizState)
+		//console.log('Quiz availability updated: ', quizId, quizState)
 		res.send(200, 'Quiz availability updated')
 	})
 }
