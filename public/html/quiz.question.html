@@ -30,11 +30,10 @@ $(document).ready(function(){
 
 					<!-- <h4>Question: {{currentIndex + 1}}</h4> -->
 					<p ng-show="{{currentQuestion.clinicalInfo}}">
-						<strong>History:</strong><br>
 						{{currentQuestion.clinicalInfo}}
 					</p>
 
-					<p><strong>{{currentQuestion.stem}}</strong></p>
+					<p>{{currentQuestion.stem}}</p>
 
 					<div id="Selections"> 
 						<ul class="choice-list">
@@ -68,6 +67,8 @@ $(document).ready(function(){
 		<div class="col-xs-8" style="padding-right:5px;">
 			<div class="row">
 				<div class="col-xs-12">
+
+					<img id="placeholder" style="display:none;width:100%;">
 					
 					<div id="stackview" class="cine_container case-image" style="width:100%;height:800px;" stack-view select-point="quizResult.quizQuestions[currentIndex].abnormalityLoc" index="currentIndex" img-src="currentQuestion.imageSeries[0].imagePaths[0]">
 						<div class="progressBar">

@@ -59,6 +59,13 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 
 			var studyId = _getQuestion(index).studyId
 
+			if (!studyId){
+				console.log('No image for this question')
+
+				cb()
+				return false
+			}
+
 			console.log('loading image with study id: ', studyId)
 
 			$http.get('/api/getImageObject/' + studyId)
