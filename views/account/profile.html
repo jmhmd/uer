@@ -41,6 +41,7 @@
 		<select name="specialty" id="specialtySelect">
 			<!-- Using null as the last argument cause the value and display are the same. 
 			Feels hacky but whatevs -->
+			{{selected user.profile.specialty '' 'Select specialty'}}
 			{{selected user.profile.specialty 'General' null}}
 			{{selected user.profile.specialty 'Thoracic' null}}
 			{{selected user.profile.specialty 'Abdominal' null}}
@@ -57,7 +58,7 @@
 
 	<div class="form-group" id="otherSpecialty" style="display:none;">
 		<label for="otherSpecialty">Other:</label>
-		<input type="text" name="otherSpecialty" value="{{user.profile.otherSpecialty}}">
+		<input type="text" id="otherSpecialtyInput" name="otherSpecialty" value="{{user.profile.otherSpecialty}}">
 	</div>
 
 	<button type="submit" class="btn btn-primary">Update</button>
@@ -68,6 +69,7 @@ $(document).ready(function(){
 		if (val === 'fellow' || val === 'attending'){
 			$('#specialty').show()
 		} else {
+			$('#specialtySelect').val('')
 			$('#specialty').hide()
 		}
 	}
@@ -82,6 +84,7 @@ $(document).ready(function(){
 		if (val === 'Other'){
 			$('#otherSpecialty').show()
 		} else {
+			$('#otherSpecialtyInput').val('')
 			$('#otherSpecialty').hide()
 		}
 	}
