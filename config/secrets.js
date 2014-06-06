@@ -30,7 +30,7 @@ if (process.env.NODE_ENV === 'development'){
 	uploadKeyRoot = "uploads/temp/"
 } else if (process.env.NODE_ENV === 'production'){
 
-	casefiles.apikey = ''
+	casefiles.apikey = '53923be181c7785a075a247d'
 	casefiles.url = 'http://casefil.es/' // must include trailing slash
 	uploadKeyRoot = "uploads/"
 }
