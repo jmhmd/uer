@@ -192,6 +192,7 @@ app.get('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCtr
 app.post('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.saveQuiz)
 
 app.get('/quiz/edit/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.showQuizEdit)
+app.get('/quiz/edit/:prepost/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.showQuizEdit)
 app.get('/quiz/delete/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.removeQuiz)
 
 app.get('/quiz/go/:quizId', passportConf.isAuthenticated, quizCtrl.startQuiz)

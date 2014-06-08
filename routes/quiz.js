@@ -73,9 +73,17 @@ var _getLeanQuizObject = function(id, cb){
 	Quiz
 	.findById(id)
 	.populate({
-			path: 'questions',
-			match: { deleted: false }
-		})
+		path: 'questions',
+		match: { deleted: false }
+	})
+	.populate({
+		path: 'preQuestions',
+		match: { deleted: false }
+	})
+	.populate({
+		path: 'postQuestions',
+		match: { deleted: false }
+	})
 	.lean()
 	.exec(function(err, quiz){
 			if (err){ return cb(err) }
@@ -186,6 +194,8 @@ exports.quizResult = function(req, res, next){
 	QuizResult
 	.findById(quizResultId)
 	.populate('quizQuestions.questionId')
+	.populate('preQuestions.questionId')
+	.populate('postQuestions.questionId')
 	.populate('quiz')
 	.exec(function(err, quizResult){
 		if (err){ return next(err) }
@@ -264,7 +274,8 @@ exports.showNewQuiz = function(req, res){
  */
 exports.showQuizEdit = function(req, res, next){
 	
-	var quizId = req.params.quizId
+	var quizId = req.params.quizId,
+		prepost = req.params.prepost
 
 
 	// get quiz object and render template
@@ -279,8 +290,16 @@ exports.showQuizEdit = function(req, res, next){
 			res.locals.quiz = quiz
 			res.locals.uploadKeyRoot = secrets.uploadKeyRoot
 
-			// render template
-			res.render('editQuiz')
+			if (prepost){
+				if (prepost === 'pre'){
+					res.render('editPreQuiz')
+				} else if (prepost === 'post'){
+					res.render('editPostQuiz')
+				}
+			} else {
+				// render template
+				res.render('editQuiz')
+			}
 		})
 	})
 }
@@ -319,35 +338,67 @@ var _updateQuizObject = function(quiz, newQuiz, cb){
 	quiz.difficulty = newQuiz.difficulty
 	quiz.type = newQuiz.type
 	quiz.deleted = newQuiz.deleted
+	quiz.enabled = newQuiz.enabled
+	quiz.attempts = newQuiz.attempts
 
-	// check if questions array populated with documents or just ids.
+	var hasDocuments = function(quiz){
+		var rt = false
+		_.each([quiz.questions, quiz.preQuestions, quiz.postQuestions], function(questions){
+			if (questions && questions.length > 0 && _.isObject(questions[0])){ rt = true }
+		})
+		return rt
+	}
+
+	console.log('hasdocs:', hasDocuments(newQuiz))
+
+	// check if questions arrays populated with documents or just ids.
 	// if ids, just update and save. If objects, we need to loop through
 	// and individually save each question document.
-	if (newQuiz.questions && newQuiz.questions.length > 0 && _.isObject(newQuiz.questions[0])){
+	if (hasDocuments(newQuiz)){
 
-		var questions = []
+		console.log('has documents')
 
-		// save each question document and collect ids
-		var saveQuestion = function(question, cb){
-			QuestionRoute._saveQuestion(question, function(err, question){
-				if (err){ return cb(err) }
-				questions.push(question._id)
-				return cb()
+		var saveQuestionArray = function(questionArray, cb1){
+
+			if (!newQuiz[questionArray]){ return cb1(null) }
+
+			var questions = []
+
+			// save each question document and collect ids
+			var saveQuestion = function(question, cb2){
+				QuestionRoute._saveQuestion(question, function(err, question){
+					if (err){ return cb2(err) }
+					questions.push(question._id)
+					return cb2(null)
+				})
+			}
+
+			async.eachSeries(newQuiz[questionArray], saveQuestion, function(err){
+				if (err){
+					return cb1(err)
+				}
+
+				console.log('qustArray:', questionArray, questions)
+
+				quiz[questionArray] = questions
+
+				cb1(null)
 			})
 		}
 
-		async.eachSeries(newQuiz.questions, saveQuestion, function(err){
+		async.eachSeries(['questions', 'preQuestions', 'postQuestions'], saveQuestionArray, function(err){
 			if (err){
 				return cb(err)
 			}
 
-			quiz.questions = questions
-
 			cb(null, quiz)
 		})
+
 	} else {
 		// questions parameter is a simple array of objectIds
 		quiz.questions = newQuiz.questions
+		quiz.preQuestions = newQuiz.preQuestions
+		quiz.postQuestions = newQuiz.postQuestions
 		cb(null, quiz)
 	}
 }
@@ -369,6 +420,14 @@ exports.getQuiz = function(req,res){
 	Quiz.findById(quizId)
 		.populate({
 			path: 'questions',
+			match: { deleted: false }
+		})
+		.populate({
+			path: 'preQuestions',
+			match: { deleted: false }
+		})
+		.populate({
+			path: 'postQuestions',
 			match: { deleted: false }
 		})
 		.exec(function(err, quiz){
@@ -407,6 +466,7 @@ exports.saveQuiz = function(req, res){
 			_updateQuizObject(quiz, req.body, function(err, updatedQuiz){
 				if (err){return res.send(500, err)}
 
+				console.log('quiz:', updatedQuiz)
 				updatedQuiz.save(function(err){
 					if (err){ return res.send(500, err) }
 					res.send(200, updatedQuiz)

@@ -29,6 +29,20 @@ var quizResultSchema = new mongoose.Schema({
 			questionTime: Number
 		}
 	],
+	preQuestions: [
+		{
+			questionId: {type: mongoose.Schema.Types.ObjectId, ref: 'Question'},
+			userAnswer: {type: mongoose.Schema.Types.ObjectId},
+			freeTextAnswer: String
+		}
+	],
+	postQuestions: [
+		{
+			questionId: {type: mongoose.Schema.Types.ObjectId, ref: 'Question'},
+			userAnswer: {type: mongoose.Schema.Types.ObjectId},
+			freeTextAnswer: String
+		}
+	],
 	numberCorrect: Number,
 	percentCorrect: Number,
 	completed: {type: Boolean, default: false},

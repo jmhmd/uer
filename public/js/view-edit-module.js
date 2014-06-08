@@ -1,11 +1,13 @@
 'use strict';
 
 /**
- * The quiz object and uploadURL should be loaded in by the template when the page renders, just
+ * The quiz object, type string and uploadURL should be loaded in by the template when the page renders, just
  * doing this to make jshint happy
  */
 var quiz = quiz,
+    type = type,
     uploadURL = uploadURL,
+    quizQuestions,
     currentQuestion = null, // should use index (zero based) internally within script
     uploadKeyRoot = uploadKeyRoot,
     updateUploadKey = function(id){
@@ -16,21 +18,28 @@ var quiz = quiz,
 // Initialize  //
 /////////////////
 
+if (type === 'pre' && !quiz.preQuestions){
+  quiz.preQuestions = []
+} else if (type === 'post' && !quiz.postQuestions){
+  quiz.postQuestions = []
+}
+quizQuestions = type === 'pre' ? quiz.preQuestions : type === 'post' ? quiz.postQuestions : quiz.questions
+
 $(document).ready(function() {
   
   registerEventHandlers()
-  setupUpload()
+
+  if (type === 'quiz'){
+    setupUpload()
+  }
   
-  if (!quiz.questions || quiz.questions.length === 0){
-    if (!quiz.questions){
-      quiz.questions = []
-    }
+  if (quizQuestions.length === 0){
     addQuestion()
   } else {
     updateQuestionTabs()
     goToQuestion(0)
   }
-});
+})
 
 ///////////////////
 // DOM functions //
@@ -44,7 +53,7 @@ var updateQuestionTabs = function(){
   questionRow.empty()
 
   // repopulate
-  for (var i = 1; i <= quiz.questions.length; i++) {
+  for (var i = 1; i <= quizQuestions.length; i++) {
     $("#questionRow").append('<tr><td class="questionTab">' + (i) + '</td></tr>');
   }
 
@@ -57,7 +66,7 @@ var addQuestion = function(){
   $("#questionRow td").removeClass('clicked');
   $("#questionRow").append('<tr><td class="questionTab" class="clicked">' + (questionRowLength + 1) + '</td></tr>');
 
-  quiz.questions.push(new Question())
+  quizQuestions.push(new Question())
 
   if (currentQuestion === null){
   // first question of quiz, don't need to save anything before loading
@@ -65,7 +74,7 @@ var addQuestion = function(){
   } else {
   // moving from existing question, save it before loading new question
     saveQuestion(function(){
-      goToQuestion(quiz.questions.length - 1)
+      goToQuestion(quizQuestions.length - 1)
     })
   }
 }
@@ -79,14 +88,20 @@ var removeQuestion = function(index){
   // from the questionRow array)
   questionRow = $('#questionRow tr')
 
-  quiz.questions.splice(index, 1)
+  quizQuestions.splice(index, 1)
 
   // renumber tabs
   questionRow.each(function(i){
     $(this).children(":first").html(i + 1)
   })
 
-  goToQuestion(0)
+  currentQuestion = currentQuestion === index ? index === 0 ? null : index - 1 : currentQuestion
+
+  if (quizQuestions.length === 0){
+    addQuestion()
+  } else if (currentQuestion === index) {
+    goToQuestion(0)
+  }
 }
 
 var _loadCaseImage = function(studyId, cb){
@@ -103,7 +118,7 @@ var _loadCaseImage = function(studyId, cb){
 
 var loadQuestion = function(index){
 
-  var question = quiz.questions[index]
+  var question = quizQuestions[index]
 
   if (question.studyId){
     question.hasImage = true
@@ -130,27 +145,38 @@ var loadQuestion = function(index){
         }
 
         // set form inputs to loaded values
-        $('#clinicalInfo').val(question.clinicalInfo);
-        $('#question').val(question.stem);
-        $('#category').val(question.category);
-        $('#difficulty').val(question.difficulty);
-        $('#questionCategory').val(question.category);
-        $('#diagnosis').val(question.diagnosis);
+        $('#clinicalInfo').val(question.clinicalInfo)
+        $('#question').val(question.stem)
+        $('#category').val(question.category)
+        $('#difficulty').val(question.difficulty)
+        $('#questionCategory').val(question.category)
+        $('#diagnosis').val(question.diagnosis)
+
+        // pre-quiz fields
+        $('#answerRequired').prop('checked', question.answerRequired)
+        $('#answerType').val(question.format)
+
+        // toggle question type
+        if (question.format === 'freeText'){
+          $('#multipleChoiceOption').hide()
+        } else {
+          $('#multipleChoiceOption').show()
+        }
 
         if (question.studyId){
 
-          $('#imageLabel').val(question.caseImage.imageStacks[0].label);
-          $('#imageModality').val(question.caseImage.imageStacks[0].modality);
-          $('#imageCategory').val(question.caseImage.category);
+          $('#imageLabel').val(question.caseImage.imageStacks[0].label)
+          $('#imageModality').val(question.caseImage.imageStacks[0].modality)
+          $('#imageCategory').val(question.caseImage.category)
 
           var imageURL = question.caseImage.imageStacks[0].imagePaths[0] || 'http://placehold.it/512x512&text=No+image+for+this+case.'
           image.attr('src', imageURL)
         } else {
 
           // clear input fields
-          $('#imageLabel').val('');
-          $('#imageModality').val('');
-          $('#imageCategory').val('');
+          $('#imageLabel').val('')
+          $('#imageModality').val('')
+          $('#imageCategory').val('')
           image.attr('src', 'http://placehold.it/512x512&text=No+image+for+this+case.')
         }
 
@@ -193,7 +219,7 @@ var loadQuestion = function(index){
 
 var removeImageFromQuestion = function(cb){
 
-  var question = quiz.questions[currentQuestion],
+  var question = quizQuestions[currentQuestion],
       studyId = question.studyId
 
   if (!studyId){
@@ -236,7 +262,7 @@ var saveQuestion = function(index, cb){
 
   index = index || currentQuestion
 
-  var question = quiz.questions[index]
+  var question = quizQuestions[index]
 
   question.clinicalInfo = $('#clinicalInfo').val()
   question.stem = $('#question').val()
@@ -245,6 +271,10 @@ var saveQuestion = function(index, cb){
   question.difficulty = $('#difficulty').val()
   question.category = $('#questionCategory').val()
   question.diagnosis = $('#diagnosis').val()
+
+  // pre/post-quiz fields
+  question.answerRequired = $('#answerRequired').is(':checked')
+  question.format = $('#answerType').val()
 
   // only try to save images if question has images
   if (question.caseImage){
@@ -310,7 +340,8 @@ var getChoices = function(){
 
 var addChoice = function(index, option, explanation, correct){
 
-  var choiceContainer = $('#choices')
+  var choiceContainer = $('#choices'),
+      template = ''
 
   index = index || choiceContainer.find('.choice').length
   option = option || ''
@@ -318,16 +349,24 @@ var addChoice = function(index, option, explanation, correct){
 
   correct = correct ? "checked" : ""
 
-  choiceContainer.append('<li class="choice">'+
-      getChar(index).toUpperCase() + '. <input id="choice'+index+'" class="form-control" value="'+option+'">'+
-    '<br>'+
+  template = '<li class="choice">'+
+      getChar(index).toUpperCase() + '. <input id="choice'+index+'" class="form-control" value="'+option+'">'
+    
+
+  if (type !== 'pre' && type !== 'post'){
+
+    template += '<br>'+
       'Explanation: <br> <textarea id="explanation'+index+'" class="form-control">'+
       explanation +
       '</textarea>'+
     '<br>'+
       'Is correct: <input type="radio" id="isCorrect'+index+'" name="isCorrect" value="'+index+'" '+correct+'>'+
-      '<hr>'+
-    '</li>')
+      '<hr>'
+  }
+
+  template += '</li>'
+
+  choiceContainer.append(template)
 }
 
 var goToQuestion = function(index){
@@ -342,17 +381,19 @@ var goToQuestion = function(index){
   $(questionTabs[index]).addClass('clicked');
 
   // update numbers
-  $("#totalNumber").html(quiz.questions.length)
+  $("#totalNumber").html(quizQuestions.length)
   $("#currentNumber").html(index + 1)
 }
 
 var isValidQuestion = function(index){
 
   var errors = [],
-      question = quiz.questions[index]
+      question = quizQuestions[index]
   
   if (question.stem === ''){errors.push('Question')}
-  if (question.choices.length < 1){errors.push('Need at least one answer choice')}
+  if (question.format === 'multipleChoice'){
+    if (question.choices.length < 1){errors.push('Need at least one answer choice')}
+  }
 
   if (question.hasImage){
     if (question.diagnosis === ''){errors.push('Diagnosis')}
@@ -378,6 +419,18 @@ var saveToServer = function(){
         res.questions.forEach(function(question, i){
           if (!quiz.questions[i]._id){
             quiz.questions[i]._id = question
+          }
+        })
+
+        res.preQuestions.forEach(function(question, i){
+          if (!quiz.preQuestions[i]._id){
+            quiz.preQuestions[i]._id = question
+          }
+        })
+
+        res.postQuestions.forEach(function(question, i){
+          if (!quiz.postQuestions[i]._id){
+            quiz.postQuestions[i]._id = question
           }
         })
 
@@ -420,10 +473,21 @@ var registerEventHandlers = function(){
     addChoice()
   });
 
+  $('#answerType').on('change', function(){
+
+    if ($(this).val() === 'multipleChoice'){
+
+      $('#multipleChoiceOption').show()
+    } else {
+
+      $('#multipleChoiceOption').hide()
+    }
+  })
+
   // set question has image flag
   $("#hasImage").on('change', function(){
     
-    var question = quiz.questions[currentQuestion]
+    var question = quizQuestions[currentQuestion]
     
     if ($(this).is(":checked")){
     // box checked
@@ -515,18 +579,18 @@ var registerEventHandlers = function(){
       // copy data from previous question
       if (currentQuestion > 0){
         // clone object
-        quiz.questions[currentQuestion] = JSON.parse(JSON.stringify(quiz.questions[currentQuestion - 1]))
+        quizQuestions[currentQuestion] = JSON.parse(JSON.stringify(quizQuestions[currentQuestion - 1]))
         // remove question specific fields
-        delete quiz.questions[currentQuestion].studyId
-        delete quiz.questions[currentQuestion]._id
-        delete quiz.questions[currentQuestion].createdAt
-        delete quiz.questions[currentQuestion].updatedAt
-        delete quiz.questions[currentQuestion].caseImage
+        delete quizQuestions[currentQuestion].studyId
+        delete quizQuestions[currentQuestion]._id
+        delete quizQuestions[currentQuestion].createdAt
+        delete quizQuestions[currentQuestion].updatedAt
+        delete quizQuestions[currentQuestion].caseImage
 
-        /*if (quiz.questions[currentQuestion].caseImage && quiz.questions[currentQuestion].caseImage.imageStacks[0]){
-          delete quiz.questions[currentQuestion].caseImage.imageStacks[0]._id
-          delete quiz.questions[currentQuestion].caseImage.imageStacks[0].id
-          quiz.questions[currentQuestion].caseImage.imageStacks[0].imagePaths = []
+        /*if (quizQuestions[currentQuestion].caseImage && quizQuestions[currentQuestion].caseImage.imageStacks[0]){
+          delete quizQuestions[currentQuestion].caseImage.imageStacks[0]._id
+          delete quizQuestions[currentQuestion].caseImage.imageStacks[0].id
+          quizQuestions[currentQuestion].caseImage.imageStacks[0].imagePaths = []
         }*/
 
         // reload question
@@ -539,10 +603,10 @@ var registerEventHandlers = function(){
 
     if (window.confirm('Delete question? This cannot be undone.')){
       
-      if (quiz.questions[currentQuestion].studyId){
+      if (quizQuestions[currentQuestion]._id){
 
         // delete question
-        $.post('/api/removeQuestion', quiz.questions[currentQuestion])
+        $.post('/api/removeQuestion', quizQuestions[currentQuestion])
           .done(function(res){
             console.log('Removed question ', res)
             removeQuestion(currentQuestion)
@@ -592,17 +656,20 @@ function getChar(n) {
  * @param {String} category
  * @param {Number} difficulty
  */
-function Question(caseImage, studyId, clinicalInfo, stem, choices, diagnosis, category, difficulty) {
+function Question(caseImage, studyId, clinicalInfo, stem, choices, answerRequired, diagnosis, category, difficulty, format) {
 	this.caseImage = caseImage || null//new QuestionImage({category: category, diagnosis: diagnosis})
   this.studyId = studyId || '';
 	this.clinicalInfo = clinicalInfo || '';
 	this.stem = stem || ''; // changed this from this.question to match the database model that is set up, also to not confuse a question object with question parameter i.e. "question.question"
 	this.choices = choices || [];
+  this.answerRequired = answerRequired || false;
 
 	// adding a few properties that we might want to store as well
   this.diagnosis = diagnosis || '';
 	this.category = category || '';
   this.difficulty = difficulty || 1;
+  this.type = type ? type : 'quiz';
+  this.format = format ? format : 'multipleChoice'
 }
 
 function QuestionImage(obj){
@@ -641,8 +708,8 @@ var setupUpload = function(){
       }
       else {
 
-        var questionStudy = quiz.questions[currentQuestion].caseImage,
-        studyId = quiz.questions[currentQuestion].studyId
+        var questionStudy = quizQuestions[currentQuestion].caseImage,
+        studyId = quizQuestions[currentQuestion].studyId
 
         updateUploadKey(studyId)
 
@@ -727,7 +794,7 @@ var setupUpload = function(){
   var onAllUploaded = function(){
     console.log('complete')
 
-    var question = quiz.questions[currentQuestion]
+    var question = quizQuestions[currentQuestion]
 
     // set new imagePaths on quiz object
     question.caseImage.imageStacks[0].imagePaths = newImagePaths

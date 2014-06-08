@@ -14,11 +14,24 @@ var _updateQuestionObject = function(question, newQuestion){
 
 	question.clinicalInfo = newQuestion.clinicalInfo
 	question.stem = newQuestion.stem
+	question.answerType = newQuestion.answerType
+	question.answerRequired = newQuestion.answerRequired
 	question.choices = newQuestion.choices
+	question.diagnosis = newQuestion.diagnosis
 	question.category = newQuestion.category
 	question.difficulty = newQuestion.difficulty
-	question.diagnosis = newQuestion.diagnosis
 	question.studyId = newQuestion.studyId
+	question.deleted = newQuestion.deleted
+	question.type = newQuestion.type
+	question.format = newQuestion.format
+
+	if (question.type === 'pre' || question.type === 'post'){
+		question.studyId = undefined
+	}
+	if (question.format === 'freeText' && question.choices && question.choices.length > 0){
+		console.log('empty array')
+		question.choices.splice(0, question.choices.length)
+	}
 
 	return question
 }
@@ -117,29 +130,40 @@ function _removeQuestion (questionId, user, cb){
 				if (err){ return cb(err) }
 				if (!question){ return cb('question not found') }
 
-				request.post({
-						url: casefiles.url + 'api/client/removeStudy',
-						json: {
-							email: user.email,
-							apikey: casefiles.apikey,
-							studyId: question.studyId
-						}
-					},
-					function(err, response, body) {
-						if (!err && response.statusCode !== 200){
-							err = body
-						}
-						if (err) { return cb(err) }
+				if (question.studyId){
 
-						console.log('Study deleted from casefiles: ', body)
+					request.post({
+							url: casefiles.url + 'api/client/removeStudy',
+							json: {
+								email: user.email,
+								apikey: casefiles.apikey,
+								studyId: question.studyId
+							}
+						},
+						function(err, response, body) {
+							if (!err && response.statusCode !== 200){
+								err = body
+							}
+							if (err) { return cb(err) }
 
-						question.remove(function(err){
-							if (err){ return cb(err) }
+							console.log('Study deleted from casefiles: ', body)
 
-							console.log('Question removed')
-							cb(null, 'Question removed')
+							question.remove(function(err){
+								if (err){ return cb(err) }
+
+								console.log('Question removed')
+								cb(null, 'Question removed')
+							})
 						})
+				} else {
+				// nothing to delete from casefiles, just delete
+					question.remove(function(err){
+						if (err){ return cb(err) }
+
+						console.log('Question removed')
+						cb(null, 'Question removed')
 					})
+				}
 			})
 		}
 	})
