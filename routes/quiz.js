@@ -92,15 +92,15 @@ var _getLeanQuizObject = function(id, cb){
 	.findById(id)
 	.populate({
 		path: 'questions',
-		match: { deleted: false }
+		match: { deleted: {$ne: true}}
 	})
 	.populate({
 		path: 'preQuestions',
-		match: { deleted: false }
+		match: { deleted: {$ne: true}}
 	})
 	.populate({
 		path: 'postQuestions',
-		match: { deleted: false }
+		match: { deleted: {$ne: true}}
 	})
 	.lean()
 	.exec(function(err, quiz){
@@ -474,15 +474,15 @@ exports.getQuiz = function(req,res){
 	Quiz.findById(quizId)
 		.populate({
 			path: 'questions',
-			match: { deleted: false }
+			match: { deleted: {$ne: true}}
 		})
 		.populate({
 			path: 'preQuestions',
-			match: { deleted: false }
+			match: { deleted: {$ne: true}}
 		})
 		.populate({
 			path: 'postQuestions',
-			match: { deleted: false }
+			match: { deleted: {$ne: true}}
 		})
 		.exec(function(err, quiz){
 			if (err){ return res.send(500, err) }

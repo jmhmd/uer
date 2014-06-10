@@ -22,6 +22,8 @@ if (type === 'pre' && !quiz.preQuestions){
   quiz.preQuestions = []
 } else if (type === 'post' && !quiz.postQuestions){
   quiz.postQuestions = []
+} else if (!quiz.questions){
+  quiz.questions = []
 }
 quizQuestions = type === 'pre' ? quiz.preQuestions : type === 'post' ? quiz.postQuestions : quiz.questions
 
@@ -429,23 +431,25 @@ var saveToServer = function(){
         console.log('Saved quiz to server ', res)
 
         // assign ids to questions if they don't have yet
-        res.questions.forEach(function(question, i){
-          if (!quiz.questions[i]._id){
-            quiz.questions[i]._id = question
-          }
-        })
-
-        res.preQuestions.forEach(function(question, i){
-          if (!quiz.preQuestions[i]._id){
-            quiz.preQuestions[i]._id = question
-          }
-        })
-
-        res.postQuestions.forEach(function(question, i){
-          if (!quiz.postQuestions[i]._id){
-            quiz.postQuestions[i]._id = question
-          }
-        })
+        if (type === 'quiz'){
+          res.questions.forEach(function(question, i){
+            if (!quiz.questions[i]._id){
+              quiz.questions[i]._id = question
+            }
+          })
+        } else if (type === 'pre'){
+          res.preQuestions.forEach(function(question, i){
+            if (!quiz.preQuestions[i]._id){
+              quiz.preQuestions[i]._id = question
+            }
+          })
+        } else if (type === 'post'){
+          res.postQuestions.forEach(function(question, i){
+            if (!quiz.postQuestions[i]._id){
+              quiz.postQuestions[i]._id = question
+            }
+          })
+        }
 
         $("#confirmationDiv").fadeIn(300).delay(200).fadeOut(300);
       })
