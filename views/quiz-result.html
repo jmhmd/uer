@@ -1,4 +1,5 @@
 {{!< ./default_layout}}
+
 <h1> Result for {{quizResult.quiz.title}} </h1>
 
 {{#if messages.error}}
@@ -52,14 +53,14 @@ $(document).ready(function(){
 
 	var lazyImages = $('.lazy-load')
 
-	lazyImages.each(function(i, img){
+	lazyImages.each(function(){
 
-		var studyId = $(img).attr('data-src')
+		var studyId = $(this).attr('data-src')
 
-		if (!studyId){ return false }
+		if (!studyId){ return true }
 
 		// load image object and set 'this' in callback to <img> element
-		$.ajax({url: '/api/getImageObject/' + studyId, dataType: 'json', context: img})
+		$.ajax({url: '/api/getImageObject/' + studyId, dataType: 'json', context: this})
 				.done(function(res) {
 
 					console.log('loaded image: ', res)

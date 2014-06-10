@@ -647,6 +647,25 @@ exports.setAvailability = function(req, res){
 	})
 }
 
+exports.setRandomize = function(req, res){
+
+	var quizId = req.params.quizId,
+		quizRandomize = req.body.randomize
+	
+	//return res.send(500, 'test error')
+	
+	if (!quizId || !quizRandomize){
+		return res.send(500, 'Must specify quiz and availability')
+	}
+
+	Quiz.update({ _id: quizId }, { $set: { randomize: quizRandomize } }, function(err){
+		if (err){ return res.send(500, err) }
+
+		//console.log('Quiz randomization updated: ', quizId, quizRandomize)
+		res.send(200, 'Quiz randomization updated')
+	})
+}
+
 /**
  * Send images to casefiles as a study object
  * @param  {Object} req.body:

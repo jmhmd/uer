@@ -17,6 +17,7 @@ var quizSchema = new mongoose.Schema({
 	preQuestions: [{type: mongoose.Schema.Types.ObjectId, ref: 'Question'}],
 	postQuestions: [{type: mongoose.Schema.Types.ObjectId, ref: 'Question'}],
 	enabled: {type: Boolean, default: false},
+	randomize: {type: Boolean, default: false},
 	attempts: {type: Number, default: -1}, // a value of -1 denotes infinite attempts
 	deleted: {type: Boolean, default: false}
 })

@@ -7,6 +7,7 @@
 			<th>Quiz</th>
 			{{#if ../user.isAdmin}}
 				<th>Available</th>
+				<th>Randomize</th>
 				<th>Edit</th>
 				<th>Delete</th>
 			{{/if}}
@@ -19,6 +20,9 @@
 			{{#if ../user.isAdmin}}
 				<td>
 					<input type="checkbox" class="availableCheck" value="{{this._id}}" {{checked this.enabled}}>
+				</td>
+				<td>
+					<input type="checkbox" class="randomCheck" value="{{this._id}}" {{checked this.randomize}}>
 				</td>
 				<td>
 					<a href="/quiz/edit/{{this._id}}">edit</a>
@@ -43,13 +47,32 @@ $(document).ready(function(){
 
 	$('.availableCheck').on('change', function(){
 
-		var checkbox = $(this)
+		var checkbox = $(this),
 			state = checkbox.is(':checked'),
 			quizId = checkbox.val()
 
 		$.post('/api/quiz/'+quizId+'/setAvailability', {enabled: state})
-			.done(function(res){
+			.done(function(){
 				console.log('Quiz ', quizId, 'enabled: ', state)
+			})
+			.fail(function(err){
+				console.error(err)
+				// reset checkbox
+				checkbox.attr('checked', !state)
+			})
+
+		
+	})
+
+	$('.randomCheck').on('change', function(){
+
+		var checkbox = $(this),
+			state = checkbox.is(':checked'),
+			quizId = checkbox.val()
+
+		$.post('/api/quiz/'+quizId+'/setRandomize', {randomize: state})
+			.done(function(){
+				console.log('Quiz ', quizId, 'randomized: ', state)
 			})
 			.fail(function(err){
 				console.error(err)
