@@ -20,6 +20,7 @@ var userSchema = new mongoose.Schema({
 	tokens: Array,
 
 	isAdmin: {type: Boolean, default: false},
+	isSuperAdmin: {type: Boolean, default: false},
 
 	profile: {
 		name: {

@@ -1,0 +1,37 @@
+{{!< ./default_layout}}
+
+<script type="text/javascript">
+var quiz = {{{quiz.JSON}}},
+	quizResult = {{{quizResult.JSON}}},
+	section = '{{section}}'
+
+console.log('quiz: ',quiz)
+console.log('quizResult: ',quizResult)
+</script>
+<script type="text/javascript" src="/js/lib/angular-1.2.16/angular.js"></script>
+<script type="text/javascript" src="/js/quiz-app/prepost-quiz-controller.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+
+<link type="text/css" rel="stylesheet" href="/css/view-quiz.css"/>
+
+<div ng-app="prepostQuiz">
+<div ng-controller="formCtrl" class="container-fluid">
+	<div class="row">
+		<div class="col-xs-12">
+	
+			<h3>{{quiz.title}} - {{section}} survey</h3>
+
+		</div>
+	</div>
+	<div class="row">
+
+		<div class="col-xs-12">
+			
+			<!-- Using html include so the handlebars and angular bracket syntaxes don't collide -->
+			<div id="question" ng-include src="questionPartial"></div>
+
+			<button type="button" class="btn btn-primary" ng-click="submitAndFinish()">Submit</button>
+		</div>
+	</div>
+</div>
+</div>

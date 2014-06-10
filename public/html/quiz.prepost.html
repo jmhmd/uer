@@ -1,0 +1,29 @@
+<div class="container-fluid">
+	<div class="row" ng-repeat="question in questions">
+		<div class="col-xs-12">
+
+			<h4>{{$index + 1}}.</h4>
+			
+			<div class="form-group">
+				<span ng-show="question.answerRequired" class="help-block" style="color:red;">(Required)</span>
+
+				<label for="exampleInputEmail1">{{question.stem}}</label>
+
+				<div ng-switch on="question.format">
+					
+					<!-- <div ng-switch-when="freeText">  -->
+						<textarea ng-switch-when="freeText" class="form-control" ng-model="result[$parent.$index].freeTextAnswer" ng-blur="saveProgress()"></textarea>
+					<!-- </div> -->
+
+					<div id="Selections" ng-switch-default> 
+						<div class="radio" ng-repeat="choice in question.choices">
+							<label>
+								<input type="radio" name="choices{{$parent.$parent.$index}}" value="{{choice._id}}" ng-model="result[$parent.$parent.$index].userAnswer" ng-change="saveProgress()"> {{choice.option}}
+							</label>
+						</div>
+					</div>
+				</div>
+			</div>	
+		</div>
+	</div>
+</div>

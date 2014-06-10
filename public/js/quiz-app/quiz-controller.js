@@ -41,7 +41,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 			// may want to preload all images in background at some point
 			// ...
 
-			// interval for timer
+			// start timer ticking
 			$interval(function(){
 				$scope.elapsedTime = Timer.msToTime(Timer.getTotalElapsed())
 			}, 1000)
@@ -190,12 +190,14 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 
 			Timer.stopAll()
 
-			$scope.quizResult.completed = true
+			//$scope.quizResult.completed = true
+			$scope.quizResult.quizQuestionsCompleted = true
 
 			$scope.saveProgress(function(err){
 				if (err){ return console.log(err) }
 
-				$window.location.href = '/quiz/result/' + $scope.quizResult._id
+				//$window.location.href = '/quiz/result/' + $scope.quizResult._id
+				$window.location.reload()
 			})
 		}
 

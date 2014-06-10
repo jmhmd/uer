@@ -12,6 +12,24 @@ var util = require('util'),
 	casefiles = secrets.casefiles,
 	async = require('async')
 
+exports.isQuizOwner = function(req, res, next) {
+	var quizId = req.params.quizId,
+		userId = req.user._id
+
+	if (req.user.isSuperAdmin){ return next() }
+
+	Quiz.findById(quizId, function(err, quiz){
+		if (err){ return next(err) }
+
+		if (!quiz.creator || quiz.creator.equals(userId)){
+			return next()
+		} else {
+			req.flash('error', {msg: 'Quiz is not owned by current user'})
+			res.redirect('/quizzes')
+		}
+	})
+}
+
 /**
  * show page to list quizzes
  */
@@ -131,6 +149,8 @@ exports.startQuiz = function(req, res, next){
 	_getLeanQuizObject(quizId, function(err, quiz){
 		if (err){ return next(err) }
 
+		if (!quiz){ return res.send(404, 'Quiz not found') }
+
 		/**
 		 * Check if user has an incomplete instance of this quiz, if so, load it up. 
 		 * If not, create a new quiz instance and load it up.
@@ -142,22 +162,42 @@ exports.startQuiz = function(req, res, next){
 
 				quizResult = new QuizResult()
 
-				//var quizQuestions = _.map(quiz.questions, function(q){ return q })
-
-				// randomize question order here...
-				
 
 				quizResult.user = req.user._id
 				quizResult.quiz = quiz._id
 				quizResult.startDate = new Date()
 				quizResult.totalQuizTime = 0
 
+				var questionIds = _.map(quiz.questions, function(q){ return q._id })
+
+				// randomize question order here...
+				if (quiz.randomize){
+					questionIds = _.shuffle(questionIds)
+				}
+
 				// fill in question ids
-				_.each(quiz.questions, function(question){
+				_.each(questionIds, function(qId){
 					quizResult.quizQuestions.push({
-						questionId: question._id
+						questionId: qId
 					})
 				})
+
+				// if no pre/post questions defined, flip completed flag to ignore them
+				if (!quiz.preQuestions || quiz.preQuestions.length === 0){
+					quizResult.preQuestionsCompleted = true
+				} else {
+					_.each(quiz.preQuestions, function(q){
+						quizResult.preQuestions.push({questionId: q._id})
+					})
+				}
+
+				if (!quiz.postQuestions || quiz.postQuestions.length === 0){
+					quizResult.postQuestionsCompleted = true
+				} else {
+					_.each(quiz.postQuestions, function(q){
+						quizResult.postQuestions.push({questionId: q._id})
+					})
+				}
 
 				quizResult.save(function(err){
 					if (err){ return next(err) }
@@ -180,7 +220,24 @@ exports.startQuiz = function(req, res, next){
 		}
 
 		// render template
-		res.render('quiz')
+		
+		if (!quizResult.preQuestionsCompleted){
+			res.locals.section = 'pre'
+			res.render('prepostQuiz')
+		} else if (!quizResult.quizQuestionsCompleted){
+			res.render('quiz')
+		} else if (!quizResult.postQuestionsCompleted){
+			res.locals.section = 'post'
+			res.render('prepostQuiz')
+		} else {
+			// complete quiz, go to results page
+			quizResult.completed = true
+			quizResult.save(function(err){
+				if (err){ return next(err) }
+
+				res.redirect('/quiz/result/' + quizResult._id)
+			})
+		}
 	}
 }
 
@@ -349,14 +406,10 @@ var _updateQuizObject = function(quiz, newQuiz, cb){
 		return rt
 	}
 
-	console.log('hasdocs:', hasDocuments(newQuiz))
-
 	// check if questions arrays populated with documents or just ids.
 	// if ids, just update and save. If objects, we need to loop through
 	// and individually save each question document.
 	if (hasDocuments(newQuiz)){
-
-		console.log('has documents')
 
 		var saveQuestionArray = function(questionArray, cb1){
 
@@ -366,6 +419,7 @@ var _updateQuizObject = function(quiz, newQuiz, cb){
 
 			// save each question document and collect ids
 			var saveQuestion = function(question, cb2){
+				console.log('question:', question)
 				QuestionRoute._saveQuestion(question, function(err, question){
 					if (err){ return cb2(err) }
 					questions.push(question._id)

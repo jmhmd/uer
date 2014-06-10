@@ -36,11 +36,11 @@ $(document).ready(function(){
 					<p>{{currentQuestion.stem}}</p>
 
 					<div id="Selections"> 
-						<ul class="choice-list">
-							<li ng-repeat="choice in currentQuestion.choices">
+						<div class="radio" ng-repeat="choice in currentQuestion.choices">
+							<label>
 								<input type="radio" name="choices" value="{{choice._id}}" ng-model="quizResult.quizQuestions[currentIndex].userAnswer"> {{choice.option}}
-							</li>
-						</ul>
+							</label>
+						</div>
 					</div>
 				</div>
 			</div>

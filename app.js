@@ -58,65 +58,10 @@ var userCtrl = require('./routes/user'),
  * Configuration
  */
 
-hbs.registerHelper("selected", function(selected, value, display) {
-	if (!display){ display = value }
-	var option = selected === value ? '<option value="'+value+'" selected>'+display+'</option>' : '<option value="'+value+'">'+display+'</option>'
-	return new hbs.SafeString(option)
-})
+// load handlebars helpers
+var hbsHelpers = require('./config/hbs-helpers')
 
-hbs.registerHelper("checked", function(value) {
-	var rtn = value ? 'checked' : ''
-	return rtn
-})
-
-hbs.registerHelper("math", function(lvalue, operator, rvalue) {
-	lvalue = parseFloat(lvalue)
-	rvalue = parseFloat(rvalue)
-
-	return {
-		"+": lvalue + rvalue,
-		"-": lvalue - rvalue,
-		"*": lvalue * rvalue,
-		"/": lvalue / rvalue,
-		"%": lvalue % rvalue
-	}[operator]
-})
-
-hbs.registerHelper("correctAnswer", function(question, property) {
-
-	var correctAnswer = _.find(question.questionId.choices, function(choice){ return choice.correct })
-	return correctAnswer[property]
-})
-
-hbs.registerHelper("userAnswer", function(question, property) {
-
-	if(question.userAnswer){
-		var correctAnswer = _.find(question.questionId.choices, function(choice){ return choice._id.equals(question.userAnswer) })
-		return correctAnswer[property]
-	} else {
-		return "No answer choice selected"
-	}
-})
-
-hbs.registerHelper("questionTime", function(time) {
-
-	function msToTime (s) {
-		function addZ(n) {
-			return (n < 10 ? '0' : '') + n;
-		}
-
-		var ms = s % 1000;
-		s = (s - ms) / 1000;
-		var secs = s % 60;
-		s = (s - secs) / 60;
-		var mins = s % 60;
-		var hrs = (s - mins) / 60;
-
-		return addZ(hrs) + ':' + addZ(mins) + ':' + addZ(secs) // + '.' + ms;
-	}
-
-	return msToTime(time)
-})
+hbsHelpers.init(hbs)
 
 // all environments
 app.use(CORS())
@@ -191,9 +136,9 @@ app.get('/history', passportConf.isAuthenticated, quizCtrl.showQuizHistory)
 app.get('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.showNewQuiz)
 app.post('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.saveQuiz)
 
-app.get('/quiz/edit/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.showQuizEdit)
-app.get('/quiz/edit/:prepost/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.showQuizEdit)
-app.get('/quiz/delete/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.removeQuiz)
+app.get('/quiz/edit/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.isQuizOwner, quizCtrl.showQuizEdit)
+app.get('/quiz/edit/:prepost/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.isQuizOwner, quizCtrl.showQuizEdit)
+app.get('/quiz/delete/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.isQuizOwner, quizCtrl.removeQuiz)
 
 app.get('/quiz/go/:quizId', passportConf.isAuthenticated, quizCtrl.startQuiz)
 app.get('/quiz/result/:quizResultId', passportConf.isAuthenticated, quizCtrl.quizResult)

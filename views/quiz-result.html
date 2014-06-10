@@ -2,7 +2,7 @@
 <h1> Result for {{quizResult.quiz.title}} </h1>
 
 {{#if messages.error}}
-	<p>{{messages.error}}</p>
+	<p>{{{messages.error}}}</p>
 {{/if}}
 
 <p>
@@ -55,6 +55,8 @@ $(document).ready(function(){
 	lazyImages.each(function(i, img){
 
 		var studyId = $(img).attr('data-src')
+
+		if (!studyId){ return false }
 
 		// load image object and set 'this' in callback to <img> element
 		$.ajax({url: '/api/getImageObject/' + studyId, dataType: 'json', context: img})

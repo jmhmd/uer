@@ -274,7 +274,7 @@ var saveQuestion = function(index, cb){
 
   // pre/post-quiz fields
   question.answerRequired = $('#answerRequired').is(':checked')
-  question.format = $('#answerType').val()
+  question.format = $('#answerType').length > 0 ? $('#answerType').val() : 'multipleChoice'
 
   // only try to save images if question has images
   if (question.caseImage){
@@ -371,6 +371,16 @@ var addChoice = function(index, option, explanation, correct){
 
 var goToQuestion = function(index){
 
+  if (!_.isNull(currentQuestion)){
+  // validate current question before switching 
+    var errors = isValidQuestion(currentQuestion)
+    if (errors.length > 0){
+      var formatted = errors.reduce(function(sum, error){ return sum + error + '\n' }, '')
+      window.alert('The following fields are required:\n\n' + formatted)
+      return false
+    }
+  }
+
   currentQuestion = index
 
   loadQuestion(index)
@@ -393,6 +403,9 @@ var isValidQuestion = function(index){
   if (question.stem === ''){errors.push('Question')}
   if (question.format === 'multipleChoice'){
     if (question.choices.length < 1){errors.push('Need at least one answer choice')}
+  }
+  if (question.format === 'multipleChoice' && question.type === 'quiz'){
+    if (!_.find(question.choices,{correct: true})){errors.push('Need at least one correct answer choice')}
   }
 
   if (question.hasImage){
@@ -668,8 +681,8 @@ function Question(caseImage, studyId, clinicalInfo, stem, choices, answerRequire
   this.diagnosis = diagnosis || '';
 	this.category = category || '';
   this.difficulty = difficulty || 1;
-  this.type = type ? type : 'quiz';
-  this.format = format ? format : 'multipleChoice'
+  this.type = type || 'quiz';
+  this.format = format || 'multipleChoice';
 }
 
 function QuestionImage(obj){
