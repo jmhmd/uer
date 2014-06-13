@@ -46,6 +46,8 @@ var quizResultSchema = new mongoose.Schema({
 		}
 	],
 	postQuestionsCompleted: {type: Boolean, default: false},
+	
+	// results
 	numberCorrect: Number,
 	percentCorrect: Number,
 	completed: {type: Boolean, default: false},
@@ -53,7 +55,10 @@ var quizResultSchema = new mongoose.Schema({
 	// Timing
 	totalQuizTime: Number,
 	startDate: Date,
-	endDate: Date
+	endDate: Date,
+	
+	// Extras
+	isGoldStandard: Boolean
 })
 
 quizResultSchema.plugin(simpleTimestamps)
