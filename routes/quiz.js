@@ -269,7 +269,7 @@ exports.quizResult = function(req, res, next){
 			req.flash('error', 'The selected quiz has not been completed. <a href="/quiz/go/'+quizResultId+'">Click here to resume the quiz</a>')
 			return res.render('quiz-result')
 		}
-		else if (!quizResult.percentCorrect){
+		else if (_.isUndefined(quizResult.percentCorrect)){
 		// computing results for the first time
 		
 			// mark end time
@@ -304,15 +304,42 @@ exports.quizResult = function(req, res, next){
 				if (err){ return next(err) }
 
 				res.locals.quizResult = quizResult
-				res.render('quiz-result')
+				sendResult()
 			})
 		}
 		else {
 		// results/performance already computed, just generate the page
-		
+			
 			res.locals.quizResult = quizResult
-			res.render('quiz-result')
+			sendResult()
 		}
+	})
+
+	var sendResult = function(){
+
+		_getGoldStandard(res.locals.quizResult.quiz._id, function(err, goldStandard){
+			if (err){ return next(err) }
+
+			if (goldStandard){
+				res.locals.goldStandard = goldStandard
+
+				_.each(res.locals.quizResult.quizQuestions, function(question){
+					question.goldStandardLoc = _.find(goldStandard.quizQuestions, {questionId: question.questionId._id}).abnormalityLoc
+				})
+			}
+
+			res.render('quiz-result')
+		})
+	}
+}
+
+var _getGoldStandard = function(quizId, cb){
+
+	QuizResult.findOne({quiz: quizId, isGoldStandard: true}).exec(function(err, quizResult){
+		if (err){ return cb(err) }
+		if (!quizResult || quizResult.length === 0){ return cb(null, null) }
+
+		return cb(null, quizResult)
 	})
 }
 
