@@ -18,9 +18,15 @@
 		<tr>
 			<td>{{this.quiz.title}}</td>
 			<td>{{this.quiz.difficulty}}</td>
-			<td>{{this.percentCorrect}}%</td>
-			<td>{{this.updatedAt}}</td>
-			<td><a href="/quiz/result/{{this._id}}">Detailed report</a></td>
+			{{#if this.completed}}
+				<td>{{this.percentCorrect}}%</td>
+				<td>{{this.updatedAt}}</td>
+				<td><a href="/quiz/result/{{this._id}}">Detailed report</a></td>
+			{{else}}
+				<td>Not completed</td>
+				<td>Not completed</td>
+				<td><a href="/quiz/go/{{this.quiz._id}}">Resume</a></td>
+			{{/if}}
 		</tr>
 	{{/each}}
 </table>
