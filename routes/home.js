@@ -5,5 +5,9 @@ exports.partials = function (req, res) {
 }
 
 exports.index = function(req, res){
-	res.render('home')
+	if (req.isAuthenticated()){
+		res.redirect('/quizzes')
+	} else {
+		res.render('home')
+	}
 }

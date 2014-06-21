@@ -1,0 +1,55 @@
+<!DOCTYPE html> 
+<html>
+
+	<head>
+		<!-- <script src="/js/lib/jquery-2.1.0.js"></script>
+		<script src="/js/lib/lodash-2.4.1.js"></script> -->
+
+		<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+		<link type="text/css" rel="stylesheet" href="/css/app.css"/>
+		
+		<title>Call Practice</title>
+	</head>
+
+
+	<body>
+
+		{{#if messages.success}}
+			{{#each messages.success}}
+				<div class="alert alert-success alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+					{{this.msg}}
+				</div>
+			{{/each}}
+		{{/if}}
+
+		{{#if messages.info}}
+			{{#each messages.info}}
+				<div class="alert alert-info alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+					{{this.msg}}
+				</div>
+			{{/each}}
+		{{/if}}
+		
+		{{#if messages.errors}}
+			{{#each messages.errors}}
+				<div class="alert alert-danger alert-dismissable">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+					{{this.msg}}
+				</div>
+			{{/each}}
+		{{/if}}
+
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-offset-2 col-xs-8">
+					{{{body}}}
+				</div>
+			</div>
+		</div>
+
+	</body>
+
+
+</html>
