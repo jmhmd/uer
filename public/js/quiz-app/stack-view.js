@@ -3,8 +3,8 @@
 /* Select point on image directive */
 
 var quizApp = angular.module('quizApp.stack-view', [])	
-quizApp.directive('stackView', [
-	function() {
+quizApp.directive('stackView', [ '$window',
+	function($window) {
 
 		return {
 			scope: {
@@ -73,6 +73,10 @@ quizApp.directive('stackView', [
 					if (annotations[0]){
 						scope.selectPoint.coords = annotations[0].coords
 					}
+				})
+
+				$($window).on('resize', function(){
+					viewer.resetCanvas()
 				})
 
 			}
