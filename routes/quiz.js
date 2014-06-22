@@ -350,6 +350,7 @@ exports.showQuizReport = function(req, res, next){
 
 	QuizResult
 		.find({quiz: quizId, completed: true})
+		.populate('quizQuestions.questionId')
 		.sort('endDate')
 		.exec(function(err, results){
 			if (err){ return next(err) }
@@ -357,7 +358,6 @@ exports.showQuizReport = function(req, res, next){
 				req.flash('error', {msg: 'No finished quizzes found with this id'})
 				return res.render('404')
 			}
-
 
 			/*
 			Breakdown per user
@@ -370,7 +370,7 @@ exports.showQuizReport = function(req, res, next){
 
 				if (user){
 					user.scores.push(result.percentCorrect)
-					user.average = math.format(math.mean(user.scores), 0)
+					user.average = math.round(math.mean(user.scores))
 				} else {
 					user = {
 						userId: result.user,
@@ -384,7 +384,7 @@ exports.showQuizReport = function(req, res, next){
 			res.locals.usersTaken = usersTaken
 			res.locals.numUsersTaken = usersTaken.length
 			res.locals.maxAttempts = _.max(_.map(usersTaken, function(user){return user.scores.length}))
-			res.locals.averageScore = math.format(math.mean(_.pluck(results, 'percentCorrect')), 1)
+			res.locals.averageScore = math.round(math.mean(_.pluck(results, 'percentCorrect')), 1)
 			
 
 			/*
@@ -397,27 +397,34 @@ exports.showQuizReport = function(req, res, next){
 
 				_.each(result.quizQuestions, function(userQuestion){
 
-					var question = _.find(questions, {questionId: userQuestion.questionId})
+					var question = _.find(questions, {id: userQuestion.questionId._id})
 
 					if (question){
 						question.total = question.total + 1
 						if (userQuestion.correct){ question.correct = question.correct + 1 }
 						if (userQuestion.abnormalityLoc){
-							question.locations.push(abnormalityLoc)
+							question.locations.push(userQuestion.abnormalityLoc.coords)
 						}
 					} else {
 						question = {
+							id: userQuestion.questionId._id,
+							questionId: userQuestion.questionId,
+							stem: userQuestion.questionId.stem,
+							studyId: userQuestion.questionId.studyId,
 							total: 1,
 							correct: userQuestion.correct ? 1 : 0,
-							locations: userQuestion.abnormalityLoc ? [userQuestion.abnormalityLoc] : []
+							locations: userQuestion.abnormalityLoc.coords ? [userQuestion.abnormalityLoc.coords] : []
 						}
 						questions.push(question)
 					}
 				})
 			})
 
+			console.log(questions)
+
 			_.each(questions, function(question){
-				question.percentCorrect = math.format((question.correct / question.total) * 100, 0)
+				question.percentCorrect = math.round((question.correct / question.total) * 100)
+				question.locationsJSON = JSON.stringify(question.locations)
 			})
 
 			res.locals.questions = questions
