@@ -25,6 +25,10 @@ exports.init = function(hbs){
 		}[operator]
 	})
 
+	hbs.registerHelper("length", function(array) {
+		return array.length
+	})
+
 	hbs.registerHelper("correctAnswer", function(question, property) {
 
 		var correctAnswer = _.find(question.questionId.choices, function(choice){ return choice.correct })
@@ -61,4 +65,12 @@ exports.init = function(hbs){
 
 		return msToTime(time)
 	})
+
+	hbs.registerHelper('times', function(n, block) {
+		var accum = ''
+		for (var i = 0; i < n; ++i){
+			accum += block.fn(i)
+		}
+		return accum
+	});
 }

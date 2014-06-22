@@ -6,6 +6,7 @@
 		<tr>
 			<th>Quiz</th>
 			{{#if ../user.isAdmin}}
+				<th>Report</th>
 				<th>Available</th>
 				<th>Randomize</th>
 				<th>Edit</th>
@@ -18,6 +19,9 @@
 				<a href="/quiz/{{this._id}}">{{this.title}}</a>
 			</td>
 			{{#if ../user.isAdmin}}
+				<td>
+					<a href="/quiz/report/{{this._id}}">Report</a>
+				</td>
 				<td>
 					<input type="checkbox" class="availableCheck" value="{{this._id}}" {{checked this.enabled}}>
 				</td>

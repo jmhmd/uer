@@ -10,7 +10,8 @@ var util = require('util'),
 	request = require('request'),
 	secrets = require('../config/secrets'),
 	casefiles = secrets.casefiles,
-	async = require('async')
+	async = require('async'),
+	math = require('mathjs')()
 
 exports.isQuizOwner = function(req, res, next) {
 	var quizId = req.params.quizId,
@@ -341,6 +342,101 @@ var _getGoldStandard = function(quizId, cb){
 
 		return cb(null, quizResult)
 	})
+}
+
+exports.showQuizReport = function(req, res, next){
+
+	var quizId = req.params.quizId
+
+	QuizResult
+		.find({quiz: quizId, completed: true})
+		.sort('endDate')
+		.exec(function(err, results){
+			if (err){ return next(err) }
+			if (!results || results.length === 0){
+				req.flash('error', {msg: 'No finished quizzes found with this id'})
+				return res.render('404')
+			}
+
+
+			/*
+			Breakdown per user
+			 */
+			var usersTaken = []
+
+			_.each(results, function(result){
+
+				var user = _.find(usersTaken, {userId: result.user})
+
+				if (user){
+					user.scores.push(result.percentCorrect)
+					user.average = math.format(math.mean(user.scores), 0)
+				} else {
+					user = {
+						userId: result.user,
+						scores: [result.percentCorrect],
+						average: result.percentCorrect
+					}
+					usersTaken.push(user)
+				}
+			})
+
+			res.locals.usersTaken = usersTaken
+			res.locals.numUsersTaken = usersTaken.length
+			res.locals.maxAttempts = _.max(_.map(usersTaken, function(user){return user.scores.length}))
+			res.locals.averageScore = math.format(math.mean(_.pluck(results, 'percentCorrect')), 1)
+			
+
+			/*
+			Breakdown per question
+			 */
+			
+			var questions = []
+
+			_.each(results, function(result){
+
+				_.each(result.quizQuestions, function(userQuestion){
+
+					var question = _.find(questions, {questionId: userQuestion.questionId})
+
+					if (question){
+						question.total = question.total + 1
+						if (userQuestion.correct){ question.correct = question.correct + 1 }
+						if (userQuestion.abnormalityLoc){
+							question.locations.push(abnormalityLoc)
+						}
+					} else {
+						question = {
+							total: 1,
+							correct: userQuestion.correct ? 1 : 0,
+							locations: userQuestion.abnormalityLoc ? [userQuestion.abnormalityLoc] : []
+						}
+						questions.push(question)
+					}
+				})
+			})
+
+			_.each(questions, function(question){
+				question.percentCorrect = math.format((question.correct / question.total) * 100, 0)
+			})
+
+			res.locals.questions = questions
+
+			Quiz
+				.findById(quizId)
+				.lean()
+				.exec(function(err, quiz){
+					if (err){ return next(err) }
+					if (!quiz){
+						req.flash('error', {msg: 'No quiz found with this id'})
+						return res.render('404')
+					}
+
+					res.locals.quiz = quiz
+
+					res.render('quiz-report')
+				})
+		})
 }
 
 /**

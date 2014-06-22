@@ -59,8 +59,8 @@
 						{{/each}}
 					{{/if}}
 					
-					{{#if messages.errors}}
-						{{#each messages.errors}}
+					{{#if messages.error}}
+						{{#each messages.error}}
 							<div class="alert alert-danger alert-dismissable">
 								<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
 								{{this.msg}}

@@ -55,9 +55,30 @@ passport.use(new GoogleStrategy(secrets.google, function(req, accessToken, refre
 		});
 	} else {
 		User.findOne({
-			google: profile.id
+			$or: [
+				{google: profile.id},
+				{email: profile._json.email}
+			]
 		}, function(err, existingUser) {
-			if (existingUser) return done(null, existingUser);
+			if (existingUser){
+				/*
+				Need to account for people who have created an account with a
+				google email, then log in through google later
+				 */
+				if (!existingUser.google){
+					existingUser.google = profile.id
+					existingUser.tokens.push({
+						kind: 'google',
+						accessToken: accessToken
+					})
+					existingUser.save(function(err){
+						return done(err, existingUser)
+					})
+				} else {
+					return done(null, existingUser) 
+				}
+			}
+
 			var user = new User();
 			user.email = profile._json.email;
 			user.google = profile.id;

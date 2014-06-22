@@ -3,4 +3,8 @@
 
 <h1>404! Resource you requested is not found</h1>
 
+{{#if messages.error}}
+	<p>{{{messages.error}}}</p>
+{{/if}}
+
 <a href="/">Go home</a>
