@@ -36,7 +36,7 @@ mongoose.connection
 		console.log('MongoDB Connection Error. Please make sure MongoDB is running.'.red)
 	})
 	.on('open', function() {
-		console.log('DB connected, using ' + mongoose.connection.name)
+		console.log('DB connected, using DB: ' + mongoose.connection.name + ' and API: ' + secrets.casefiles.url)
 	})
 
 fs.readdirSync('./config/models').forEach(function(file) {

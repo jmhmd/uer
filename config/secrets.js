@@ -1,7 +1,6 @@
 var request = require('request')
 
 module.exports = {
-	db: 'mongodb://localhost:27017/call-practice',
 
 	sessionSecret: 'call-practice-umb',
 
@@ -12,6 +11,12 @@ module.exports = {
 		callbackURL: '/auth/google/callback',
 		passReqToCallback: true
 	}
+}
+
+if (process.env.NODE_ENV === 'production') {
+	module.exports.db = 'mongodb://localhost:27017/call-practice-prod'
+} else {
+	module.exports.db = 'mongodb://localhost:27017/call-practice'
 }
 
 var casefiles = {},
