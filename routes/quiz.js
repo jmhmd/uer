@@ -420,8 +420,6 @@ exports.showQuizReport = function(req, res, next){
 				})
 			})
 
-			console.log(questions)
-
 			_.each(questions, function(question){
 				question.percentCorrect = math.round((question.correct / question.total) * 100)
 				question.locationsJSON = JSON.stringify(question.locations)

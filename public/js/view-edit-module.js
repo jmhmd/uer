@@ -11,7 +11,7 @@ var quiz = quiz,
     currentQuestion = null, // should use index (zero based) internally within script
     uploadKeyRoot = uploadKeyRoot,
     updateUploadKey = function(id){
-      $('#uploadKey').val("uploads/temp/" + id + "/${filename}")
+      $('#uploadKey').val(uploadKeyRoot + id + "/${filename}")
     }
 
 /////////////////
@@ -63,10 +63,11 @@ var updateQuestionTabs = function(){
 }
 
 var addQuestion = function(){
+
   var questionRowLength = $('#questionRow tr').length;
 
-  $("#questionRow td").removeClass('clicked');
-  $("#questionRow").append('<tr><td class="questionTab" class="clicked">' + (questionRowLength + 1) + '</td></tr>');
+  //$("#questionRow td").removeClass('clicked');
+  $("#questionRow").append('<tr><td class="questionTab">' + (questionRowLength + 1) + '</td></tr>');
 
   quizQuestions.push(new Question())
 
@@ -75,8 +76,12 @@ var addQuestion = function(){
     goToQuestion(0)
   } else {
   // moving from existing question, save it before loading new question
-    saveQuestion(function(){
-      goToQuestion(quizQuestions.length - 1)
+    saveQuestion(function(err){
+      if (err){
+        console.log(err)
+      } else {
+        goToQuestion(quizQuestions.length - 1)
+      }
     })
   }
 }
@@ -101,8 +106,10 @@ var removeQuestion = function(index){
 
   if (quizQuestions.length === 0){
     addQuestion()
-  } else if (currentQuestion === index) {
+  } else if (_.isNull(currentQuestion)){
     goToQuestion(0)
+  } else {
+    goToQuestion(currentQuestion)
   }
 }
 
@@ -373,13 +380,17 @@ var addChoice = function(index, option, explanation, correct){
 
 var goToQuestion = function(index){
 
-  if (!_.isNull(currentQuestion)){
+  if (!index && index !== 0){ return false }
+
+  if (!_.isNull(currentQuestion) && index !== currentQuestion){
   // validate current question before switching 
     var errors = isValidQuestion(currentQuestion)
     if (errors.length > 0){
       var formatted = errors.reduce(function(sum, error){ return sum + error + '\n' }, '')
       window.alert('The following fields are required:\n\n' + formatted)
-      return false
+
+      // reload current question if invalid so user can correct
+      return goToQuestion(currentQuestion)
     }
   }
 
@@ -421,7 +432,15 @@ var saveToServer = function(){
 
   saveQuestion()
 
-  var errors = isValidQuestion(currentQuestion)
+  //  Check all questions for validity
+  var errors = []
+
+  $.each(quizQuestions, function(i){
+    var error = isValidQuestion(i)
+    if (error.length > 0){
+      errors.push(i)
+    }
+  })
 
   if (errors.length === 0){
 
@@ -459,8 +478,9 @@ var saveToServer = function(){
         $("#failureDiv").fadeIn(300).delay(300).fadeOut(300);
       })
   } else {
-    var errors = errors.reduce(function(sum, error){ return sum + error + '\n' }, '')
-    window.alert('The following fields are required:\n\n' + errors)
+    //errors = errors.reduce(function(sum, error){ return sum + error + '\n' }, '')
+    errors = errors.map(function(i){return i+1}).join(', ')
+    window.alert('The following questions have required fields:\n\n' + errors)
   }
 }
 
