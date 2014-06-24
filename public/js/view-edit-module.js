@@ -318,6 +318,13 @@ var saveQuestion = function(index, cb){
             console.log('studyId set to ', question.studyId)
           }
 
+          // add stack ids if not already set
+          // this will be used as the id to upload images
+          if (!question.caseImage.imageStacks[0]._id && res.imageStacks[0]._id){
+            question.caseImage.imageStacks[0]._id = res.imageStacks[0]._id
+            console.log('series Id set to ', question.caseImage.imageStacks[0]._id)
+          }
+
           if (cb){ cb(null, res) }
         })
         .fail(function(err){
@@ -746,9 +753,9 @@ var setupUpload = function(){
       else {
 
         var questionStudy = quizQuestions[currentQuestion].caseImage,
-        studyId = quizQuestions[currentQuestion].studyId
+            studyId = quizQuestions[currentQuestion].studyId
 
-        updateUploadKey(studyId)
+        updateUploadKey(questionStudy.imageStacks[0]._id)
 
         // if there are images already, delete them
         if (questionStudy.imageStacks[0].imagePaths.length > 0){
