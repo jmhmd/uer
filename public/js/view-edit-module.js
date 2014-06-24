@@ -556,8 +556,6 @@ var registerEventHandlers = function(){
         if (window.confirm('Delete images from this question? This cannot be undone.')){
         // question has images and we're deleting them
           
-          console.log('Delete images...')
-
           removeImageFromQuestion(function(err){
             if (err){ console.log(err) }
             
