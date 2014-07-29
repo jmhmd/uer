@@ -258,7 +258,7 @@ exports.makeAdmin = function(req, res, next){
 			},
 			function(err, response, body){
 				if (err){ return next(err) }
-				if (response.statusCode !== '200'){ return next(body) }
+				if (response.statusCode !== 200){ return next(body) }
 
 				// user successfully created, make admin
 				setAsAdmin(user)
