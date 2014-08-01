@@ -242,7 +242,7 @@ exports.makeAdmin = function(req, res, next){
 	// pull user from db
 	User.findById(userId, function(err, user){
 		if (err){ 
-			console.log(err)
+			console.log('Error finding user:', err)
 			return next(err)
 		}
 

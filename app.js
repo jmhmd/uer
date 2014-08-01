@@ -104,8 +104,8 @@ if (app.get('env') === 'development') {
 if (app.get('env') === 'production') {
 	// production error handling
 	app.use(function(err, req, res, next){
-		console.error(err.stack);
-		res.send(500, 'Something broke!');
+		console.error('Error:',err.stack);
+		res.send(500, err);
 	})
 }
 
