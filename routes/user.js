@@ -79,7 +79,7 @@ exports.postSignup = function(req, res, next) {
 	var errors = req.validationErrors();
 
 	if (errors) {
-		req.flash('errors', errors);
+		req.flash('error', errors);
 		return res.redirect('/signup');
 	}
 
@@ -91,7 +91,7 @@ exports.postSignup = function(req, res, next) {
 	user.save(function(err) {
 		if (err) {
 			if (err.code === 11000) {
-				req.flash('errors', {
+				req.flash('error', {
 					msg: 'User with that email already exists.'
 				});
 			}
