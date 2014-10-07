@@ -20,6 +20,7 @@ var userSchema = new mongoose.Schema({
 	tokens: Array,
 
 	isAdmin: {type: Boolean, default: false},
+	isSuperAdmin: {type: Boolean, default: false},
 
 	profile: {
 		name: {
@@ -37,7 +38,8 @@ var userSchema = new mongoose.Schema({
 		specialty: {
 			type: String,
 			default: ''
-		}
+		},
+		otherSpecialty: String // should only be set if specialty is set to "Other"
 	}
 })
 

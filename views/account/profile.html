@@ -1,0 +1,98 @@
+{{!< ../default_layout}}
+
+<form action="/profile" method="POST">
+	
+	<div class="form-group">
+		<label for="email">Email:</label>
+		<span>{{user.email}}</span>
+	</div>
+	
+	<div class="form-group">
+		<label for="name">Name:</label>
+		<input type="text" name="name" value="{{user.profile.name}}">
+	</div>
+
+	<div class="form-group">
+		<label for="gender">Gender:</label>
+		<select name="gender">
+			{{selected user.profile.gender 'm' 'Male'}}
+			{{selected user.profile.gender 'f' 'Female'}}
+			<!-- <option value="m">Male</option>
+			<option value="f">Female</option> -->
+		</select>
+	</div>
+
+	<div class="form-group">
+		<label for="trainingLevel">Training Level:</label>
+		<select name="trainingLevel" id="trainingLevelSelect">
+			{{selected user.profile.trainingLevel 'ms' 'Medical Student'}}
+			{{selected user.profile.trainingLevel 'pgy1' 'PGY-1 (intern)'}}
+			{{selected user.profile.trainingLevel 'pgy2' 'PGY-2 (R1)'}}
+			{{selected user.profile.trainingLevel 'pgy3' 'PGY-3 (R2)'}}
+			{{selected user.profile.trainingLevel 'pgy4' 'PGY-4 (R3)'}}
+			{{selected user.profile.trainingLevel 'pgy5' 'PGY-5 (R4)'}}
+			{{selected user.profile.trainingLevel 'fellow' 'Fellow'}}
+			{{selected user.profile.trainingLevel 'attending' 'Attending'}}
+		</select>
+	</div>
+
+	<div class="form-group" id="specialty" style="display:none;">
+		<label for="specialty">Specialty:</label>
+		<select name="specialty" id="specialtySelect">
+			<!-- Using null as the last argument cause the value and display are the same. 
+			Feels hacky but whatevs -->
+			{{selected user.profile.specialty '' 'Select specialty'}}
+			{{selected user.profile.specialty 'General' null}}
+			{{selected user.profile.specialty 'Thoracic' null}}
+			{{selected user.profile.specialty 'Abdominal' null}}
+			{{selected user.profile.specialty 'Interventional' null}}
+			{{selected user.profile.specialty 'Breast' null}}
+			{{selected user.profile.specialty 'Musculoskeletal' null}}
+			{{selected user.profile.specialty 'Neuroradiology' null}}
+			{{selected user.profile.specialty 'Nuclear Medicine' null}}
+			{{selected user.profile.specialty 'Pediatric' null}}
+			{{selected user.profile.specialty 'Trauma' null}}
+			{{selected user.profile.specialty 'Other' null}}
+		</select>
+	</div>
+
+	<div class="form-group" id="otherSpecialty" style="display:none;">
+		<label for="otherSpecialty">Other:</label>
+		<input type="text" id="otherSpecialtyInput" name="otherSpecialty" value="{{user.profile.otherSpecialty}}">
+	</div>
+
+	<button type="submit" class="btn btn-primary">Update</button>
+</form>
+<script type="text/javascript">
+$(document).ready(function(){
+	var toggleSpecialty = function(val){
+		if (val === 'fellow' || val === 'attending'){
+			$('#specialty').show()
+		} else {
+			$('#specialtySelect').val('')
+			$('#specialty').hide()
+		}
+	}
+	
+	$('#trainingLevelSelect').on('change', function(){
+		toggleSpecialty($(this).val())
+	})
+
+	toggleSpecialty($('#trainingLevelSelect').val())
+
+	var toggleOtherSpecialty = function(val){
+		if (val === 'Other'){
+			$('#otherSpecialty').show()
+		} else {
+			$('#otherSpecialtyInput').val('')
+			$('#otherSpecialty').hide()
+		}
+	}
+	
+	$('#specialtySelect').on('change', function(){
+		toggleOtherSpecialty($(this).val())
+	})
+
+	toggleOtherSpecialty($('#specialtySelect').val())
+})
+</script>

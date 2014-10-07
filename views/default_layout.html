@@ -15,37 +15,65 @@
 
 	<body>
 
-		<a href="/">Home</a>
-		|
-		{{#if messages.info}}
-			{{#each messages.info}}
-				{{this.msg}}
-			{{/each}}
-		{{/if}}
-		
-		{{#if messages.errors}}
-			{{#each messages.errors}}
-				{{this.msg}}
-			{{/each}}
-		{{/if}}
+		<nav class="navbar navbar-default navbar-static-top" role="navigation">
+			<div class="container-fluid">
+				<p class="navbar-text">
+					<a href="/quizzes">Quizzes</a>
+					|
+					{{#if user.email}}
+						Logged in as {{user.email}}
+						{{#if user.isAdmin}}
+							- Administrator
+						{{/if}}
+						|
+						<a href="/profile">Profile</a>
+						|
+						<a href="/history">Quiz History</a>
+						|
+						<a href="/logout">Log out</a>
+					{{else}}
+						<a href="/login">Log in</a>
+					{{/if}}
+				</p>
+			</div>
+		</nav>
 
-		{{#if user.email}}
-			Logged in as {{user.email}}
-			{{#if user.isAdmin}}
-				- Administrator
-			{{/if}}
-			|
-			<a href="/history">Quiz History</a>
-			|
-			<a href="/logout">Log out</a>
-		{{else}}
-			<a href="/login">Log in</a>
-		{{/if}}
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-xs-12">
+					{{#if messages.success}}
+						{{#each messages.success}}
+							<div class="alert alert-success alert-dismissable">
+								<!-- <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> -->
+								{{this.msg}}
+							</div>
+						{{/each}}
+					{{/if}}
 
-		<div>
-
-		{{{body}}}
-			
+					{{#if messages.info}}
+						{{#each messages.info}}
+							<div class="alert alert-info alert-dismissable">
+								<!-- <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> -->
+								{{this.msg}}
+							</div>
+						{{/each}}
+					{{/if}}
+					
+					{{#if messages.error}}
+						{{#each messages.error}}
+							<div class="alert alert-danger alert-dismissable">
+								<!-- <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button> -->
+								{{this.msg}}
+							</div>
+						{{/each}}
+					{{/if}}
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-xs-12">
+					{{{body}}}
+				</div>
+			</div>
 		</div>
 
 	</body>

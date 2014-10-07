@@ -1,22 +1,88 @@
 {{!< ./default_layout}}
-<h1> Available Quizzes </h1>
-
-{{#if user.isAdmin}}
-	<a href="/quiz/new">Create new quiz</a>
-{{/if}}
+<h1> Quizzes </h1>
 
 {{#if quizzes}}
-	<ul>
-	{{#each quizzes}}
-		<li>
-			<a href="/quiz/{{this._id}}">{{this.title}}</a>
-
+	<table class="table">
+		<tr>
+			<th>Quiz</th>
 			{{#if ../user.isAdmin}}
-				- <a href="/quiz/edit/{{this._id}}">edit</a>
+				<th>Report</th>
+				<th>Available</th>
+				<th>Randomize</th>
+				<th>Edit</th>
+				<th>Delete</th>
 			{{/if}}
-		</li>
+		</tr>
+	{{#each quizzes}}
+		<tr>
+			<td>
+				<a href="/quiz/{{this._id}}">{{this.title}}</a>
+			</td>
+			{{#if ../user.isAdmin}}
+				<td>
+					<a href="/quiz/report/{{this._id}}">Report</a>
+				</td>
+				<td>
+					<input type="checkbox" class="availableCheck" value="{{this._id}}" {{checked this.enabled}}>
+				</td>
+				<td>
+					<input type="checkbox" class="randomCheck" value="{{this._id}}" {{checked this.randomize}}>
+				</td>
+				<td>
+					<a href="/quiz/edit/{{this._id}}">edit</a>
+				</td>
+				<td>
+					<a href="/quiz/delete/{{this._id}}" onclick="return confirm('Are you sure?')">delete</a>
+				</td>
+			{{/if}}
+		</tr>
 	{{/each}}
-	</ul>
+	</table>
 {{else}}
 	<p>No quizzes found</p>
 {{/if}}
+
+{{#if user.isAdmin}}
+	<a class="btn btn-primary" href="/quiz/new">Create new quiz</a>
+{{/if}}
+
+<script type="text/javascript">
+$(document).ready(function(){
+
+	$('.availableCheck').on('change', function(){
+
+		var checkbox = $(this),
+			state = checkbox.is(':checked'),
+			quizId = checkbox.val()
+
+		$.post('/api/quiz/'+quizId+'/setAvailability', {enabled: state})
+			.done(function(){
+				console.log('Quiz ', quizId, 'enabled: ', state)
+			})
+			.fail(function(err){
+				console.error(err)
+				// reset checkbox
+				checkbox.attr('checked', !state)
+			})
+
+		
+	})
+
+	$('.randomCheck').on('change', function(){
+
+		var checkbox = $(this),
+			state = checkbox.is(':checked'),
+			quizId = checkbox.val()
+
+		$.post('/api/quiz/'+quizId+'/setRandomize', {randomize: state})
+			.done(function(){
+				console.log('Quiz ', quizId, 'randomized: ', state)
+			})
+			.fail(function(err){
+				console.error(err)
+				// reset checkbox
+				checkbox.attr('checked', !state)
+			})
+	})
+})
+</script>

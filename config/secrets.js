@@ -1,7 +1,10 @@
 var request = require('request')
 
 module.exports = {
+<<<<<<< HEAD
 	db: 'mongodb://localhost:27017/uer',
+=======
+>>>>>>> upstream/master
 
 	sessionSecret: 'uer',
 
@@ -14,6 +17,12 @@ module.exports = {
 	}
 }
 
+if (process.env.NODE_ENV === 'production') {
+	module.exports.db = 'mongodb://localhost:27017/call-practice-prod'
+} else {
+	module.exports.db = 'mongodb://localhost:27017/call-practice'
+}
+
 var casefiles = {},
 	uploadKeyRoot = "uploads/temp/"
 
@@ -22,12 +31,17 @@ var casefiles = {},
 	casefiles.apikey = '52f7caabff074a371800000b' // on powerbook
 	// casefiles.apikey = '52faa514a225b71d13000005' // on imac
 	casefiles.url = 'http://localhost:8080/' // must include trailing slash
+<<<<<<< HEAD
 	uploadKeyRoot = "uploads/temp/"
 } else */
+=======
+	uploadKeyRoot = "uploads/"
+} else if (process.env.NODE_ENV === 'testing'){
+>>>>>>> upstream/master
 
 if (process.env.NODE_ENV === 'production'){
 
-	casefiles.apikey = ''
+	casefiles.apikey = '53923be181c7785a075a247d'
 	casefiles.url = 'http://casefil.es/' // must include trailing slash
 	uploadKeyRoot = "uploads/"
 }

@@ -1,8 +1,11 @@
 {{!< ./default_layout}}
+
+<script type="text/javascript" src="/js/load-result-thumbs.js"></script>
+
 <h1> Result for {{quizResult.quiz.title}} </h1>
 
 {{#if messages.error}}
-	<p>{{messages.error}}</p>
+	<p>{{{messages.error}}}</p>
 {{/if}}
 
 <p>
@@ -14,6 +17,14 @@
 	Answers:
 </h4>
 
+<div style="background:#ccc;">
+	<span class="glyphicon glyphicon-screenshot" style="color:red"></span> = Your Answer
+	&nbsp;&nbsp;
+	{{#if goldStandard}}
+		<span class="glyphicon glyphicon-screenshot" style="color:yellow"></span> = Gold Standard
+	{{/if}}
+</div>
+
 <table class="table">
 	<tr>
 		<th>Number</th>
@@ -22,12 +33,15 @@
 		<th>Your answer</th>
 		<th>Correct answer</th>
 		<th>Explanation</th>
+		<th>Time</th>
 	</tr>
 	{{#each quizResult.quizQuestions}}
 		<tr>
 			<td>{{math @index "+" 1}}</td>
 			<td>
-				<img height="200" width="200" class="lazy-load" data-src="{{this.questionId.studyId}}" data-loc="{{this.abnormalityLoc.coords}}">
+				<div style="position:relative;">
+					<img width="200" class="lazy-load" data-src="{{this.questionId.studyId}}" data-loc="{{this.abnormalityLoc.coords}}" data-gold-standard-loc="{{this.goldStandardLoc.coords}}">
+				</div>
 			</td>
 			<td>
 				{{#if this.correct}}
@@ -39,52 +53,7 @@
 			<td>{{userAnswer this "option"}}</td>
 			<td>{{correctAnswer this "option"}}</td>
 			<td>{{correctAnswer this "explanation"}}</td>
+			<td>{{questionTime this.questionTime}}</td>
 		</tr>
 	{{/each}}
 </table>
-
-<script type="text/javascript">
-$(document).ready(function(){
-
-	var lazyImages = $('.lazy-load')
-
-	lazyImages.each(function(i, img){
-
-		var studyId = $(img).attr('data-src')
-
-		$.getJSON('/api/getImageObject/' + studyId)
-				.done(function(res) {
-
-					console.log('loaded image: ', res)
-
-					$(img)
-						.one('load', function(){
-
-							// put crosshairs on it
-							var w = img.naturalWidth,
-								//h = img.naturalHeight,
-								ratio = w / $(img).width(),
-								offset = $(img).offset(),
-								marker = $('<span></span>').addClass('glyphicon glyphicon-screenshot icon-red').css('position', 'absolute'),
-								loc = $(img).attr('data-loc').split(',').map(function(i){return parseInt(i)}),
-								mTop = offset.top + (loc[1] / ratio),
-								mLeft = offset.left + (loc[0] / ratio)
-
-							marker.css({'top': mTop, 'left': mLeft})
-							$('body').append(marker)
-
-						})
-						.attr('src', res.imageStacks[0].imagePaths[0])
-						.each(function() {
-							//Cache fix for browsers that don't trigger .load()
-							if(this.complete){ $(this).trigger('load') }
-						})
-					
-				})
-				.fail(function(err) {
-
-					console.error(err)
-				})
-	})
-})
-</script>

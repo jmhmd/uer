@@ -1,0 +1,121 @@
+{{!< ./default_layout}}
+
+<script type="text/javascript">
+var quiz = {{{JSONquiz}}},
+	type = 'post'
+
+console.log('loaded quiz:', quiz)
+</script>
+<script type="text/javascript" src="/js/dropzone.js"></script>
+<script type="text/javascript" src="/js/view-edit-module.js"></script>
+
+<link type="text/css" rel="stylesheet" href="/css/view-edit-module.css"/>
+<link type="text/css" rel="stylesheet" href="/css/dropzone.css"/>
+
+<div id="confirmationDiv">Saved</div>
+
+<div id="failureDiv">Failed to Save</div>
+
+<div id="moduleName"> {{quiz.title}} </div>
+
+<div>
+	<a href="/quiz/edit/pre/{{quiz._id}}">Pre-quiz</a> |
+	<a href="/quiz/edit/{{quiz._id}}">Quiz</a> |
+	<span>Post-quiz</span>
+</div>
+
+<div id="questionRowcontainer">
+	<table>
+		<tr>
+			<td class="saveQuizButton btn btn-success">Save</td>
+		</tr>
+		<!-- <tr>
+			<td id="editQuestionbutton">Edit</td>
+		</tr> -->
+		<!-- <tr>
+			<td id="addQuestionbutton">Add</td>
+		</tr> -->
+	</table>
+
+	<table id="questionRow">
+		<!-- <tr><td class="questionTab" class="clicked">' + (questionRowLength + 1) + '</td></tr> -->
+		<!-- <tr>
+			<td id="questionTab" class="clicked">1</td>
+		</tr>
+		<tr>
+			<td id="questionTab">2</td>
+		</tr>
+		-->
+	</table>
+	<table>
+		<tr><td id="addQuestionbutton" class="questionTab">New</td></tr>
+	</table>
+</div>
+
+
+<div class="container-fluid">
+	<div class="row">
+
+		<div class="col-xs-1"></div>
+
+		<div class="col-xs-11">
+
+			<div id="questionNav">Post-survey question <p id="currentNumber">1</p> of <p id="totalNumber">_</p></div>
+
+			<!-- <form> -->
+				<div class="form-group">
+					<button type="button" class="btn" id="copyPrevious" style="display:none">Copy Last Question</button>
+				</div>
+
+				<p class="required">
+					* Required
+				</p>
+
+			<!-- </form> -->
+
+			<form>
+				<div class="form-group">
+					<label for="question" class="required">* Question:</label> <br>
+					<textarea id="question" class="form-control" name="question"></textarea>
+				</div>
+
+				<div class="form-group">
+					<label for="answerType">Type:</label> <br>
+					<select id="answerType" class="form-control" name="answerType">
+						<option value="multipleChoice">Multiple Choice</option>
+						<option value="freeText">Free Text</option>
+					</select>
+				</div>
+
+				<div class="form-group">
+					<label for="answerRequired">Answer Required:</label> <br>
+					<input type="checkbox" id="answerRequired" class="form-control" name="answerRequired">
+				</div>
+
+				<div class="form-group" id="multipleChoiceOption">
+					<label>Answer choices:</label>
+					
+					<ul id="choices">
+						<!--<li class="choice">
+							A: <textarea id="choiceA" type="text" name="choiceA" style="width:400px; height:16px;"></textarea>
+						</li>
+						<li>
+							Explanation: <textarea id="explanationA" type="text" name="explanationA" style="width:600px; height:40px;"></textarea>
+						</li>-->
+					</ul>
+
+					<button type="button" class="btn" id="addChoiceButton">Add Answer Choice</button>
+				</div>
+
+				<div class="form-group">
+					<button type="button" class="btn btn-danger" id="removeQuestion">Delete Question</button>
+				</div>
+				<div class="form-group">
+					<button type="button" class="btn saveQuizButton btn-success">Save Quiz</button>
+				</div>
+			</form>
+
+
+		</div>
+	</div>
+</div>

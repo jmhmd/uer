@@ -1,0 +1,82 @@
+{{!< ./default_layout}}
+
+<script type="text/javascript" src="/js/load-result-thumbs.js"></script>
+
+<h1> Report for {{quiz.title}} </h1>
+
+<div class="row">
+	<div class="col-xs-12">
+		<h3>By User</h3>
+		<hr>
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-8">
+		<h4><span class="text-muted">Total users completing quiz:</span> {{numUsersTaken}}</h4>
+		<table class="table">
+			<tr>
+				<th>User</th>
+				{{#times maxAttempts}}
+					<th>Attempt {{math this "+" 1}}</th>
+				{{/times}}
+				<th>Average</th>
+			</tr>
+			{{#each usersTaken}}
+				<tr>
+					<td>User {{math @index "+" 1}}</td>
+					{{#each this.scores}}
+						<td>{{this}}%</td>
+					{{/each}}
+					{{#times (math ../maxAttempts "-" (length this.scores))}}
+						<td></td>
+					{{/times}}
+					<td>{{this.average}}%</td>
+				</tr>
+			{{/each}}
+		</table>
+	</div>
+	<div class="col-xs-4 text-center">
+		<h3 class="text-muted">Overall Average</h3>
+		<h2>{{averageScore}}%</h2>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-xs-12">
+		<h3>By Question</h3>
+		<hr>
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-12">
+		<table class="table">
+			<tr>
+				<th></th>
+				<th>Stem</th>
+				<th>Answer</th>
+				<th colspan="2">Overall Performance</th>
+				<th></th>
+			</tr>
+			{{#each questions}}
+				<tr>
+					<td>{{math @index "+" 1}}.</td>
+					<td>{{this.stem}}</td>
+					<td>{{correctAnswer this "option"}}</td>
+					<td>
+						<div style="min-width:200px">
+							<div style="float: left; background:green; height:3px; width:{{this.percentCorrect}}%"></div>
+							<div style="float: left; background:red; height:3px; width:{{math 100 '-' this.percentCorrect}}%"></div>
+						</div>
+						{{this.correct}}/{{this.total}}
+					</td>
+					<td>{{this.percentCorrect}}%</td>
+					<td>
+						<div style="position:relative;">
+							<img width="200" class="lazy-load" data-src="{{this.studyId}}" data-loc="{{this.locationsJSON}}" data-gold-standard-loc="">
+						</div>
+					</td>
+				</tr>
+			{{/each}}
+		</table>
+	</div>
+</div>

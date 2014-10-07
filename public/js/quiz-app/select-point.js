@@ -110,11 +110,15 @@ quizApp.directive('selectPoint', [ '$timeout',
 					if (newSrc === oldSrc){ return false }
 
 					console.log('change image to: ', scope.imgSrc)
+
+					console.log('nat h:', image.get(0).naturalHeight)
+
 					image.attr('src', scope.imgSrc)
 
 					imagesLoaded(image).on('done', function(){
 
 						console.log('image done loading')
+						console.log('nat h done:', image.get(0).naturalHeight)
 
 						scope.$apply(function(){
 

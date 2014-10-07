@@ -4,13 +4,14 @@
 // Declare app level module which depends on filters, and services
 angular.module('quizApp', [
   //'ngRoute',
-  'ui.router',
+  //'ui.router',
   // 'myApp.filters',
   // 'myApp.services',
   // 'myApp.directives',
   'quizApp.controllers',
   //'quizApp.select-point'
-  'quizApp.stack-view'
+  'quizApp.stack-view',
+  'quizApp.timer'
 ])/*.
 config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/view1', {templateUrl: 'partials/partial1.html', controller: 'MyCtrl1'});

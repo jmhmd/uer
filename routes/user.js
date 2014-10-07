@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose'),
 	passport = require('passport'),
-	_ = require('underscore'),
+	_ = require('lodash'),
 	User = mongoose.model('User'),
 	request = require('request'),
 	casefiles = require('../config/secrets').casefiles
@@ -79,7 +79,7 @@ exports.postSignup = function(req, res, next) {
 	var errors = req.validationErrors();
 
 	if (errors) {
-		req.flash('errors', errors);
+		req.flash('error', errors);
 		return res.redirect('/signup');
 	}
 
@@ -91,7 +91,7 @@ exports.postSignup = function(req, res, next) {
 	user.save(function(err) {
 		if (err) {
 			if (err.code === 11000) {
-				req.flash('errors', {
+				req.flash('error', {
 					msg: 'User with that email already exists.'
 				});
 			}
@@ -122,19 +122,24 @@ exports.getAccount = function(req, res) {
 
 exports.postUpdateProfile = function(req, res, next) {
 	User.findById(req.user.id, function(err, user) {
-		if (err) return next(err);
-		user.email = req.body.email || '';
-		user.profile.name = req.body.name || '';
-		user.profile.gender = req.body.gender || '';
-		user.profile.location = req.body.location || '';
-		user.profile.website = req.body.website || '';
+		if (err){ return next(err) }
+
+		user.profile.name = req.body.name || ''
+		user.profile.gender = req.body.gender || ''
+		user.profile.trainingLevel = req.body.trainingLevel || ''
+		user.profile.specialty = req.body.specialty || ''
+		if (req.body.specialty === 'Other'){
+			user.profile.otherSpecialty = req.body.otherSpecialty || ''
+		} else {
+			user.profile.otherSpecialty = ''
+		}
 
 		user.save(function(err) {
-			if (err) return next(err);
+			if (err){ return next(err) }
 			req.flash('success', {
 				msg: 'Profile information updated.'
 			});
-			res.redirect('/account');
+			res.redirect('/profile')
 		});
 	});
 };
@@ -237,7 +242,7 @@ exports.makeAdmin = function(req, res, next){
 	// pull user from db
 	User.findById(userId, function(err, user){
 		if (err){ 
-			console.log(err)
+			console.log('Error finding user:', err)
 			return next(err)
 		}
 
@@ -252,8 +257,14 @@ exports.makeAdmin = function(req, res, next){
 				}
 			},
 			function(err, response, body){
-				if (err){ return next(err) }
-				if (response.statusCode !== '200'){ return next(body) }
+				if (err){
+					console.log('Error with request to casefiles:', err)
+					return next(err) 
+				}
+				if (response.statusCode !== 200){ 
+					console.log('Error, response not 200:', response.statusCode)
+					return next(body) 
+				}
 
 				// user successfully created, make admin
 				setAsAdmin(user)

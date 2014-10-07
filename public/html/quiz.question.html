@@ -1,3 +1,22 @@
+<script type="text/javascript">
+$(document).ready(function(){
+
+	//
+	// set up resizing of view area
+	//
+	function sizeViewer() {
+		var viewer = $('#stackview'),
+			winHeight = $(window).height()
+
+		viewer.height( winHeight - viewer.offset().top )
+	}
+	$(window).on('resize', function(){
+		sizeViewer()
+	})
+	
+	sizeViewer()
+})
+</script>
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-xs-4">
@@ -11,18 +30,17 @@
 
 					<!-- <h4>Question: {{currentIndex + 1}}</h4> -->
 					<p ng-show="{{currentQuestion.clinicalInfo}}">
-						<strong>History:</strong><br>
 						{{currentQuestion.clinicalInfo}}
 					</p>
 
-					<p><strong>{{currentQuestion.stem}}</strong></p>
+					<p>{{currentQuestion.stem}}</p>
 
 					<div id="Selections"> 
-						<ul class="choice-list">
-							<li ng-repeat="choice in currentQuestion.choices">
+						<div class="radio" ng-repeat="choice in currentQuestion.choices">
+							<label>
 								<input type="radio" name="choices" value="{{choice._id}}" ng-model="quizResult.quizQuestions[currentIndex].userAnswer"> {{choice.option}}
-							</li>
-						</ul>
+							</label>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -44,10 +62,13 @@
 
 			</div> -->
 		</div>
-
-		<div class="col-xs-8">
+		
+		<!-- set padding-right for viewer right side gutter -->
+		<div class="col-xs-8" style="padding-right:5px;">
 			<div class="row">
 				<div class="col-xs-12">
+
+					<img id="placeholder" style="display:none;width:100%;">
 					
 					<div id="stackview" class="cine_container case-image" style="width:100%;height:800px;" stack-view select-point="quizResult.quizQuestions[currentIndex].abnormalityLoc" index="currentIndex" img-src="currentQuestion.imageSeries[0].imagePaths[0]">
 						<div class="progressBar">

@@ -1,15 +1,30 @@
-{{!< ../default_layout}}
+{{!< ../splash_layout}}
 
-<form action="/login" method="POST">
-	<label for="email">Email: </label>
-	<input type="text" name="email">
-	<label for="password">Password: </label>
-	<input type="password" name="password">
+<div class="jumbotron">
 
-	<button type="submit">Go</button>
+	<div class="row">
+	<div class="col-xs-6">
 
-</form>
+		<form action="/login" method="POST">
+			<div class="form-group">
+				<label for="email">Email: </label>
+				<input type="text" name="email" class="form-control">
+			</div>
+			<div class="form-group">
+				<label for="password">Password: </label>
+				<input type="password" name="password" class="form-control">
+			</div>
 
-<p>OR</p>
+			<button type="submit" class="btn btn-default">Go</button>
+		</form>
 
-<a class="login-google" href="/auth/google"></a>
+	</div>
+	</div>
+
+	<br>
+
+	<p style="margin-left:20px;">OR</p>
+
+	<a class="login-google" href="/auth/google"></a>
+	
+</div>

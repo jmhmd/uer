@@ -1,16 +1,35 @@
 'use strict';
 
 var util = require('util'),
-	_ = require('underscore'),
+	_ = require('lodash'),
 	mongoose = require('mongoose'),
 	Quiz = mongoose.model('Quiz'),
-	Question = mongoose.model('Question'),
 	QuizResult = mongoose.model('QuizResult'),
+	QuestionRoute = require('./question.js'),
 	validator = require('validator'),
 	request = require('request'),
 	secrets = require('../config/secrets'),
 	casefiles = secrets.casefiles,
-	async = require('async')
+	async = require('async'),
+	math = require('mathjs')()
+
+exports.isQuizOwner = function(req, res, next) {
+	var quizId = req.params.quizId,
+		userId = req.user._id
+
+	if (req.user.isSuperAdmin){ return next() }
+
+	Quiz.findById(quizId, function(err, quiz){
+		if (err){ return next(err) }
+
+		if (!quiz.creator || quiz.creator.equals(userId)){
+			return next()
+		} else {
+			req.flash('error', {msg: 'Quiz is not owned by current user'})
+			res.redirect('/quizzes')
+		}
+	})
+}
 
 /**
  * show page to list quizzes
@@ -20,7 +39,13 @@ exports.showQuizList = function(req, res, next){
 	/**
 	 * Get list of quizzes meeting criteria
 	 */
-	Quiz.find()
+	var query = {deleted: {'$ne': true}}
+	
+	if (!req.user.isAdmin){
+		query.enabled = true
+	}
+	
+	Quiz.find(query)
 		.limit(50)
 		.exec(function(err, quizzes){
 			if (err){ return next(err) }
@@ -67,9 +92,17 @@ var _getLeanQuizObject = function(id, cb){
 	Quiz
 	.findById(id)
 	.populate({
-			path: 'questions',
-			match: { deleted: false }
-		})
+		path: 'questions',
+		match: { deleted: {$ne: true}}
+	})
+	.populate({
+		path: 'preQuestions',
+		match: { deleted: {$ne: true}}
+	})
+	.populate({
+		path: 'postQuestions',
+		match: { deleted: {$ne: true}}
+	})
 	.lean()
 	.exec(function(err, quiz){
 			if (err){ return cb(err) }
@@ -117,6 +150,8 @@ exports.startQuiz = function(req, res, next){
 	_getLeanQuizObject(quizId, function(err, quiz){
 		if (err){ return next(err) }
 
+		if (!quiz){ return res.send(404, 'Quiz not found') }
+
 		/**
 		 * Check if user has an incomplete instance of this quiz, if so, load it up. 
 		 * If not, create a new quiz instance and load it up.
@@ -128,22 +163,42 @@ exports.startQuiz = function(req, res, next){
 
 				quizResult = new QuizResult()
 
-				//var quizQuestions = _.map(quiz.questions, function(q){ return q })
-
-				// randomize question order here...
-				
 
 				quizResult.user = req.user._id
 				quizResult.quiz = quiz._id
+				quizResult.startDate = new Date()
+				quizResult.totalQuizTime = 0
+
+				var questionIds = _.map(quiz.questions, function(q){ return q._id })
+
+				// randomize question order here...
+				if (quiz.randomize){
+					questionIds = _.shuffle(questionIds)
+				}
 
 				// fill in question ids
-				// 
-				// BELOW IS NOT FILLING IN QUESTIONID, NOT SURE WHY YET
-				_.each(quiz.questions, function(question){
+				_.each(questionIds, function(qId){
 					quizResult.quizQuestions.push({
-						questionId: question._id
+						questionId: qId
 					})
 				})
+
+				// if no pre/post questions defined, flip completed flag to ignore them
+				if (!quiz.preQuestions || quiz.preQuestions.length === 0){
+					quizResult.preQuestionsCompleted = true
+				} else {
+					_.each(quiz.preQuestions, function(q){
+						quizResult.preQuestions.push({questionId: q._id})
+					})
+				}
+
+				if (!quiz.postQuestions || quiz.postQuestions.length === 0){
+					quizResult.postQuestionsCompleted = true
+				} else {
+					_.each(quiz.postQuestions, function(q){
+						quizResult.postQuestions.push({questionId: q._id})
+					})
+				}
 
 				quizResult.save(function(err){
 					if (err){ return next(err) }
@@ -166,7 +221,24 @@ exports.startQuiz = function(req, res, next){
 		}
 
 		// render template
-		res.render('quiz')
+		
+		if (!quizResult.preQuestionsCompleted){
+			res.locals.section = 'pre'
+			res.render('prepostQuiz')
+		} else if (!quizResult.quizQuestionsCompleted){
+			res.render('quiz')
+		} else if (!quizResult.postQuestionsCompleted){
+			res.locals.section = 'post'
+			res.render('prepostQuiz')
+		} else {
+			// complete quiz, go to results page
+			quizResult.completed = true
+			quizResult.save(function(err){
+				if (err){ return next(err) }
+
+				res.redirect('/quiz/result/' + quizResult._id)
+			})
+		}
 	}
 }
 
@@ -180,48 +252,196 @@ exports.quizResult = function(req, res, next){
 	QuizResult
 	.findById(quizResultId)
 	.populate('quizQuestions.questionId')
+	.populate('preQuestions.questionId')
+	.populate('postQuestions.questionId')
 	.populate('quiz')
 	.exec(function(err, quizResult){
 		if (err){ return next(err) }
 
-		if (!quizResult){ 
+		if (!quizResult){
+		// no quiz found matching given id
+		
 			console.log('requested quiz not found')
 			return res.render('404')
 		}
 		else if (!quizResult.completed){
+		// quiz not finished yet
+
 			req.flash('error', 'The selected quiz has not been completed. <a href="/quiz/go/'+quizResultId+'">Click here to resume the quiz</a>')
 			return res.render('quiz-result')
 		}
-		else if (!quizResult.percentCorrect){
+		else if (_.isUndefined(quizResult.percentCorrect)){
+		// computing results for the first time
+		
+			// mark end time
+			quizResult.endDate = new Date()
 
 			console.log('compute result')
 
-			var numberCorrect = 0
+			var numberCorrect = 0,
+				totalQuizTime = 0
 
-			// check each answer
+			// check each answer and add up total time
 			_.each(quizResult.quizQuestions, function(question){
 
+				// find the correct answer
 				var correctAnswer = _.find(question.questionId.choices, function(choice){ return choice.correct })
 
+				// see if it matches the user's answer or not
 				question.correct = correctAnswer && question.userAnswer ? question.userAnswer.equals(correctAnswer._id) : false
 
+				// log correct answer
 				if (question.correct){ numberCorrect += 1 }
+
+				// log time taken for question
+				if (question.questionTime > 0){ totalQuizTime += question.questionTime }
 			})
 
+			quizResult.numberCorrect = numberCorrect
 			quizResult.percentCorrect = (numberCorrect / quizResult.quizQuestions.length * 100).toFixed(1)
-
+			quizResult.totalQuizTime = totalQuizTime
+			
 			quizResult.save(function(err){
 				if (err){ return next(err) }
 
 				res.locals.quizResult = quizResult
-				res.render('quiz-result')
+				sendResult()
 			})
 		}
 		else {
+		// results/performance already computed, just generate the page
+			
 			res.locals.quizResult = quizResult
-			res.render('quiz-result')
+			sendResult()
 		}
 	})
+
+	var sendResult = function(){
+
+		_getGoldStandard(res.locals.quizResult.quiz._id, function(err, goldStandard){
+			if (err){ return next(err) }
+
+			if (goldStandard){
+				res.locals.goldStandard = goldStandard
+
+				_.each(res.locals.quizResult.quizQuestions, function(question){
+					question.goldStandardLoc = _.find(goldStandard.quizQuestions, {questionId: question.questionId._id}).abnormalityLoc
+				})
+			}
+
+			res.render('quiz-result')
+		})
+	}
+}
+
+var _getGoldStandard = function(quizId, cb){
+
+	QuizResult.findOne({quiz: quizId, isGoldStandard: true}).exec(function(err, quizResult){
+		if (err){ return cb(err) }
+		if (!quizResult || quizResult.length === 0){ return cb(null, null) }
+
+		return cb(null, quizResult)
+	})
+}
+
+exports.showQuizReport = function(req, res, next){
+
+	var quizId = req.params.quizId
+
+	QuizResult
+		.find({quiz: quizId, completed: true})
+		.populate('quizQuestions.questionId')
+		.sort('endDate')
+		.exec(function(err, results){
+			if (err){ return next(err) }
+			if (!results || results.length === 0){
+				req.flash('error', {msg: 'No finished quizzes found with this id'})
+				return res.render('404')
+			}
+
+			/*
+			Breakdown per user
+			 */
+			var usersTaken = []
+
+			_.each(results, function(result){
+
+				var user = _.find(usersTaken, {userId: result.user})
+
+				if (user){
+					user.scores.push(result.percentCorrect)
+					user.average = math.round(math.mean(user.scores))
+				} else {
+					user = {
+						userId: result.user,
+						scores: [result.percentCorrect],
+						average: result.percentCorrect
+					}
+					usersTaken.push(user)
+				}
+			})
+
+			res.locals.usersTaken = usersTaken
+			res.locals.numUsersTaken = usersTaken.length
+			res.locals.maxAttempts = _.max(_.map(usersTaken, function(user){return user.scores.length}))
+			res.locals.averageScore = math.round(math.mean(_.pluck(results, 'percentCorrect')), 1)
+			
+
+			/*
+			Breakdown per question
+			 */
+			
+			var questions = []
+
+			_.each(results, function(result){
+
+				_.each(result.quizQuestions, function(userQuestion){
+
+					var question = _.find(questions, {id: userQuestion.questionId._id})
+
+					if (question){
+						question.total = question.total + 1
+						if (userQuestion.correct){ question.correct = question.correct + 1 }
+						if (userQuestion.abnormalityLoc){
+							question.locations.push(userQuestion.abnormalityLoc.coords)
+						}
+					} else {
+						question = {
+							id: userQuestion.questionId._id,
+							questionId: userQuestion.questionId,
+							stem: userQuestion.questionId.stem,
+							studyId: userQuestion.questionId.studyId,
+							total: 1,
+							correct: userQuestion.correct ? 1 : 0,
+							locations: userQuestion.abnormalityLoc.coords ? [userQuestion.abnormalityLoc.coords] : []
+						}
+						questions.push(question)
+					}
+				})
+			})
+
+			_.each(questions, function(question){
+				question.percentCorrect = math.round((question.correct / question.total) * 100)
+				question.locationsJSON = JSON.stringify(question.locations)
+			})
+
+			res.locals.questions = questions
+
+			Quiz
+				.findById(quizId)
+				.lean()
+				.exec(function(err, quiz){
+					if (err){ return next(err) }
+					if (!quiz){
+						req.flash('error', {msg: 'No quiz found with this id'})
+						return res.render('404')
+					}
+
+					res.locals.quiz = quiz
+
+					res.render('quiz-report')
+				})
+		})
 }
 
 /**
@@ -239,7 +459,8 @@ exports.showNewQuiz = function(req, res){
  */
 exports.showQuizEdit = function(req, res, next){
 	
-	var quizId = req.params.quizId
+	var quizId = req.params.quizId,
+		prepost = req.params.prepost
 
 
 	// get quiz object and render template
@@ -254,29 +475,17 @@ exports.showQuizEdit = function(req, res, next){
 			res.locals.quiz = quiz
 			res.locals.uploadKeyRoot = secrets.uploadKeyRoot
 
-			// render template
-			res.render('editQuiz')
+			if (prepost){
+				if (prepost === 'pre'){
+					res.render('editPreQuiz')
+				} else if (prepost === 'post'){
+					res.render('editPostQuiz')
+				}
+			} else {
+				// render template
+				res.render('editQuiz')
+			}
 		})
-	})
-}
-
-/**
- * show page for individual question
- * @param  {string}   quizId
- * @param  {string}   questionId
- */
-exports.showQuestion = function(req, res, next){
-
-	var questionId = req.params.questionId
-	
-	// get question object and render template
-	Question
-	.findById(questionId)
-	.exec(function(err, question){
-		if (err){ return next(err) }
-
-		// render template
-		res.render('question', question)
 	})
 }
 
@@ -314,50 +523,66 @@ var _updateQuizObject = function(quiz, newQuiz, cb){
 	quiz.difficulty = newQuiz.difficulty
 	quiz.type = newQuiz.type
 	quiz.deleted = newQuiz.deleted
+	quiz.enabled = newQuiz.enabled
+	quiz.attempts = newQuiz.attempts
 
-	// check if questions array populated with documents or just ids.
+	var hasDocuments = function(quiz){
+		var rt = false
+		_.each([quiz.questions, quiz.preQuestions, quiz.postQuestions], function(questions){
+			if (questions && questions.length > 0 && _.isObject(questions[0])){ rt = true }
+		})
+		return rt
+	}
+
+	// check if questions arrays populated with documents or just ids.
 	// if ids, just update and save. If objects, we need to loop through
 	// and individually save each question document.
-	if (newQuiz.questions && newQuiz.questions.length > 0 && _.isObject(newQuiz.questions[0])){
+	if (hasDocuments(newQuiz)){
 
-		var questions = []
+		var saveQuestionArray = function(questionArray, cb1){
 
-		// save each question document and collect ids
-		var saveQuestion = function(question, cb){
-			_saveQuestion(question, function(err, question){
-				if (err){ return cb(err) }
-				questions.push(question._id)
-				return cb()
+			if (!newQuiz[questionArray]){ return cb1(null) }
+
+			var questions = []
+
+			// save each question document and collect ids
+			var saveQuestion = function(question, cb2){
+				console.log('question:', question)
+				QuestionRoute._saveQuestion(question, function(err, question){
+					if (err){ return cb2(err) }
+					questions.push(question._id)
+					return cb2(null)
+				})
+			}
+
+			async.eachSeries(newQuiz[questionArray], saveQuestion, function(err){
+				if (err){
+					return cb1(err)
+				}
+
+				console.log('qustArray:', questionArray, questions)
+
+				quiz[questionArray] = questions
+
+				cb1(null)
 			})
 		}
 
-		async.eachSeries(newQuiz.questions, saveQuestion, function(err){
+		async.eachSeries(['questions', 'preQuestions', 'postQuestions'], saveQuestionArray, function(err){
 			if (err){
 				return cb(err)
 			}
 
-			quiz.questions = questions
-
 			cb(null, quiz)
 		})
+
 	} else {
 		// questions parameter is a simple array of objectIds
 		quiz.questions = newQuiz.questions
+		quiz.preQuestions = newQuiz.preQuestions
+		quiz.postQuestions = newQuiz.postQuestions
 		cb(null, quiz)
 	}
-}
-
-var _updateQuestionObject = function(question, newQuestion){
-
-	question.clinicalInfo = newQuestion.clinicalInfo
-	question.stem = newQuestion.stem
-	question.choices = newQuestion.choices
-	question.category = newQuestion.category
-	question.difficulty = newQuestion.difficulty
-	question.diagnosis = newQuestion.diagnosis
-	question.studyId = newQuestion.studyId
-
-	return question
 }
 
 
@@ -377,7 +602,15 @@ exports.getQuiz = function(req,res){
 	Quiz.findById(quizId)
 		.populate({
 			path: 'questions',
-			match: { deleted: false }
+			match: { deleted: {$ne: true}}
+		})
+		.populate({
+			path: 'preQuestions',
+			match: { deleted: {$ne: true}}
+		})
+		.populate({
+			path: 'postQuestions',
+			match: { deleted: {$ne: true}}
 		})
 		.exec(function(err, quiz){
 			if (err){ return res.send(500, err) }
@@ -415,6 +648,7 @@ exports.saveQuiz = function(req, res){
 			_updateQuizObject(quiz, req.body, function(err, updatedQuiz){
 				if (err){return res.send(500, err)}
 
+				console.log('quiz:', updatedQuiz)
 				updatedQuiz.save(function(err){
 					if (err){ return res.send(500, err) }
 					res.send(200, updatedQuiz)
@@ -429,7 +663,9 @@ exports.saveQuiz = function(req, res){
 	else {
 
 		// create new mongoose quiz object
-		var	quiz = new Quiz();
+		var	quiz = new Quiz()
+
+		quiz.creator = req.user._id
 
 		// use this function instead of the Quiz constructor directly
 		// so we get the object modifications before saving
@@ -452,152 +688,110 @@ exports.saveQuiz = function(req, res){
 	}
 }
 
-exports.removeQuiz = function(req, res){
-
+var _deleteQuiz = function(quizId, user, cb){
+	
+	cb = _.isFunction(cb) ? cb : _.noop
 	
 	// Check if quiz has ever been taken. If so, just mark
 	// as deleted and don't actually delete the record so users
 	// who have taken it can still see their results.
 	
-	QuizResult.findOne({quiz: req.body._id}, function(err, result){
+	QuizResult.findOne({quiz: quizId}, function(err, result){
 		if (err){ console.log(err) }
-
-		console.log(result)
 		
-		if (result && result.length > 0){
-			Quiz.update({ _id: req.body._id }, { $set: { deleted: true } }, function(err){
-				if (err){ return res.send(500, err) }
-				res.send(200, 'Quiz set as deleted')
-			})
-		} else {
-			Quiz.findById(req.body._id).remove(function(err){
-				if (err){ return res.send(500, err) }
-				res.send(200, 'Quiz removed')
-			})
-		}
-	})
-}
-
-
-////////////////////////
-// Question functions //
-////////////////////////
-
-exports.getQuestion = function(req,res){
-
-	/**
-	 * Read question object from db
-	 */
-	var questionId = req.params.questionId
-
-	if (!questionId){ return res.send(400, 'Question Id is required') }
-
-	Question.findById(questionId)
-		.populate({
-			path: 'questions',
-			match: { deleted: false }
-		})
-		.exec(function(err, question) {
-			if (err) {
-				return res.send(500, err)
-			}
-			if (!question) {
-				return res.send(404, 'Question not found')
-			}
-
-			return res.send(200, question)
-		})
-}
-
-function _saveQuestion (questionObj, cb){
-	/**
-	 * Updating an existing question
-	 */
-	if (questionObj._id){
-
-		Question.findById(questionObj._id, function(err, question){
-			if (err){ return cb(err) }
-
-			question = _updateQuestionObject(question, questionObj)
-
-			question.save(function(err){
+		if (result){
+		// quiz has been taken, mark as deleted
+		
+			Quiz.update({ _id: quizId }, { $set: { deleted: true } }, function(err){
 				if (err){ return cb(err) }
-				cb(null, question, 200)
-			})
-		})
-	}
 
-	/**
-	 * Saving a new question
-	 */
-	else {
-		var	question = new Question(questionObj);
-	
-		question.save(function(err){
-			if(err){ cb(err) }
-			cb(null, question, 201)
-		})
-	}
-}
-
-exports.saveQuestion = function(req, res){
-
-	_saveQuestion(req.body, function(err, question, code){
-		if (err){ return res.send(500, err) }
-		res.send(code, question)
-	})
-}
-
-exports.removeQuestion = function(req, res){
-
-	// Check if question has ever been used in quiz. If so, just mark
-	// as deleted and don't actually delete the record so users
-	// who have taken it can still see their results.
-	
-	QuizResult.findOne({'quizQuestions': { $elemMatch: {'questionId': req.body._id}}}, function(err, result){
-		if (err){ console.log(err) }
-
-		console.log('Has this question been used in a quiz? ', result)
-		
-		if (result && result.length > 0){
-			Question.update({ _id: req.body._id }, { $set: { deleted: true } }, function(err){
-				if (err){ return res.send(500, err) }
-				res.send(200, 'Question set as deleted')
+				console.log('Quiz set as deleted: ', quizId)
+				cb(null, 'Quiz set as deleted')
 			})
 		} else {
+		// quiz has never been taken, can just remove permanently
+			
+			// retrieve quiz
+			Quiz.findById(quizId).exec(function(err, quiz){
+				if (err){ return cb(err) }
+				if (!quiz){ return cb('Quiz '+quizId+' not found')}
+				
+				var removeQuestion = function(questionId, cb1){
 
-			// remove study from casefiles
-			request.post({
-					url: casefiles.url + 'api/client/removeStudy',
-					json: {
-						email: req.user.email,
-						apikey: casefiles.apikey,
-						studyId: req.body.studyId
-					}
-				},
-				function(err, response, body) {
-					if (!err && response.statusCode !== 200 && response.statusCode !== 201){
-						err = body
-					}
-					if (err) {
-						return res.send(500, err)
-					}
-
-					console.log(body)
-
-					Question.findById(req.body._id).remove(function(err){
-						if (err){ return res.send(500, err) }
-						res.send(200, 'Question removed')
+					QuestionRoute._removeQuestion(questionId, user, function(err){
+						if (err){ return cb1(err) }
+						return cb1()
 					})
+				}
+
+				// delete all questions and images associated with quiz
+				async.each(quiz.questions, removeQuestion, function(err){
+					if (err){ return cb(err) }
+
+					console.log('All quiz questions deleted')
+					
+					// delete quiz
+					quiz.remove(function(err){
+						if (err){ return cb(err) }
+
+						console.log('Quiz deleted: ', quizId)
+						cb(null, 'Quiz removed')
+					})	
 				})
+
+			})
 		}
 	})
+}
+
+exports.removeQuiz = function(req, res, next){
+
+	var quizId = req.params.quizId
+
+	_deleteQuiz(quizId, req.user, function(err, msg){
+		if (err){ return next(err) }
+
+		req.flash('info', {msg: msg})
+		res.redirect('/quizzes')
+	})
+}
+
+exports.setAvailability = function(req, res){
+
+	var quizId = req.params.quizId,
+		quizState = req.body.enabled
 	
-	/*if (QuizResult.findOne({'quizQuestions': { $elemMatch: {'questionId': req.body._id}}})) {
-		
-	} else {
-		
-	}*/
+	//return res.send(500, 'test error')
+	
+	if (!quizId || !quizState){
+		return res.send(500, 'Must specify quiz and availability')
+	}
+
+	Quiz.update({ _id: quizId }, { $set: { enabled: quizState } }, function(err){
+		if (err){ return res.send(500, err) }
+
+		//console.log('Quiz availability updated: ', quizId, quizState)
+		res.send(200, 'Quiz availability updated')
+	})
+}
+
+exports.setRandomize = function(req, res){
+
+	var quizId = req.params.quizId,
+		quizRandomize = req.body.randomize
+	
+	//return res.send(500, 'test error')
+	
+	if (!quizId || !quizRandomize){
+		return res.send(500, 'Must specify quiz and availability')
+	}
+
+	Quiz.update({ _id: quizId }, { $set: { randomize: quizRandomize } }, function(err){
+		if (err){ return res.send(500, err) }
+
+		//console.log('Quiz randomization updated: ', quizId, quizRandomize)
+		res.send(200, 'Quiz randomization updated')
+	})
 }
 
 /**
@@ -648,7 +842,7 @@ exports.saveImages = function(req, res){
 	errors = req.validationErrors()
 
 	if (req.body.studyObj.imageStacks && req.body.studyObj.imageStacks.length > 0){
-		_.each(req.body.studyObj.imageStacks, function(stack, i){
+		_.each(req.body.studyObj.imageStacks, function(stack){
 			if (!validator.isLength(stack.modality, 1)){
 				if (!errors){ errors = [] }
 				errors.push({param: 'modality', msg: 'modality required', value: stack.modality })

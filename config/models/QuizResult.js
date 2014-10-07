@@ -26,12 +26,39 @@ var quizResultSchema = new mongoose.Schema({
 			},
 
 			// time taken to answer question in ms
-			timeTotal: Number
-			
+			questionTime: Number
 		}
 	],
+	quizQuestionsCompleted: {type: Boolean, default: false},
+	preQuestions: [
+		{
+			questionId: {type: mongoose.Schema.Types.ObjectId, ref: 'Question'},
+			userAnswer: {type: mongoose.Schema.Types.ObjectId},
+			freeTextAnswer: String
+		}
+	],
+	preQuestionsCompleted: {type: Boolean, default: false},
+	postQuestions: [
+		{
+			questionId: {type: mongoose.Schema.Types.ObjectId, ref: 'Question'},
+			userAnswer: {type: mongoose.Schema.Types.ObjectId},
+			freeTextAnswer: String
+		}
+	],
+	postQuestionsCompleted: {type: Boolean, default: false},
+	
+	// results
+	numberCorrect: Number,
 	percentCorrect: Number,
-	completed: {type: Boolean, default: false}
+	completed: {type: Boolean, default: false},
+
+	// Timing
+	totalQuizTime: Number,
+	startDate: Date,
+	endDate: Date,
+	
+	// Extras
+	isGoldStandard: Boolean
 })
 
 quizResultSchema.plugin(simpleTimestamps)

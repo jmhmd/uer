@@ -1,18 +1,8 @@
-
-
 body {
 	background-color: #d8d8d8;
-
-	/*background: -webkit-repeating-linear-gradient(left, #0A1429, #0F1F3D 0.5%, #142952 1%); /* For Safari */
-	/*background: -o-repeating-linear-gradient(right, #0A1429, #0F1F3D 0.5%, #142952 1%); /* For Opera 11.1 to 12.0 */
-	/*background: -moz-repeating-linear-gradient(right, #0A1429, #0F1F3D 0.5%, #142952 1%); /* For Firefox 3.6 to 15 */
-	/*background: repeating-linear-gradient(to right, #0A1429, #0F1F3D 0.5%, #142952 1%); /* Standard syntax (must be last) */
-	
 	margin: 0;
 	padding: 0;
 }
-
-
 
 #confirmationDiv {
 	width: 100%;
@@ -102,22 +92,6 @@ td:hover {
 }
 
 
-/*.saveQuizButton {
-	width: 70px;
-	background-color: #FF6699;
-	color: yellow;
-	font-family: Verdana;
-	font-size: 18px;
-	padding: 3px;
-	border: 1px solid black;
-	margin-left: 60px;
-	border-radius: 3px;
-	clear: left;
-	text-align: center;
-	text-shadow: 1px 1px 1px #606060;
-}*/
-
-
 #addQuestionbutton:hover, #editQuestionbutton:hover, #submitButton:hover {
 	background-color: #FF0099;
 }
@@ -149,7 +123,6 @@ td:hover {
 
 textarea {
 	vertical-align: top;
-	/*background-color: #C8C8C8;*/
 	color: #000;
 	font-family: Verdana;
 	box-shadow: 3px 3px 3px #606060;
@@ -157,11 +130,8 @@ textarea {
 
 
 input {
-	/*background-color: #C8C8C8;*/
 	color: #000;
 	font-family: Verdana;
-	box-shadow: 3px 3px 3px #606060;
-
 }
 
 
@@ -179,12 +149,6 @@ li {
 .required {
 	color: rgb(153, 0, 0);
 }
-
-
-/*#textfields, #moretextfields {
-	color: #686868;
-}*/
-
 
 #moretextfields li input {
 	font-size: 14px;

@@ -15,6 +15,9 @@ console.log('quizResult: ',quizResult)
 <script type="text/javascript" src="/js/quiz-app/quiz-controller.js"></script>
 <!-- <script type="text/javascript" src="/js/quiz-app/select-point.js"></script> -->
 <script type="text/javascript" src="/js/quiz-app/stack-view.js"></script>
+<script type="text/javascript" src="/js/quiz-app/timer.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.6.0/moment.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
 
 <link type="text/css" rel="stylesheet" href="/css/stackview.css"/>
 <link type="text/css" rel="stylesheet" href="/css/view-quiz.css"/>
@@ -22,11 +25,25 @@ console.log('quizResult: ',quizResult)
 <div ng-app="quizApp">
 <div ng-controller="questionCtrl" class="container-fluid">
 	<div class="row">
-		<div class="col-xs-12">
+		<div class="col-xs-8">
 	
-			<h3>{{quiz.title}}</h3>
+			<h3 style="margin-top:0px">{{quiz.title}}</h3>
 
-			<div id="question" ng-include src="'/html/quiz.question.html'"></div>
+		</div>
+		<div class="col-xs-4 text-right">
+	
+			<!-- Using html include so the handlebars and angular bracket syntaxes don't collide -->
+			<div id="timer" ng-include src="'/html/quiz.timer.html'"></div>
+
+		</div>
+	</div>
+	<div class="row">
+
+		<!-- set padding-right to 0 so viewer is flush with right of screen -->
+		<div class="col-xs-12" style="padding-right:0px;">
+			
+			<!-- Using html include so the handlebars and angular bracket syntaxes don't collide -->
+			<div id="question" ng-include src="questionPartial"></div>
 
 			<button type="button" class="btn btn-primary" ng-click="submitAndFinish()">Submit and Finish</button>
 		</div>
