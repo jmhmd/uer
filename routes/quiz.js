@@ -91,18 +91,6 @@ var _getLeanQuizObject = function(id, cb){
 
 	Quiz
 	.findById(id)
-	.populate({
-		path: 'questions',
-		match: { deleted: {$ne: true}}
-	})
-	.populate({
-		path: 'preQuestions',
-		match: { deleted: {$ne: true}}
-	})
-	.populate({
-		path: 'postQuestions',
-		match: { deleted: {$ne: true}}
-	})
 	.lean()
 	.exec(function(err, quiz){
 			if (err){ return cb(err) }
@@ -184,7 +172,7 @@ exports.startQuiz = function(req, res, next){
 				})
 
 				// if no pre/post questions defined, flip completed flag to ignore them
-				if (!quiz.preQuestions || quiz.preQuestions.length === 0){
+				/*if (!quiz.preQuestions || quiz.preQuestions.length === 0){
 					quizResult.preQuestionsCompleted = true
 				} else {
 					_.each(quiz.preQuestions, function(q){
@@ -198,7 +186,7 @@ exports.startQuiz = function(req, res, next){
 					_.each(quiz.postQuestions, function(q){
 						quizResult.postQuestions.push({questionId: q._id})
 					})
-				}
+				}*/
 
 				quizResult.save(function(err){
 					if (err){ return next(err) }
@@ -519,70 +507,13 @@ exports.showQuizEdit = function(req, res, next){
 ///////////////////////
 
 var _updateQuizObject = function(quiz, newQuiz, cb){
-	quiz.title = newQuiz.title
-	quiz.difficulty = newQuiz.difficulty
-	quiz.type = newQuiz.type
-	quiz.deleted = newQuiz.deleted
-	quiz.enabled = newQuiz.enabled
-	quiz.attempts = newQuiz.attempts
-
-	var hasDocuments = function(quiz){
-		var rt = false
-		_.each([quiz.questions, quiz.preQuestions, quiz.postQuestions], function(questions){
-			if (questions && questions.length > 0 && _.isObject(questions[0])){ rt = true }
-		})
-		return rt
-	}
-
-	// check if questions arrays populated with documents or just ids.
-	// if ids, just update and save. If objects, we need to loop through
-	// and individually save each question document.
-	if (hasDocuments(newQuiz)){
-
-		var saveQuestionArray = function(questionArray, cb1){
-
-			if (!newQuiz[questionArray]){ return cb1(null) }
-
-			var questions = []
-
-			// save each question document and collect ids
-			var saveQuestion = function(question, cb2){
-				console.log('question:', question)
-				QuestionRoute._saveQuestion(question, function(err, question){
-					if (err){ return cb2(err) }
-					questions.push(question._id)
-					return cb2(null)
-				})
-			}
-
-			async.eachSeries(newQuiz[questionArray], saveQuestion, function(err){
-				if (err){
-					return cb1(err)
-				}
-
-				console.log('qustArray:', questionArray, questions)
-
-				quiz[questionArray] = questions
-
-				cb1(null)
-			})
-		}
-
-		async.eachSeries(['questions', 'preQuestions', 'postQuestions'], saveQuestionArray, function(err){
-			if (err){
-				return cb(err)
-			}
-
-			cb(null, quiz)
-		})
-
-	} else {
-		// questions parameter is a simple array of objectIds
-		quiz.questions = newQuiz.questions
-		quiz.preQuestions = newQuiz.preQuestions
-		quiz.postQuestions = newQuiz.postQuestions
-		cb(null, quiz)
-	}
+	quiz.title = newQuiz.title || quiz.title
+	quiz.type = newQuiz.type || quiz.type
+	quiz.deleted = newQuiz.deleted || quiz.deleted
+	quiz.enabled = newQuiz.enabled || quiz.enabled
+	quiz.attempts = newQuiz.attempts || quiz.attempts
+	quiz.questionTypes = newQuiz.questionTypes || quiz.questionTypes
+	cb(null, quiz)	
 }
 
 
@@ -600,7 +531,7 @@ exports.getQuiz = function(req,res){
 	if (!quizId){ return res.send(400, 'Quiz Id is required') }
 
 	Quiz.findById(quizId)
-		.populate({
+		/*.populate({
 			path: 'questions',
 			match: { deleted: {$ne: true}}
 		})
@@ -611,7 +542,7 @@ exports.getQuiz = function(req,res){
 		.populate({
 			path: 'postQuestions',
 			match: { deleted: {$ne: true}}
-		})
+		})*/
 		.exec(function(err, quiz){
 			if (err){ return res.send(500, err) }
 			if (!quiz){ return res.send(404, 'Quiz not found') }
@@ -666,25 +597,28 @@ exports.saveQuiz = function(req, res){
 		var	quiz = new Quiz()
 
 		quiz.creator = req.user._id
+		quiz.title = req.body.title
+		quiz.questionTypes = [
+			{
+				questionType: 'normal',
+				number: req.body.normals
+			},
+			{
+				questionType: 'abnormal',
+				number: req.body.abnormals
+			}
+		]
 
-		// use this function instead of the Quiz constructor directly
-		// so we get the object modifications before saving
-		_updateQuizObject(quiz, req.body, function(err, updatedQuiz){
-			if (err){ return res.send(500, err) }
+		quiz.save(function(err){
+			if(err){ return res.send(500, err) }
 
-			updatedQuiz.save(function(err){
-				if(err){ return res.send(500, err) }
-
-				// send html if creating new quiz
-				if (req.resFormat !== 'json'){
-					return res.redirect('/quiz/edit/' + quiz._id)
-				} else {
-					return res.send(201, quiz)
-				}
-
-			})
+			// send html if creating new quiz
+			if (req.resFormat !== 'json'){
+				return res.redirect('/quizzes/')
+			} else {
+				return res.send(201, quiz)
+			}
 		})
-	
 	}
 }
 

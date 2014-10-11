@@ -5,11 +5,15 @@
 <form action="/quiz/new" method="POST">
 	<label for="title">Title</label>
 	<input type="text" name="title">
-	<label for="difficulty">Difficulty</label>
+	<!-- <label for="difficulty">Difficulty</label>
 	<select name="difficulty">
 		<option value="1">Easy</option>
 		<option value="2">Medium</option>
 		<option value="3">Hard</option>
-	</select>
+	</select> -->
+	<label for="normals">Number of normals:</label>
+	<input type="text" name="normals">
+	<label for="abnormals">Number of abnormals:</label>
+	<input type="text" name="abnormals">
 	<button type="submit">Save</button>
 </form>
