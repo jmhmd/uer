@@ -4,6 +4,8 @@ var mongoose = require('mongoose'),
 var quizResultSchema = new mongoose.Schema({
 	user: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User'},
 	quiz: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Quiz'},
+	
+	//TODO: record type of quiz, whether timed on non-timed
 
 	// save reference to question used, as well as additional information
 	// relating to user's answer
@@ -19,6 +21,10 @@ var quizResultSchema = new mongoose.Schema({
 			correct: Boolean,
 
 			// collect chosen location of abnormality
+			/*
+			TODO: Make able to record multiple locations (array of arrays)
+			TODO: Set parameter questionComplete on "mark as normal" or "next" with abnormality
+			*/
 			abnormalityLoc: {
 				series: Number,
 				image: Number,

@@ -6,7 +6,7 @@ exports.partials = function (req, res) {
 
 exports.index = function(req, res){
 	if (req.isAuthenticated()){
-		res.redirect('/quizzes')
+		res.redirect('/tutorial')
 	} else {
 		res.render('home')
 	}

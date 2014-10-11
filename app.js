@@ -52,7 +52,9 @@ var userCtrl = require('./routes/user'),
 	quizCtrl = require('./routes/quiz'),
 	questionCtrl = require('./routes/question'),
 	testCtrl = require('./routes/test'),
-	quizAppCtrl = require('./routes/quizApp')
+	quizAppCtrl = require('./routes/quizApp'),
+	tutorial = require('./routes/tutorial'),
+	imageCtrl = require('./routes/imageCtrl')
 
 /**
  * Configuration
@@ -136,6 +138,9 @@ app.get('/history', passportConf.isAuthenticated, quizCtrl.showQuizHistory)
 app.get('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.showNewQuiz)
 app.post('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.saveQuiz)
 
+app.get('/images/add', passportConf.isAuthenticated, passportConf.isAdmin, imageCtrl.addImage)
+// app.get('/images/saveToCaseFiles', passportConf.isAuthenticated, passportConf.isAdmin, imageCtrl.saveToCaseFiles)
+
 app.get('/quiz/edit/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.isQuizOwner, quizCtrl.showQuizEdit)
 app.get('/quiz/edit/:prepost/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.isQuizOwner, quizCtrl.showQuizEdit)
 app.get('/quiz/delete/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.isQuizOwner, quizCtrl.removeQuiz)
@@ -145,6 +150,9 @@ app.get('/quiz/go/:quizId', passportConf.isAuthenticated, quizCtrl.startQuiz)
 app.get('/quiz/result/:quizResultId', passportConf.isAuthenticated, quizCtrl.quizResult)
 app.get('/quiz/:quizId', passportConf.isAuthenticated, quizCtrl.showQuiz)
 //app.get('/quiz/results/:quizId', passportConf.isAuthenticated, quizCtrl.showResults)
+
+// Tutorial
+app.get('/tutorial', passportConf.isAuthenticated, tutorial.showTutorial)
 
 // Partials
 app.get('/partials/:partial', homeCtrl.partials)
@@ -183,6 +191,7 @@ app.post('/api/saveQuestion', passportConf.isAuthenticatedAPI, passportConf.isAd
 app.post('/api/removeQuestion', passportConf.isAuthenticatedAPI, passportConf.isAdmin, questionCtrl.removeQuestion)
 
 app.post('/api/saveImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveImages)
+app.post('/api/saveImage', passportConf.isAuthenticatedAPI, passportConf.isAdmin, imageCtrl.saveImage)
 app.post('/api/removeImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeImages)
 app.get('/api/getImageObject/:id', passportConf.isAuthenticatedAPI, quizCtrl.getImageObject)
 app.post('/api/clearImages', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.clearImages)

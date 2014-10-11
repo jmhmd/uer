@@ -1,0 +1,48 @@
+{{!< ./default_layout}}
+    
+<link href="https://netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" rel="stylesheet">
+
+<!-- Custom styles for this template -->
+<style>body{padding-top:10px;background-color:silver;}.starter-template{padding:40px 15px;text-align:center;}</style>
+        <div class="container-fluid">
+            <!--Title row/container-->
+            <div class="row">
+                <div class="col-xs-12 text-center" style="">
+                    <h1>Radiology Test App Tutorial</h1>
+                    <p>Thank you for participating in this research project.  You will be taking two types of exams over the course of the next hour that will help evaluate your capacity at perceiving lung nodules.  The layout of the exam is as follows.</p>
+                </div>
+            </div>
+            <!--Nontimed row/container-->
+            <div class="row">
+                <div class="col-xs-4 text-justified" style="">
+                    <h3>Non-timed:</h3> You shall be presented with ## of images which will be listed on the left of the screen.  For each image look for the abnrormality if it exists.  Once you click on the abnormality, on the right-hand-side, the image will be labeled as <kbd>marked</kbd>.  For every finding you click on, a popup box will appear and you will be asked to grade how confident you are the finding is abnormal.  Once you click, a slider box will pop-up and you can slide the box to define your certainity from 0-100%.  Once you are satisfied, press <kbd>ok</kbd> on that box.  Some presented images are normal and do not have any abnormal findings. If you don't see any findings, mark the radiograph as <nml>Normal</nml>. You will not be able to progress until all the images have been <kbd>marked</kbd>.
+                </div>
+                <div class="col-xs-8 text-right" style=""> Here goes a nontimed tutorial gif
+                    <img id="placeholder" style="display:none;width:100%;height:500px;">
+                </div>
+            </div>
+            <!--Timed row/container-->
+            <div class="row">
+                <div class="col-xs-4 text-justified" style="">
+                    <h3>Timed:</h3>This portion of the exam will test your ability to quickly detect abnormalities on chest radiographs (your Gestalt).  You shall be presented with 60 images that will sequentially load every 5 seconds.  There is a timer in the upper right corner which will display the time left per image and how many images are left.  There will be normal images also presented. If you don't see an abnormality, wait for the next image to load without clicking on the image.  If you see an abnormality, remember, you only have 5 seconds to click and <kbd>mark</kbd> it!
+                </div>
+                <div class="col-xs-8 text-right" style=""> Here goes a Timed tutorial gif
+                    <img id="placeholder" style="display:none;width:100%;height:500px;">
+                </div>
+            </div>
+            <!--Submit and Finish row/container button only works when all images have been viewed, greyed out when timer still going. Consider including failsafe submit activated by ctrl+click-->
+			<div class="row" style="margin-top:10px;">
+				<div class="col-xs-12 text-right" ng-switch on="isLastQuestion()">
+					<button type="button" class="btn btn-lg btn-primary" ng-click="submitAndFinish()" ng-switch-when="true">Continue</button>
+				</div>
+			</div>
+		</div>
+                            
+        <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <!-- compiled and minified Bootstrap JavaScript -->
+        <script src="https://netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    </body>
+</html>
+    
