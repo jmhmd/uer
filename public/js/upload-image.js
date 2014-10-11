@@ -53,7 +53,14 @@ function saveCasefilesObject(cb){
         }
 
         // update caseImage object
-        caseImage = res
+        if (!caseImage._id && res._id){
+          caseImage._id = res._id
+        }
+
+        if (!caseImage.imageStacks[0]._id && res.imageStacks[0]._id){
+          caseImage.imageStacks[0]._id = res.imageStacks[0]._id
+          console.log('series Id set to ', caseImage.imageStacks[0]._id)
+        }
 
         if (cb){ cb(null) }
       })
@@ -68,30 +75,36 @@ function saveCasefilesObject(cb){
 function saveImageObject(cb) {
   
   if (!cb){ cb = function (){ return false }}
-  
-  // load data from DOM
-  imageObj.title = $('#imageLabel').val()
-	imageObj.difficulty = $('#difficulty').val()
-	imageObj.diagnosis = $('#diagnosis').val()
-	imageObj.pathProven = $('#pathProven').val()
-	imageObj.normal = $('#normal').val()
-	imageObj.foreignId = $('#foreignId').val()
-	
-	if (caseImage._id){
-	  imageObj.studyId = caseImage._id
-	}
-	
-	$.post('/api/saveImage', imageObj)
-    .done(function(res){
 
-      console.log('Image object saved', res)
-      cb(null)
-    })
-    .fail(function(err){
-      window.alert('Error saving image object')
-      console.log(err)
-      cb(err)
-    })
+  saveCasefilesObject(function(){
+
+    // load data from DOM
+    imageObj.title = $('#imageLabel').val()
+    imageObj.difficulty = $('#difficulty').val()
+    imageObj.diagnosis = $('#diagnosis').val()
+    imageObj.pathProven = $('#pathProven').is(':checked')
+    imageObj.normal = $('#normal').is(':checked')
+    imageObj.foreignId = $('#foreignId').val()
+    
+    if (caseImage._id){
+      imageObj.studyId = caseImage._id
+    }
+    
+    $.post('/api/saveImage', imageObj)
+      .done(function(res){
+
+        console.log('Image object saved', res)
+        if (!imageObj._id && res._id){
+          imageObj._id = res._id
+        }
+        cb(null)
+      })
+      .fail(function(err){
+        window.alert('Error saving image object')
+        console.log(err)
+        cb(err)
+      })
+  })
 }
 
 $(document).ready(function(){
@@ -118,7 +131,7 @@ $(document).ready(function(){
         updateUploadKey(caseImage.imageStacks[0]._id)
 
         // if there are images already, delete them
-        if (caseImage.imageStacks[0].imagePaths.length > 0){
+        if (caseImage.imageStacks[0].imagePaths && caseImage.imageStacks[0].imagePaths.length > 0){
           $.post('/api/clearImages', {studyId: caseImage._id})
             .done(function(res){
 
@@ -143,6 +156,7 @@ $(document).ready(function(){
 
   $('#clearQueue').on('click', function(){
     dropzone.removeAllFiles()
+    $('#foreignId').val('')
   })
 
   var newImagePaths = []
@@ -161,6 +175,8 @@ $(document).ready(function(){
     })
     .on('addedfile', function(file){
       $(file.previewElement).find('.dz-success-mark,.dz-error-mark').hide()
+
+      $('#foreignId').val(file.name)
 
       // just overwrite previous file if adding more than one
       if (this.files[1]!=null){

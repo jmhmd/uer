@@ -28,6 +28,8 @@ exports.addImage = function(req, res, next){
 
 exports.saveImage = function(req, res){
 
+	console.log(req.body)
+
 	/**
 	 * Updating an existing image
 	 */
@@ -38,8 +40,10 @@ exports.saveImage = function(req, res){
 			
 		delete imageObj._id
 
-		Image.update({_id: req.body._id}, imageObj).exec(function(err, numAffected){
+		Image.update({_id: id}, imageObj).exec(function(err, numAffected){
 				if (err){return res.send(500, err)}
+
+				console.log("number affected:", numAffected)
 				
 				if (numAffected > 0){
 					res.send(200, 'Image object updated')

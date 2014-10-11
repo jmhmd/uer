@@ -82,11 +82,6 @@ var uploadURL = '{{uploadCreds.s3URL}}',
 							<input type="checkbox" name="pathProven" id="pathProven"> Path proven diagnosis
 						</label>
 					</div>
-					
-					<div class="form-group">
-						<label for="foreignId" class="required">* Foreign Id:</label>
-						<input id="foreignId" type="text" class="form-control" name="foreignId">
-					</div>
 
 					<div class="form-group">
 						<label for="imageModality">Upload image:</label>
@@ -103,13 +98,18 @@ var uploadURL = '{{uploadCreds.s3URL}}',
 						<button type="button" class="btn btn-primary" id="uploadImages">Upload</button>
 						<button type="button" class="btn btn-danger" id="clearQueue">Clear</button>
 					</div>
+
+					<div class="form-group">
+						<label for="foreignId" class="required">* Foreign Id:</label>
+						<input id="foreignId" type="text" class="form-control" name="foreignId">
+					</div>
 					
 				</div>
 
 			</div>
 		</div>
 		<div class="col-xs-6">
-			<button type="button" class="btn btn-primary" id="#saveImage">Save Image</button>
+			<button type="button" class="btn btn-primary" id="saveImage">Save Image</button>
 		</div>
 	</div>
 </div>
