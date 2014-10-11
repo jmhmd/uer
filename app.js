@@ -97,11 +97,6 @@ app.use(flash())
 app.use(express.static(path.join(__dirname, 'public')))
 app.use(app.router)
 
-// development only
-if (app.get('env') === 'development') {
-	app.use(express.errorHandler())
-}
-
 // production only
 if (app.get('env') === 'production') {
 	// production error handling
@@ -109,6 +104,8 @@ if (app.get('env') === 'production') {
 		console.error('Error:',err.stack);
 		res.send(500, err);
 	})
+} else {
+	app.use(express.errorHandler())
 }
 
 
@@ -138,6 +135,7 @@ app.get('/history', passportConf.isAuthenticated, quizCtrl.showQuizHistory)
 app.get('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.showNewQuiz)
 app.post('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.saveQuiz)
 
+app.get('/images', passportConf.isAuthenticated, passportConf.isAdmin, imageCtrl.getImages)
 app.get('/images/add', passportConf.isAuthenticated, passportConf.isAdmin, imageCtrl.addImage)
 // app.get('/images/saveToCaseFiles', passportConf.isAuthenticated, passportConf.isAdmin, imageCtrl.saveToCaseFiles)
 

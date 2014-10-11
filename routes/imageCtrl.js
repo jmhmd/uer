@@ -3,10 +3,11 @@
 var util = require('util'),
 	_ = require('lodash'),
 	mongoose = require('mongoose'),
-	Image = mongoose.model('Image'),
+	ImageModel = mongoose.model('Image'),
 	validator = require('validator'),
 	request = require('request'),
 	secrets = require('../config/secrets'),
+	quiz = require('./quiz'),
 	casefiles = secrets.casefiles,
 	async = require('async'),
 	math = require('mathjs')()
@@ -26,6 +27,57 @@ exports.addImage = function(req, res, next){
 	})
 }
 
+/**
+ * Load study object from casefiles API
+ * @param  {String} id Unique id for study in casefiles
+ * @return {String}    JSON object of study
+ */
+var _getImageObject = function(id, cb){
+
+	var url = casefiles.url + 'api/study/load/' + id + '?apikey=' + casefiles.apikey
+
+	request.get({
+			url: url
+		}, function(err, response, body){
+			if (err) { return cb(err) }
+			if (response.statusCode !== 200){ return cb(body) }
+			cb(null, JSON.parse(body))
+		})
+}
+
+exports.getImages = function(req, res, next){
+
+	ImageModel.find({}, function(err, images){
+		if (err){
+			console.log('Error finding images', err)
+			return next(err)
+		}
+
+		/*var ids = _.map(images, function(img){ return img.studyId })
+
+		if (images.length > 0){
+
+			async.map(ids, _getImageObject, function(err, imgObjs){
+				if (err){
+					console.log(err)
+					return next(err)
+				}
+
+				// imgObjs = JSON.parse(imgObjs)
+
+				res.locals.images = _.map(imgObjs, function(img){ return img.imageStacks[0].imagePaths[0] })
+				console.log(res.locals.images)
+
+				return res.render('images')
+			})
+
+		}*/
+
+		res.locals.images = images
+		return res.render('images')
+	})
+}
+
 exports.saveImage = function(req, res){
 
 	console.log(req.body)
@@ -40,7 +92,7 @@ exports.saveImage = function(req, res){
 			
 		delete imageObj._id
 
-		Image.update({_id: id}, imageObj).exec(function(err, numAffected){
+		ImageModel.update({_id: id}, imageObj).exec(function(err, numAffected){
 				if (err){return res.send(500, err)}
 
 				console.log("number affected:", numAffected)
@@ -59,7 +111,7 @@ exports.saveImage = function(req, res){
 	else {
 
 		// create new mongoose quiz object
-		var	image = new Image(req.body)
+		var	image = new ImageModel(req.body)
 
 		image.creator = req.user._id
 

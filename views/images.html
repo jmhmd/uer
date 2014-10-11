@@ -1,0 +1,50 @@
+{{!< ./default_layout}}
+<h1> Images </h1>
+
+
+{{#each images}}
+	<div class="image-thumb">
+		<a href="#">{{this.foreignId}}</a>
+	</div>
+{{/each}}
+
+<script type="text/javascript">
+$(document).ready(function(){
+
+	$('.availableCheck').on('change', function(){
+
+		var checkbox = $(this),
+			state = checkbox.is(':checked'),
+			quizId = checkbox.val()
+
+		$.post('/api/quiz/'+quizId+'/setAvailability', {enabled: state})
+			.done(function(){
+				console.log('Quiz ', quizId, 'enabled: ', state)
+			})
+			.fail(function(err){
+				console.error(err)
+				// reset checkbox
+				checkbox.attr('checked', !state)
+			})
+
+		
+	})
+
+	$('.randomCheck').on('change', function(){
+
+		var checkbox = $(this),
+			state = checkbox.is(':checked'),
+			quizId = checkbox.val()
+
+		$.post('/api/quiz/'+quizId+'/setRandomize', {randomize: state})
+			.done(function(){
+				console.log('Quiz ', quizId, 'randomized: ', state)
+			})
+			.fail(function(err){
+				console.error(err)
+				// reset checkbox
+				checkbox.attr('checked', !state)
+			})
+	})
+})
+</script>
