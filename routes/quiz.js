@@ -5,6 +5,7 @@ var util = require('util'),
 	mongoose = require('mongoose'),
 	Quiz = mongoose.model('Quiz'),
 	QuizResult = mongoose.model('QuizResult'),
+	Image = mongoose.model('Image'),
 	QuestionRoute = require('./question.js'),
 	validator = require('validator'),
 	request = require('request'),
@@ -157,42 +158,92 @@ exports.startQuiz = function(req, res, next){
 				quizResult.startDate = new Date()
 				quizResult.totalQuizTime = 0
 
-				var questionIds = _.map(quiz.questions, function(q){ return q._id })
+				// get number of available questions
+				var numNormal,
+					numAbnormal
 
-				// randomize question order here...
-				if (quiz.randomize){
-					questionIds = _.shuffle(questionIds)
-				}
-
-				// fill in question ids
-				_.each(questionIds, function(qId){
-					quizResult.quizQuestions.push({
-						questionId: qId
-					})
-				})
-
-				// if no pre/post questions defined, flip completed flag to ignore them
-				/*if (!quiz.preQuestions || quiz.preQuestions.length === 0){
-					quizResult.preQuestionsCompleted = true
-				} else {
-					_.each(quiz.preQuestions, function(q){
-						quizResult.preQuestions.push({questionId: q._id})
-					})
-				}
-
-				if (!quiz.postQuestions || quiz.postQuestions.length === 0){
-					quizResult.postQuestionsCompleted = true
-				} else {
-					_.each(quiz.postQuestions, function(q){
-						quizResult.postQuestions.push({questionId: q._id})
-					})
-				}*/
-
-				quizResult.save(function(err){
+				// get normal count
+				Image.count({normal: true}, function(err, result){
 					if (err){ return next(err) }
-				
-					send(quiz, quizResult)
+
+					numNormal = result
+					
+					// get abnormal count
+					Image.count({normal: false}, function(err, result){
+						if (err){ return next(err) }
+
+						numAbnormal = result
+
+						// how many of each type requested by quiz?
+						var requestedNormals = _.find(quiz.questionTypes, {questionType: 'normal'}).number
+						var requestedAbnormals = _.find(quiz.questionTypes, {questionType: 'abnormal'}).number
+						console.log('requested:', requestedNormals, numNormal, requestedAbnormals, numAbnormal)
+
+						var getRandomIndices = function (num, max){
+							if (num > max + 1){
+								num = max + 1
+							}
+
+							var indices = []
+							var getIndex = function (max){
+								var index = _.random(max)
+								if (indices.indexOf(index) > -1){
+									return getIndex(max)
+								} else {
+									return index
+								}
+							}
+							for (var i = 0; i < num; i++) {
+								indices.push(getIndex(max))
+							}
+							return indices
+						}
+
+						// randomly select indexes
+						var normalIndices = getRandomIndices(requestedNormals, numNormal - 1)
+						var abnormalIndices = getRandomIndices(requestedAbnormals, numAbnormal - 1)
+						console.log('indices:', normalIndices, abnormalIndices)
+
+						/* 
+						get image ids 
+						*/
+
+						// get normals
+						Image.find({normal: true}).select('_id').lean().exec(function(err, images){
+							if (err){ return next(err) }
+
+							var normalImages = _.remove(images, function(image, i){ return normalIndices.indexOf(i) > -1 })
+
+						// get abnormals
+							Image.find({normal: false}).select('_id').lean().exec(function(err, images){
+								if (err){ return next(err) }
+
+								var abnormalImages = _.remove(images, function(image, i){ return normalIndices.indexOf(i) > -1 })
+
+								// concatenate normal and abnormals, shuffle
+								var questionIds = _.shuffle(normalImages.concat(abnormalImages))
+
+								console.log('questionIds:', questionIds)
+
+								// fill in question ids
+								_.each(questionIds, function(qId){
+									quizResult.quizQuestions.push({
+										questionId: qId
+									})
+								})
+
+								console.log(quizResult)
+
+								quizResult.save(function(err){
+									if (err){ return next(err) }
+								
+									send(quiz, quizResult)
+								})
+							})
+						})
+					})
 				})
+
 			} else {
 				send(quiz, quizResult)
 			}
@@ -210,14 +261,8 @@ exports.startQuiz = function(req, res, next){
 
 		// render template
 		
-		if (!quizResult.preQuestionsCompleted){
-			res.locals.section = 'pre'
-			res.render('prepostQuiz')
-		} else if (!quizResult.quizQuestionsCompleted){
+		if (!quizResult.quizQuestionsCompleted){
 			res.render('quiz')
-		} else if (!quizResult.postQuestionsCompleted){
-			res.locals.section = 'post'
-			res.render('prepostQuiz')
 		} else {
 			// complete quiz, go to results page
 			quizResult.completed = true

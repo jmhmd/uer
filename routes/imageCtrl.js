@@ -110,6 +110,8 @@ exports.saveImage = function(req, res){
 	 */
 	else {
 
+		if (!req.body.title && req.body.diagnosis){ req.body.title = req.body.diagnosis }
+
 		// create new mongoose quiz object
 		var	image = new ImageModel(req.body)
 

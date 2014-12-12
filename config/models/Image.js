@@ -5,7 +5,7 @@ var mongoose = require('mongoose'),
 
 var imageSchema = new mongoose.Schema({
 	creator: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-	title: {type: String, required: 'A title is required'},
+	title: String,
 	difficulty: {type: String, required: 'Must select difficulty'},
 	diagnosis: String,
 	pathProven: {type: Boolean, default: false},
