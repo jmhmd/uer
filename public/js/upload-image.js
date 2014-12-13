@@ -109,7 +109,12 @@ function saveImageObject(cb) {
 
 $(document).ready(function(){
 
-  $('#saveImage').on('click', function(){ saveImageObject() })
+  $('#saveImage').on('click', function(){
+    saveImageObject(function(err){
+      if (err){ return false }
+      window.location = '/images/add'
+    })
+  })
 
   $('#uploadImages').on('click', function(){ uploadImages() })
       

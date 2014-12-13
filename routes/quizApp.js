@@ -39,7 +39,7 @@ var _updateQuizProgress = function(oldObj, newObj, cb){
 	})
 
 
-	if (newPreQuestions.length > 0){
+	if (newPreQuestions && newPreQuestions.length > 0){
 		_.each(oldObj.preQuestions, function(question, i){
 
 			var nq = newPreQuestions[i]
@@ -48,7 +48,7 @@ var _updateQuizProgress = function(oldObj, newObj, cb){
 			question.freeTextAnswer = nq.freeTextAnswer
 		})
 	}
-	if (newPostQuestions.length > 0){
+	if (newPostQuestions && newPostQuestions.length > 0){
 		_.each(oldObj.postQuestions, function(question, i){
 
 			var nq = newPostQuestions[i]

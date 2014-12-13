@@ -11,10 +11,13 @@ var quizResultSchema = new mongoose.Schema({
 	// relating to user's answer
 	quizQuestions: [
 		{
-			questionId: {type: mongoose.Schema.Types.ObjectId, ref: 'Question'},
+			questionId: {type: mongoose.Schema.Types.ObjectId, ref: 'Image'},
 
-			// maps to optionId of chosen answer in Question model
-			userAnswer: {type: mongoose.Schema.Types.ObjectId},
+			// 
+			userAnswerNormal: Boolean,
+
+			// should be integer 0 to 100, or Likert scale?
+			confidenceLevel: Number,
 
 			// store here to make quick calculations of percent wrong/right
 			// easier without needing to pull in whole question document

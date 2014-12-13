@@ -10,6 +10,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 		$scope.quizResult = quizResult
 		$scope.currentIndex = null
 		$scope.currentQuestion = {}
+		$scope.selectedQuestion = {index: 0}
 		$scope.elapsedTime = "00:00:00" // should be time formatted string
 		var partials = {
 			question: '/html/quiz.question.html',
@@ -34,6 +35,11 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 							Timer.setObjectElapsed(i, question.questionTime)
 						}
 					}
+
+					/*
+						add 'questionIndex' field for dropdown numbering for questions
+					 */
+					question.questionIndex = i
 				})
 
 			$scope.gotoQuestion(0)
@@ -49,10 +55,11 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 
 		var _getQuestion = function(index){
 
-			var questionId = $scope.quizResult.quizQuestions[index].questionId,
+			/*var questionId = $scope.quizResult.quizQuestions[index].questionId,
 				question = _.find($scope.quiz.questions, {_id: questionId})
 
-			return question			
+			return question*/
+			return $scope.quizResult.quizQuestions[index].questionId
 		}
 
 		var _loadImage = function(index, cb){
@@ -131,6 +138,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 			
 			$scope.currentQuestion = question
 			$scope.currentIndex = index
+			$scope.selectedQuestion.index = index
 
 			if (!question.imageSeries){
 				_loadImage(index, function(){
@@ -140,6 +148,14 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 				_onQuestionLoad(index)
 			}
 		}
+
+		$scope.$watch('selectedQuestion.index', function(nv, ov){
+			if (nv === ov){ return false }
+			
+			var key = parseInt(nv, 10)
+
+			$scope.gotoQuestion(key)
+		}, true)
 
 		$scope.isCurrentQuestion = function(index){
 
@@ -226,3 +242,23 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 
 	}
 ])
+
+$(document).on('resize-viewer',function(){
+
+	//
+	// set up resizing of view area
+	//
+	function sizeViewer() {
+		var viewer = $('#stackview'),
+			winHeight = $(window).height()
+
+		viewer.height( winHeight - viewer.offset().top )
+		console.log(winHeight, viewer.offset().top)
+	}
+	$(window).on('resize', function(){
+		sizeViewer()
+	})
+	
+	sizeViewer()
+	window.sizeViewer = sizeViewer
+})

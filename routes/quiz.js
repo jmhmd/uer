@@ -145,7 +145,7 @@ exports.startQuiz = function(req, res, next){
 		 * Check if user has an incomplete instance of this quiz, if so, load it up. 
 		 * If not, create a new quiz instance and load it up.
 		 */
-		QuizResult.findOne({user: req.user._id, quiz: quiz._id, completed: false}).exec(function(err, quizResult){
+		QuizResult.findOne({user: req.user._id, quiz: quiz._id, completed: false}).populate('quizQuestions.questionId').exec(function(err, quizResult){
 			if (err){ return next(err) }
 
 			if (!quizResult){
@@ -214,7 +214,7 @@ exports.startQuiz = function(req, res, next){
 
 							var normalImages = _.remove(images, function(image, i){ return normalIndices.indexOf(i) > -1 })
 
-						// get abnormals
+							// get abnormals
 							Image.find({normal: false}).select('_id').lean().exec(function(err, images){
 								if (err){ return next(err) }
 
@@ -236,8 +236,9 @@ exports.startQuiz = function(req, res, next){
 
 								quizResult.save(function(err){
 									if (err){ return next(err) }
-								
-									send(quiz, quizResult)
+									
+									exports.startQuiz(req, res, next)
+									//send(quiz, quizResult)
 								})
 							})
 						})
