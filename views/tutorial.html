@@ -32,9 +32,10 @@
                 </div>
             </div>
             <!--Submit and Finish row/container button only works when all images have been viewed, greyed out when timer still going. Consider including failsafe submit activated by ctrl+click-->
-			<div class="row" style="margin-top:10px;">
-				<div class="col-xs-12 text-right" ng-switch on="isLastQuestion()">
-					<button type="button" class="btn btn-lg btn-primary" ng-click="submitAndFinish()" ng-switch-when="true">Continue</button>
+			<div class="row" style="margin:10px;">
+				<div class="col-xs-12 text-right">
+					<!-- <button type="button" class="btn btn-lg btn-primary" ng-click="submitAndFinish()" ng-switch-when="true">Continue</button> -->
+                    <a href="/quizzes" type="button" class="btn btn-lg btn-primary">Continue</a>
 				</div>
 			</div>
 		</div>
