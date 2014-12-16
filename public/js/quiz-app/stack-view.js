@@ -57,6 +57,9 @@ quizApp.directive('stackView', [ '$window',
 							viewer.loadAnnotations(points)
 							// viewer.loadAnnotations([{type:'point', image: 0, coords: scope.selectPoint[0].coords}])
 
+							// resize viewer
+							$(document).trigger('resize-viewer')
+
 							unbindSrcWatch()
 						})
 					} else {
@@ -75,6 +78,9 @@ quizApp.directive('stackView', [ '$window',
 
 						viewer.loadAnnotations(points)
 						// viewer.loadAnnotations([{type:'point', image: 0, coords: scope.selectPoint[0].coords}])
+						
+						// resize viewer
+						$(document).trigger('resize-viewer')
 					}				
 				})
 

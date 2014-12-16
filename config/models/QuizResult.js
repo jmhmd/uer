@@ -31,7 +31,8 @@ var quizResultSchema = new mongoose.Schema({
 				{
 					series: Number,
 					image: Number,
-					coords: [Number] // should be of length 2, with x,y coordinates
+					coords: [Number], // should be of length 2, with x,y coordinates
+					time: Number
 				}
 			],
 

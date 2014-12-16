@@ -263,7 +263,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 
 		$scope.resume = function(){
 
-			$scope.questionPartial = partials.question
+			$scope.questionPartial = $scope.quizResult.timed ? partials.questionTimed : partials.question
 			$scope.paused = false
 
 			Timer.startTimer($scope.currentIndex)
