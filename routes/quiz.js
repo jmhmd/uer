@@ -298,13 +298,22 @@ exports.quizResult = function(req, res, next){
 	var quizResultId = req.params.quizResultId
 
 	QuizResult
-	.findById(quizResultId)
+	.find({_id: quizResultId})
+	.select('-quizQuestions.abnormalityLoc._id')
 	.populate('quizQuestions.questionId')
 	.populate('preQuestions.questionId')
 	.populate('postQuestions.questionId')
 	.populate('quiz')
 	.exec(function(err, quizResult){
 		if (err){ return next(err) }
+
+		if (quizResult.length !== 1){
+			return next('Duplicate quiz id or quiz result not found')
+		}
+
+		quizResult = quizResult[0]
+
+		console.log(quizResult)
 
 		if (!quizResult){
 		// no quiz found matching given id
@@ -342,8 +351,6 @@ exports.quizResult = function(req, res, next){
 				}
 
 				// see if it matches the user's answer or not
-				console.log(question.userAnswerNormal, typeof question.userAnswerNormal)
-				console.log(question.questionId.normal, typeof question.questionId.normal)
 				question.correct = question.userAnswerNormal === question.questionId.normal
 
 				// log correct answer
@@ -375,6 +382,10 @@ exports.quizResult = function(req, res, next){
 	var sendResult = function(){
 
 		console.log('send result')
+
+		_.forEach(res.locals.quizResult.quizQuestions, function(question){
+			question.abnormalityLocJSON = JSON.stringify(question.abnormalityLoc)
+		})
 
 		_getGoldStandard(res.locals.quizResult.quiz._id, function(err, goldStandard){
 			if (err){ return next(err) }
@@ -410,6 +421,7 @@ exports.showQuizReport = function(req, res, next){
 
 	QuizResult
 		.find({quiz: quizId, completed: true})
+		.select('-quizQuestions.abnormalityLoc._id')
 		.populate('quizQuestions.questionId')
 		.sort('endDate')
 		.exec(function(err, results){
@@ -473,7 +485,7 @@ exports.showQuizReport = function(req, res, next){
 							studyId: userQuestion.questionId.studyId,
 							total: 1,
 							correct: userQuestion.correct ? 1 : 0,
-							locations: userQuestion.abnormalityLoc.coords ? [userQuestion.abnormalityLoc.coords] : []
+							locations: userQuestion.abnormalityLoc
 						}
 						questions.push(question)
 					}

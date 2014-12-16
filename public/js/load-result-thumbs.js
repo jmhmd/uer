@@ -42,23 +42,29 @@ $(document).ready(function(){
 								userCoords = $(el).attr('data-loc'),
 								goldStandardCoords = $(el).attr('data-gold-standard-loc')
 
-							// put in array if not already
+
+							console.log('coords:',JSON.parse(userCoords))
+							console.log('gold:', goldStandardCoords)
+
+							userCoords = JSON.parse(userCoords)
+							// return false
+
+							/*// put in array if not already
 							userCoords = userCoords.indexOf('[') !== 0 ? '[' + userCoords + ']' : userCoords
 							goldStandardCoords = goldStandardCoords.indexOf('[') !== 0 ? '[' + goldStandardCoords + ']' : goldStandardCoords
 
+							// console.log('coords:',userCoords)
 							// parse as JSON
 							userCoords = JSON.parse(userCoords)
-							goldStandardCoords = JSON.parse(goldStandardCoords)
+							goldStandardCoords = JSON.parse(goldStandardCoords)*/
 
-							console.log(userCoords)
-							console.log(goldStandardCoords)
 
-							if ($.isArray(userCoords[0])){
+							if ($.isArray(userCoords)){
 								$.each(userCoords, function(i, coords){
-									placeMarker(el, coords, 'red')
+									placeMarker(el, coords.coords, 'red')
 								})
 							} else {
-								placeMarker(el, userCoords, 'red')
+								placeMarker(el, userCoords.coords, 'red')
 							}
 
 							if ($.isArray(goldStandardCoords[0])){

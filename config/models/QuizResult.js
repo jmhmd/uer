@@ -44,8 +44,8 @@ var quizResultSchema = new mongoose.Schema({
 	quizQuestionsCompleted: {type: Boolean, default: false},
 	
 	// results
-	// numberCorrect: Number,
-	// percentCorrect: Number,
+	numberCorrect: Number,
+	percentCorrect: Number,
 	completed: {type: Boolean, default: false},
 
 	// Timing
