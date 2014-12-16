@@ -38,7 +38,7 @@ exports.init = function(hbs){
 
 	hbs.registerHelper("userAnswer", function(question) {
 
-		if(question.userAnswerNormal){
+		if(!_.isUndefined(question.userAnswerNormal)){
 			var userAnswer = question.userAnswerNormal
 			return userAnswer ? 'Normal' : 'Abnormal'
 		} else {

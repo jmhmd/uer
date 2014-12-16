@@ -34,6 +34,7 @@ var _updateQuizProgress = function(oldObj, newObj, cb){
 		var nq = newQuestions[i]
 		
 		question.userAnswer = nq.userAnswer
+		question.userAnswerNormal = nq.userAnswerNormal
 		question.abnormalityLoc = nq.abnormalityLoc
 		question.questionTime = nq.questionTime
 	})

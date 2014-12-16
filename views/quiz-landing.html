@@ -12,16 +12,16 @@
 <table class="table">
 	<tr>
 		<th>Date completed/updated</th>
-		<th>Score</th>
+		<!-- <th>Score</th> -->
 		<th>Detail</th>
 	</tr>
 	{{#each quizHistory}}
 		<tr>
 			<td>{{this.updatedAt}}</td>
 			{{#if this.completed}}
-				<td>
+				<!-- <td>
 					{{this.percentCorrect}}%
-				</td>
+				</td> -->
 				<td>
 					<a href="/quiz/result/{{this._id}}">Detailed report</a>
 				</td>

@@ -341,11 +341,10 @@ exports.quizResult = function(req, res, next){
 					}
 				}
 
-				// find the correct answer
-				var correctAnswer = question.questionId.normal
-
 				// see if it matches the user's answer or not
-				question.correct = question.userAnswerNormal === correctAnswer
+				console.log(question.userAnswerNormal, typeof question.userAnswerNormal)
+				console.log(question.questionId.normal, typeof question.questionId.normal)
+				question.correct = question.userAnswerNormal === question.questionId.normal
 
 				// log correct answer
 				if (question.correct){ numberCorrect += 1 }

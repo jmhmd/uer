@@ -9,6 +9,7 @@ quizApp.directive('stackView', [ '$window',
 		return {
 			scope: {
 				'selectPoint': '=',
+				'isNormal': '=',
 				'imgSrc': '=',
 				'imgHeight': '=',
 				'imgWidth': '=',
@@ -78,6 +79,7 @@ quizApp.directive('stackView', [ '$window',
 				})
 
 				$(viewer).on('mark-point', function(){
+
 					console.log('marked point')
 					
 					var annotations = viewer.getAnnotations()
@@ -88,6 +90,12 @@ quizApp.directive('stackView', [ '$window',
 						if (!scope.selectPoint[i]){ scope.selectPoint[i] = {} }
 						scope.selectPoint[i].coords = p
 					})
+
+					if (coords.length > 0){
+						scope.isNormal = false
+					} else {
+						scope.isNormal = true
+					}
 
 					console.log(scope.selectPoint)
 					//scope.selectPoint[0].coords = annotations[0].coords

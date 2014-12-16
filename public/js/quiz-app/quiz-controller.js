@@ -228,7 +228,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 		$scope.submitAndFinish = function(){
 
 			if ($scope.quizResult.timed){
-				// window.alert('This quiz has ended. Press OK to view result.')	
+				window.alert('This quiz has ended. Press OK to view result.')	
 			} else {
 				if(!window.confirm('Are you sure? Once you submit you cannot go back and change answers.')){
 					return false
