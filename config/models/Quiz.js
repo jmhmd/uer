@@ -12,6 +12,7 @@ var quizSchema = new mongoose.Schema({
 		],
 		default: 'module'
 	},
+
 	// questions: [{type: mongoose.Schema.Types.ObjectId, ref: 'Question'}],
 	/*
 	Allow choosing of the type(s) of questions to include in the quiz, and the number. This

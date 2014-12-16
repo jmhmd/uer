@@ -14,9 +14,10 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 		$scope.elapsedTime = "00:00:00" // should be time formatted string
 		var partials = {
 			question: '/html/quiz.question.html',
+			questionTimed: '/html/quiz.questionTimed.html',
 			paused: '/html/quiz.paused.html'
 		}
-		$scope.questionPartial = partials.question
+		$scope.questionPartial = $scope.quizResult.timed ? partials.questionTimed : partials.question
 		$scope.paused = false
 
 
@@ -46,11 +47,34 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 
 			// may want to preload all images in background at some point
 			// ...
+			
+			/**
+			 * check if this is a timed quiz or not to set direction of timer count
+			 */
 
-			// start timer ticking
-			$interval(function(){
-				$scope.elapsedTime = Timer.msToTime(Timer.getTotalElapsed())
-			}, 1000)
+			if ($scope.quizResult.timed){
+
+				var questionInterval = 5000 // 5 seconds for each question
+
+				// start countdown timer
+				$interval(function(){
+
+					// timer ticks backwards
+					$scope.elapsedTime = Timer.msToTime(questionInterval - Timer.getTotalElapsed())
+
+					// if time has run out, move to next question
+					if (Timer.getTotalElapsed() > questionInterval){
+
+						$scope.nextQuestion()
+					}
+				}, 250)
+			} else {
+
+				// start timer ticking
+				$interval(function(){
+					$scope.elapsedTime = Timer.msToTime(Timer.getTotalElapsed())
+				}, 1000)
+			}
 		}
 
 		var _getQuestion = function(index){
@@ -171,6 +195,10 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 
 			if ($scope.currentIndex + 1 !== $scope.quizResult.quizQuestions.length){
 				$scope.gotoQuestion($scope.currentIndex + 1)
+
+			} else if ($scope.quizResult.timed) {
+				
+				$scope.submitAndFinish()
 			}
 		}
 
@@ -198,7 +226,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 
 		$scope.submitAndFinish = function(){
 
-			if(!window.confirm('Are you sure? Once you submit you cannot go back and change answers.')){
+			if(!$scope.quizResult.timed && !window.confirm('Are you sure? Once you submit you cannot go back and change answers.')){
 				return false
 			}
 
