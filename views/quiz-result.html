@@ -32,7 +32,7 @@
 		<th>Correct</th>
 		<th>Your answer</th>
 		<th>Correct answer</th>
-		<th>Explanation</th>
+		<!-- <th>Explanation</th> -->
 		<th>Time</th>
 	</tr>
 	{{#each quizResult.quizQuestions}}
@@ -50,9 +50,9 @@
 					N
 				{{/if}}
 			</td>
-			<td>{{userAnswer this "option"}}</td>
-			<td>{{correctAnswer this "option"}}</td>
-			<td>{{correctAnswer this "explanation"}}</td>
+			<td>{{userAnswer this}}</td>
+			<td>{{correctAnswer this}}</td>
+			<!-- <td>{{correctAnswer this "explanation"}}</td> -->
 			<td>{{questionTime this.questionTime}}</td>
 		</tr>
 	{{/each}}

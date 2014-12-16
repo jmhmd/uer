@@ -29,18 +29,18 @@ exports.init = function(hbs){
 		return array.length
 	})
 
-	hbs.registerHelper("correctAnswer", function(question, property) {
+	hbs.registerHelper("correctAnswer", function(question) {
 
-		var correctAnswer = _.find(question.questionId.choices, function(choice){ return choice.correct })
-		if (!correctAnswer){ return "No correct answer found for this question" }
-		return correctAnswer[property]
+		var isNormal = question.questionId.normal
+		if (_.isUndefined(isNormal)){ return "No correct answer found for this question" }
+		return isNormal ? 'Normal' : 'Abnormal'
 	})
 
-	hbs.registerHelper("userAnswer", function(question, property) {
+	hbs.registerHelper("userAnswer", function(question) {
 
-		if(question.userAnswer){
-			var userAnswer = _.find(question.questionId.choices, function(choice){ return choice._id.equals(question.userAnswer) })
-			return userAnswer[property]
+		if(question.userAnswerNormal){
+			var userAnswer = question.userAnswerNormal
+			return userAnswer ? 'Normal' : 'Abnormal'
 		} else {
 			return "No answer choice selected"
 		}
