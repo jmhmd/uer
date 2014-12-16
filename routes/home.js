@@ -6,6 +6,7 @@ exports.partials = function (req, res) {
 
 exports.index = function(req, res){
 	if (req.isAuthenticated()){
+		console.log(req.originalUrl)
 		res.redirect('/tutorial')
 	} else {
 		res.render('home')

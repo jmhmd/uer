@@ -1,7 +1,10 @@
 {{!< ./default_layout}}
 <h1> {{quiz.title}} </h1>
 
-<a href="/quiz/go/{{quiz._id}}"><button type="button">Start Quiz!</button></a>
+<a class="btn btn-lg btn-default" href="/quiz/go/{{quiz._id}}/timed"><span class="glyphicon glyphicon-time"></span> Start Timed Quiz</a>
+
+<a class="btn btn-lg btn-default" href="/quiz/go/{{quiz._id}}"><span class="glyphicon glyphicon-ok"></span> Start Untimed Quiz</a>
+
 <br><br>
 
 <h4>History</h4>

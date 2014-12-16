@@ -19,6 +19,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 		}
 		$scope.questionPartial = $scope.quizResult.timed ? partials.questionTimed : partials.question
 		$scope.paused = false
+		$scope.timerInterval
 
 
 		var _init = function(){
@@ -57,13 +58,13 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 				var questionInterval = 5000 // 5 seconds for each question
 
 				// start countdown timer
-				$interval(function(){
+				$scope.timerInterval = $interval(function(){
 
 					// timer ticks backwards
-					$scope.elapsedTime = Timer.msToTime(questionInterval - Timer.getTotalElapsed())
+					$scope.elapsedTime = Timer.msToTime(questionInterval - Timer.getObjectElapsed($scope.currentIndex))
 
 					// if time has run out, move to next question
-					if (Timer.getTotalElapsed() > questionInterval){
+					if (Timer.getObjectElapsed($scope.currentIndex) > questionInterval){
 
 						$scope.nextQuestion()
 					}
@@ -71,7 +72,7 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 			} else {
 
 				// start timer ticking
-				$interval(function(){
+				$scope.timerInterval = $interval(function(){
 					$scope.elapsedTime = Timer.msToTime(Timer.getTotalElapsed())
 				}, 1000)
 			}
@@ -226,9 +227,16 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 
 		$scope.submitAndFinish = function(){
 
-			if(!$scope.quizResult.timed && !window.confirm('Are you sure? Once you submit you cannot go back and change answers.')){
-				return false
+			if ($scope.quizResult.timed){
+				// window.alert('This quiz has ended. Press OK to view result.')	
+			} else {
+				if(!window.confirm('Are you sure? Once you submit you cannot go back and change answers.')){
+					return false
+				}
 			}
+
+			$interval.cancel($scope.timerInterval)
+			$scope.timerInterval = undefined
 
 			_saveQuestionTime($scope.currentIndex)
 

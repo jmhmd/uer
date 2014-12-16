@@ -128,7 +128,6 @@ app.post('/profile', passportConf.isAuthenticated, userCtrl.postUpdateProfile)
 app.get('/makeAdmin', passportConf.isAuthenticated, passportConf.isAdmin, userCtrl.getMakeAdmin)
 
 // Quizzes
-app.get('/', homeCtrl.index)
 app.get('/quizzes', passportConf.isAuthenticated, quizCtrl.showQuizList)
 app.get('/history', passportConf.isAuthenticated, quizCtrl.showQuizHistory)
 
@@ -144,6 +143,7 @@ app.get('/quiz/edit/:prepost/:quizId', passportConf.isAuthenticated, passportCon
 app.get('/quiz/delete/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.isQuizOwner, quizCtrl.removeQuiz)
 app.get('/quiz/report/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.isQuizOwner, quizCtrl.showQuizReport)
 
+app.get('/quiz/go/:quizId/timed', passportConf.isAuthenticated, quizCtrl.startTimedQuiz)
 app.get('/quiz/go/:quizId', passportConf.isAuthenticated, quizCtrl.startQuiz)
 app.get('/quiz/result/:quizResultId', passportConf.isAuthenticated, quizCtrl.quizResult)
 app.get('/quiz/:quizId', passportConf.isAuthenticated, quizCtrl.showQuiz)
@@ -201,6 +201,9 @@ app.post('/api/clearImages', passportConf.isAuthenticatedAPI, passportConf.isAdm
 
 app.get('/auth/google', passport.authenticate('google', { scope: 'profile email' }));
 app.get('/auth/google/callback', passport.authenticate('google', { successRedirect: '/', failureRedirect: '/login' }));
+
+// base index route
+// app.get('/', homeCtrl.index)
 
 // redirect all others to the index
 app.get('*', homeCtrl.index)

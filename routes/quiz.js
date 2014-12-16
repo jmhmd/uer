@@ -132,6 +132,14 @@ exports.showQuiz = function(req, res, next){
  * load quiz angular-js app to take quiz (start)
  * @param  {string} quizId
  */
+
+exports.startTimedQuiz = function(req, res, next){
+
+	req.params.timed = true
+
+	exports.startQuiz(req, res, next)
+}
+
 exports.startQuiz = function(req, res, next){
 	
 	var quizId = req.params.quizId
@@ -150,6 +158,8 @@ exports.startQuiz = function(req, res, next){
 
 			if (!quizResult){
 
+				console.log('generate new quiz')
+
 				quizResult = new QuizResult()
 
 
@@ -157,6 +167,7 @@ exports.startQuiz = function(req, res, next){
 				quizResult.quiz = quiz._id
 				quizResult.startDate = new Date()
 				quizResult.totalQuizTime = 0
+				quizResult.timed = req.params.timed ? true : false
 
 				// get number of available questions
 				var numNormal,
@@ -246,6 +257,7 @@ exports.startQuiz = function(req, res, next){
 				})
 
 			} else {
+				console.log('continue quiz')
 				send(quiz, quizResult)
 			}
 		})
@@ -263,8 +275,10 @@ exports.startQuiz = function(req, res, next){
 		// render template
 		
 		if (!quizResult.quizQuestionsCompleted){
+			console.log('render quiz')
 			res.render('quiz')
 		} else {
+			console.log('render results')
 			// complete quiz, go to results page
 			quizResult.completed = true
 			quizResult.save(function(err){
@@ -301,8 +315,11 @@ exports.quizResult = function(req, res, next){
 		else if (!quizResult.completed){
 		// quiz not finished yet
 
-			req.flash('error', 'The selected quiz has not been completed. <a href="/quiz/go/'+quizResultId+'">Click here to resume the quiz</a>')
-			return res.render('quiz-result')
+			console.log('quiz not completed')
+
+			// req.flash('error', 'The selected quiz has not been completed. <a href="/quiz/go/'+quizResultId+'">Click here to resume the quiz</a>')
+			//req.flash('error', 'The selected quiz has not been completed.')
+			//return res.render('quiz-result')
 		}
 		else if (_.isUndefined(quizResult.percentCorrect)){
 		// computing results for the first time
@@ -318,11 +335,17 @@ exports.quizResult = function(req, res, next){
 			// check each answer and add up total time
 			_.each(quizResult.quizQuestions, function(question){
 
+				if (quizResult.timed){
+					if (_.isUndefined(question.userAnswerNormal)){
+						question.userAnswerNormal = true
+					}
+				}
+
 				// find the correct answer
-				var correctAnswer = _.find(question.questionId.choices, function(choice){ return choice.correct })
+				var correctAnswer = question.questionId.normal
 
 				// see if it matches the user's answer or not
-				question.correct = correctAnswer && question.userAnswer ? question.userAnswer.equals(correctAnswer._id) : false
+				question.correct = question.userAnswerNormal === correctAnswer
 
 				// log correct answer
 				if (question.correct){ numberCorrect += 1 }
@@ -352,6 +375,8 @@ exports.quizResult = function(req, res, next){
 
 	var sendResult = function(){
 
+		console.log('send result')
+
 		_getGoldStandard(res.locals.quizResult.quiz._id, function(err, goldStandard){
 			if (err){ return next(err) }
 
@@ -362,6 +387,8 @@ exports.quizResult = function(req, res, next){
 					question.goldStandardLoc = _.find(goldStandard.quizQuestions, {questionId: question.questionId._id}).abnormalityLoc
 				})
 			}
+
+			console.log('render result')
 
 			res.render('quiz-result')
 		})

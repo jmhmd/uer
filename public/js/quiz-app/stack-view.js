@@ -22,6 +22,8 @@ quizApp.directive('stackView', [ '$window',
 				scope.$watch('index', function(newIndex, oldIndex){
 					if (newIndex !== 0 && newIndex === oldIndex){ return false }
 
+					viewer.unMount()
+
 					console.log('load new image: ' + scope.imgSrc)
 
 					if ($.isFunction(unbindSrcWatch)){ unbindSrcWatch() }
@@ -44,11 +46,15 @@ quizApp.directive('stackView', [ '$window',
 							$('#placeholder').hide()
 
 							viewer.render({images: [newSrc]}, element, {activeControl: 'markPoint'})
-							viewer.addHook('beforeAddAnnotation', function(next){
-								viewer.clearAnnotations()
+							/*viewer.addHook('beforeAddAnnotation', function(next){
+								// viewer.clearAnnotations()
 								next()
-							})
-							viewer.loadAnnotations([{type:'point', image: 0, coords: scope.selectPoint.coords}])
+							})*/
+
+							var points = scope.selectPoint.map(function(p){ return {type:'point', image: 0, coords: p.coords} })
+
+							viewer.loadAnnotations(points)
+							// viewer.loadAnnotations([{type:'point', image: 0, coords: scope.selectPoint[0].coords}])
 
 							unbindSrcWatch()
 						})
@@ -59,20 +65,32 @@ quizApp.directive('stackView', [ '$window',
 						$('#placeholder').hide()
 
 						viewer.render({images: [scope.imgSrc]}, element, {activeControl: 'markPoint'})
-						viewer.addHook('beforeAddAnnotation', function(next){
-							viewer.clearAnnotations()
+						/*viewer.addHook('beforeAddAnnotation', function(next){
+							// viewer.clearAnnotations()
 							next()
-						})
-						viewer.loadAnnotations([{type:'point', image: 0, coords: scope.selectPoint.coords}])
+						})*/
+						
+						var points = scope.selectPoint.map(function(p){ return {type:'point', image: 0, coords: p.coords} })
+
+						viewer.loadAnnotations(points)
+						// viewer.loadAnnotations([{type:'point', image: 0, coords: scope.selectPoint[0].coords}])
 					}				
 				})
 
 				$(viewer).on('mark-point', function(){
+					console.log('marked point')
+					
 					var annotations = viewer.getAnnotations()
 
-					if (annotations[0]){
-						scope.selectPoint.coords = annotations[0].coords
-					}
+					var coords = annotations.map(function(a){ return a.coords })
+
+					coords.forEach(function(p,i){
+						if (!scope.selectPoint[i]){ scope.selectPoint[i] = {} }
+						scope.selectPoint[i].coords = p
+					})
+
+					console.log(scope.selectPoint)
+					//scope.selectPoint[0].coords = annotations[0].coords
 				})
 
 				$($window).on('resize', function(){
