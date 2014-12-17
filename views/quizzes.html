@@ -1,4 +1,16 @@
 {{!< ./default_layout}}
+
+{{#if user.isAdmin}}
+<h1>Images</h1>
+
+<p>Normals: {{numNormal}}</p>
+<p>Abnormals: {{numAbnormal}}</p>
+<p>Total: {{totalImages}}</p>
+
+<a href="/images">View images</a>
+
+{{/if}}
+
 <h1> Quizzes </h1>
 
 {{#if quizzes}}

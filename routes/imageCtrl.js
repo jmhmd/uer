@@ -4,13 +4,9 @@ var util = require('util'),
 	_ = require('lodash'),
 	mongoose = require('mongoose'),
 	ImageModel = mongoose.model('Image'),
-	validator = require('validator'),
 	request = require('request'),
 	secrets = require('../config/secrets'),
-	quiz = require('./quiz'),
-	casefiles = secrets.casefiles,
-	async = require('async'),
-	math = require('mathjs')()
+	casefiles = secrets.casefiles
 
 /**
  * show page for uploading an image
@@ -76,6 +72,87 @@ exports.getImages = function(req, res, next){
 		res.locals.images = images
 		return res.render('images')
 	})
+}
+
+exports.showImage = function(req, res, next){
+
+	var imageId = req.params.imageId
+
+	ImageModel.findById(imageId)
+		.exec(function(err, imageObj){
+			if (err){ return next(err) }
+
+			if (imageObj && imageObj.studyId){
+
+				_getImageObject(imageObj.studyId, function(err, imageObj){
+					if (err){ return next(err) }
+
+					console.log(imageObj.imageStacks[0].imagePaths)
+
+					if (imageObj && imageObj.imageStacks && imageObj.imageStacks && imageObj.imageStacks[0].imagePaths){
+						
+						res.locals.imgPaths = imageObj.imageStacks[0].imagePaths
+
+						return res.render('show-image')
+					} else {
+						return next('Image object contains no images')
+					}
+				})
+			} else {
+				return res.render('404')
+			}
+		})
+}
+
+var _deleteStudyContainer = function(id, cb){
+
+	request.post({
+			url: casefiles.url + 'api/client/removeStudy',
+			json: {
+				apikey: casefiles.apikey,
+				studyId: id
+			}
+		},
+		function(err, response, body) {
+			if (!err && response.statusCode !== 200){
+				err = body
+			}
+			if (err) {
+				return cb(err)
+			}
+			return cb(null)
+		})
+}
+
+exports.deleteImage = function(req, res, next){
+
+	var imageId = req.params.imageId
+
+	ImageModel.findById(imageId)
+		.exec(function(err, imageObj){
+			if (err){ return next(err) }
+
+			if (imageObj && imageObj.studyId){
+
+				// delete stored images via API
+				_deleteStudyContainer(imageObj.studyId, function(err){
+					if (err){ return next(err) }
+
+					// delete local image container
+					imageObj.remove(function(err){
+						if (err){ return next(err) }
+
+						req.flash('info', {msg: 'Image deleted'})
+
+						res.redirect('/images')
+					})
+				})
+			} else {
+				req.flash('error', {msg: 'Image not found'})
+
+				res.redirect('/images')
+			}
+		})
 }
 
 exports.saveImage = function(req, res){

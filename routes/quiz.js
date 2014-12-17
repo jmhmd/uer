@@ -56,7 +56,22 @@ exports.showQuizList = function(req, res, next){
 			}
 
 			res.locals.quizzes = quizzes
-			res.render('quizzes')
+
+			Image.count({normal: true}, function(err, result){
+				if (err){ return next(err) }
+
+				res.locals.numNormal = result
+
+				Image.count({normal: false}, function(err, result){
+					if (err){ return next(err) }
+
+					res.locals.numAbnormal = result
+					res.locals.totalImages = res.locals.numNormal + res.locals.numAbnormal
+
+					res.render('quizzes')
+
+				})
+			})
 		})
 }
 
@@ -945,7 +960,7 @@ exports.getImageObject = function(req, res){
  */
 exports.removeImages = function(req, res){
 	/**
-	 * Send case to casefiles
+	 * Delete case from casefiles
 	 */
 		
 	request.post({

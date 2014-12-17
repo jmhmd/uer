@@ -136,6 +136,8 @@ app.post('/quiz/new', passportConf.isAuthenticated, passportConf.isAdmin, quizCt
 
 app.get('/images', passportConf.isAuthenticated, passportConf.isAdmin, imageCtrl.getImages)
 app.get('/images/add', passportConf.isAuthenticated, passportConf.isAdmin, imageCtrl.addImage)
+app.get('/images/show/:imageId', passportConf.isAuthenticated, passportConf.isAdmin, imageCtrl.showImage)
+app.get('/images/delete/:imageId', passportConf.isAuthenticated, passportConf.isAdmin, imageCtrl.deleteImage)
 // app.get('/images/saveToCaseFiles', passportConf.isAuthenticated, passportConf.isAdmin, imageCtrl.saveToCaseFiles)
 
 app.get('/quiz/edit/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.isQuizOwner, quizCtrl.showQuizEdit)
