@@ -107,6 +107,13 @@ quizApp.directive('stackView', [ '$window',
 					//scope.selectPoint[0].coords = annotations[0].coords
 				})
 
+				$(viewer).on('clear-annotations', function(){
+
+					console.log('clear annotations')
+
+					scope.selectPoint = []
+				})
+
 				$($window).on('resize', function(){
 					viewer.resetCanvas()
 				})
