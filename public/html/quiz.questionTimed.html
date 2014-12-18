@@ -1,38 +1,4 @@
 <div class="container-fluid">
-	<div class="row">
-		<div class="col-xs-3">
-			<p>
-				{{currentQuestion.clinicalInfo || ''}}
-			</p>
-
-			<p>{{currentQuestion.stem}}</p>
-		</div>
-		<div class="col-xs-6">
-
-			<div id="selections" ng-class="{columns: currentQuestion.choices.length > 5}">
-				<div class="radio answer-choice" ng-repeat="choice in currentQuestion.choices">
-					<label>
-						<input type="radio" name="choices" value="{{choice._id}}" ng-model="quizResult.quizQuestions[currentIndex].userAnswer"> {{choice.option}}
-					</label>
-				</div>
-			</div>
-		</div>
-		<div class="col-xs-2 text-center" ng-switch on="isLastQuestion()">
-			<div class="row">
-				<div id="next" class="nav-button btn" ng-click="nextQuestion()" ng-switch-default> 
-					Next study 
-				</div>
-				<button type="button" class="btn btn-primary" ng-click="submitAndFinish()" ng-switch-when="true">Submit and Finish</button>
-				<!-- <a ng-click="prevQuestion()">Previous study</a> -->
-			</div>
-		</div>
-		<div class="col-xs-1">
-			<p>
-				<!-- <select ng-options="key as (key*1 + 1) + (question.userAnswer ? '' : ' *') for (key, question) in quizResult.quizQuestions | orderBy:'questionNumber'" ng-model="selectedQuestion.index"></select> -->
-				<select ng-options="question.questionIndex as question.questionIndex+1 + (question.userAnswer ? '' : ' *') for question in quizResult.quizQuestions | orderBy:'questionIndex'" ng-model="selectedQuestion.index"></select>
-			</p>
-		</div> 
-	</div>
 
 	<div class="row">
 		<!-- set padding-right for viewer right side gutter -->

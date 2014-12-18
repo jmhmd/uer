@@ -17,7 +17,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-xs-2 text-center" ng-switch on="isLastQuestion()">
+		<div class="col-xs-3 text-center" ng-switch on="isLastQuestion()">
 			<div class="row">
 				<div id="next" class="nav-button btn" ng-click="nextQuestion()" ng-switch-default> 
 					Next study 
@@ -26,12 +26,11 @@
 				<!-- <a ng-click="prevQuestion()">Previous study</a> -->
 			</div>
 		</div>
-		<div class="col-xs-1">
+		<!-- <div class="col-xs-1">
 			<p>
-				<!-- <select ng-options="key as (key*1 + 1) + (question.userAnswer ? '' : ' *') for (key, question) in quizResult.quizQuestions | orderBy:'questionNumber'" ng-model="selectedQuestion.index"></select> -->
 				<select ng-options="question.questionIndex as question.questionIndex+1 + (question.userAnswer ? '' : ' *') for question in quizResult.quizQuestions | orderBy:'questionIndex'" ng-model="selectedQuestion.index"></select>
 			</p>
-		</div> 
+		</div>  -->
 	</div>
 
 	<div class="row">

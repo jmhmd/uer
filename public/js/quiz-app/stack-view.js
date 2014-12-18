@@ -3,8 +3,8 @@
 /* Select point on image directive */
 
 var quizApp = angular.module('quizApp.stack-view', [])	
-quizApp.directive('stackView', [ '$window',
-	function($window) {
+quizApp.directive('stackView', [ '$window', 'Timer',
+	function($window, Timer) {
 
 		return {
 			scope: {
@@ -96,6 +96,12 @@ quizApp.directive('stackView', [ '$window',
 						if (!scope.selectPoint[i]){ scope.selectPoint[i] = {} }
 						scope.selectPoint[i].coords = p
 					})
+
+					var timeElapsed = Timer.getObjectElapsed(scope.index)
+
+					console.log('time:', timeElapsed)
+
+					scope.selectPoint[scope.selectPoint.length - 1].time = timeElapsed
 
 					if (coords.length > 0){
 						scope.isNormal = false
