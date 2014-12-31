@@ -16,9 +16,6 @@ var quizResultSchema = new mongoose.Schema({
 			// 
 			userAnswerNormal: Boolean,
 
-			// should be integer 0 to 100, or Likert scale?
-			confidenceLevel: Number,
-
 			// store here to make quick calculations of percent wrong/right
 			// easier without needing to pull in whole question document
 			correct: Boolean,
@@ -32,7 +29,10 @@ var quizResultSchema = new mongoose.Schema({
 					series: Number,
 					image: Number,
 					coords: [Number], // should be of length 2, with x,y coordinates
-					time: Number
+					time: Number,
+					
+					// integer 0 to 10
+					confidenceLevel: Number
 				}
 			],
 

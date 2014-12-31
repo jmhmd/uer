@@ -11,7 +11,8 @@ angular.module('quizApp', [
   'quizApp.controllers',
   //'quizApp.select-point'
   'quizApp.stack-view',
-  'quizApp.timer'
+  'quizApp.timer',
+  'ui.slider'
 ])/*.
 config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/view1', {templateUrl: 'partials/partial1.html', controller: 'MyCtrl1'});

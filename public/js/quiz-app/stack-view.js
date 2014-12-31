@@ -95,6 +95,7 @@ quizApp.directive('stackView', [ '$window', 'Timer',
 					coords.forEach(function(p,i){
 						if (!scope.selectPoint[i]){ scope.selectPoint[i] = {} }
 						scope.selectPoint[i].coords = p
+						scope.selectPoint[i].confidenceLevel = 10
 					})
 
 					var timeElapsed = Timer.getObjectElapsed(scope.index)

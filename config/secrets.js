@@ -6,8 +6,8 @@ module.exports = {
 
 	// https://cloud.google.com/console/project
 	google: {
-		clientID: '713353189126-lijana0bk1kfifnchcd4ga0pdj3ggnv8.apps.googleusercontent.com',
-		clientSecret: '3GJsgophYKqymuME93ldeATo',
+		clientID: '713353189126-ckvjo92tjdouluvgehs2hhdhr25kktjt.apps.googleusercontent.com',
+		clientSecret: 'R5HHE9MdaIh_4m_pIXQXCsa5',
 		callbackURL: '/auth/google/callback',
 		passReqToCallback: true
 	}
