@@ -93,9 +93,12 @@ quizApp.directive('stackView', [ '$window', 'Timer',
 					var coords = annotations.map(function(a){ return a.coords })
 
 					coords.forEach(function(p,i){
-						if (!scope.selectPoint[i]){ scope.selectPoint[i] = {} }
+						if (!scope.selectPoint[i]){
+							scope.selectPoint[i] = {
+								confidenceLevel: 10
+							}
+						}
 						scope.selectPoint[i].coords = p
-						scope.selectPoint[i].confidenceLevel = 10
 					})
 
 					var timeElapsed = Timer.getObjectElapsed(scope.index)
@@ -111,6 +114,7 @@ quizApp.directive('stackView', [ '$window', 'Timer',
 					}
 
 					console.log(scope.selectPoint)
+					scope.$emit('mark-point', {data: scope.selectPoint[scope.selectPoint.length - 1], index: scope.selectPoint.length - 1})
 					//scope.selectPoint[0].coords = annotations[0].coords
 				})
 

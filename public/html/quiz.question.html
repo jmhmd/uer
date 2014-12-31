@@ -8,16 +8,13 @@
 			<!--<p>{{currentQuestion.stem}}</p>-->
 			
 			<!--https://github.com/venturocket/angular-slider-->
-			<div ng-repeat="abnormality in quizResult.quizQuestions[currentIndex].abnormalityLoc">
-				Abnormality {{$index + 1}} confidence: {{abnormality.confidenceLevel}}
-				<!--<slider-->
-				<!--    ng-model="abnormality.confidenceLevel"-->
-				<!--    floor="1"-->
-				<!--    ceiling="10"-->
-				<!--    step="1"-->
-				<!--    stretch="3">-->
-				<!--</slider>-->
-				<div ui-slider min="1" max="10" ng-model="abnormality.confidenceLevel"></div>
+			<span ng-repeat="abnormality in quizResult.quizQuestions[currentIndex].abnormalityLoc" ng-click="selectAbnormality($index)">
+				<span class="label" ng-class="{'label-default':!isSelectedAbnormality($index), 'label-primary': isSelectedAbnormality($index)}" style="cursor: pointer">#{{$index + 1}}</span> : {{abnormality.confidenceLevel}}
+				&nbsp;&nbsp;
+			</span>
+			<div ng-show="abnormalitySelected()">
+				Confidence:
+				<div ui-slider min="1" max="10" ng-model="quizResult.quizQuestions[currentIndex].abnormalityLoc[selectedAbnormality].confidenceLevel"></div>
 			</div>
 		</div>
 		<div class="col-xs-6">

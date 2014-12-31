@@ -268,6 +268,26 @@ quizApp.controller('questionCtrl', ['$scope', '$http', '$window', '$interval', '
 
 			Timer.startTimer($scope.currentIndex)
 		}
+		
+		$scope.selectedAbnormality = false
+		
+		$scope.$on('mark-point', function(e, abnormality){
+			console.log('abn', abnormality)
+			
+			$scope.selectedAbnormality = parseInt(abnormality.index, 10)
+		})
+		
+		$scope.isSelectedAbnormality = function(index){
+			return parseInt(index,10) === $scope.selectedAbnormality
+		}
+		
+		$scope.abnormalitySelected = function(){
+			return $scope.selectedAbnormality !== false && $scope.selectedAbnormality < $scope.quizResult.quizQuestions[$scope.currentIndex].abnormalityLoc.length
+		}
+		
+		$scope.selectAbnormality = function(index){
+			$scope.selectedAbnormality = parseInt(index, 10)
+		}
 
 		/*// catch url change or tab exit and save progress
 		angular.element($window).bind("beforeunload", function(){
