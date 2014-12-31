@@ -14,7 +14,8 @@ var express = require('express'),
 	hbs = require('express-hbs'),
 	fs = require('fs'),
 	CORS = require('cors'),
-	_ = require('lodash')
+	_ = require('lodash'),
+	info = require('debug')('info')
 
 var app = module.exports = express()
 
@@ -36,7 +37,7 @@ mongoose.connection
 		console.log('MongoDB Connection Error. Please make sure MongoDB is running.'.red)
 	})
 	.on('open', function() {
-		console.log('DB connected, using DB: ' + mongoose.connection.name + ' and API: ' + secrets.casefiles.url)
+		info('DB connected, using DB: ' + mongoose.connection.name + ' and API: ' + secrets.casefiles.url)
 	})
 
 fs.readdirSync('./config/models').forEach(function(file) {
@@ -74,7 +75,14 @@ app.engine('html', hbs.express3({
 }))
 app.set('view engine', 'html')
 app.set('views', __dirname + '/views')
-app.use(express.logger('dev'))
+
+// production only
+if (app.get('env') === 'production') {
+	app.use(express.logger('default'))
+} else {
+	app.use(express.logger('dev'))
+}
+
 app.use(express.bodyParser())
 app.use(expressValidator())
 app.use(express.methodOverride())
@@ -215,5 +223,6 @@ app.get('*', homeCtrl.index)
  */
 
 http.createServer(app).listen(app.get('port'), function() {
-	console.log('Express server listening on port ' + app.get('port'))
+	// console.log('Express server listening on port ' + app.get('port'))
+	info('Express server listening on port ' + app.get('port'))
 })
