@@ -25,8 +25,16 @@ var quizSchema = new mongoose.Schema({
 		}
 	],
 	enabled: {type: Boolean, default: false},
+	restricted: {type: Boolean, default: true}, // if restricted, user must have valid access code to take quiz
+	assignments: [
+		{
+			label: {type: String, default: 'New Assignment'},
+			accessCode: String,
+			attempts: {type: Number, default: -1}
+		}
+	],
 	randomize: {type: Boolean, default: false},
-	attempts: {type: Number, default: -1}, // a value of -1 denotes infinite attempts
+	//attempts: {type: Number, default: -1}, // a value of -1 denotes infinite attempts
 	deleted: {type: Boolean, default: false}
 })
 

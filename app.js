@@ -186,7 +186,10 @@ Quiz editing
 app.get('/api/getQuiz/:quizId', quizCtrl.getQuiz)
 app.post('/api/saveQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.saveQuiz)
 app.post('/api/quiz/:quizId/setAvailability', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.setAvailability)
+app.post('/api/quiz/:quizId/setRestricted', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.setRestricted)
 app.post('/api/quiz/:quizId/setRandomize', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.setRandomize)
+app.post('/quiz/:quizId/addAssignment', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.addAssignment)
+// app.post('/api/quiz/:quizId/deleteAssignment', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.deleteAssignment)
 //app.post('/api/removeQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeQuiz)
 
 /*

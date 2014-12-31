@@ -12,7 +12,8 @@ var util = require('util'),
 	secrets = require('../config/secrets'),
 	casefiles = secrets.casefiles,
 	async = require('async'),
-	math = require('mathjs')()
+	math = require('mathjs')(),
+	info = require('debug')('info')
 
 exports.isQuizOwner = function(req, res, next) {
 	var quizId = req.params.quizId,
@@ -803,8 +804,27 @@ exports.setAvailability = function(req, res){
 	Quiz.update({ _id: quizId }, { $set: { enabled: quizState } }, function(err){
 		if (err){ return res.send(500, err) }
 
-		//console.log('Quiz availability updated: ', quizId, quizState)
+		info('Quiz availability updated: ', quizId, quizState)
 		res.send(200, 'Quiz availability updated')
+	})
+}
+
+exports.setRestricted = function(req, res){
+
+	var quizId = req.params.quizId,
+		quizState = req.body.restricted
+	
+	//return res.send(500, 'test error')
+	
+	if (!quizId || !quizState){
+		return res.send(500, 'Must specify quiz and attribute state')
+	}
+
+	Quiz.update({ _id: quizId }, { $set: { restricted: quizState } }, function(err){
+		if (err){ return res.send(500, err) }
+		
+		info('Quiz restriction updated:', quizId, quizState)
+		res.send(200, 'Quiz restriction updated')
 	})
 }
 
@@ -816,14 +836,51 @@ exports.setRandomize = function(req, res){
 	//return res.send(500, 'test error')
 	
 	if (!quizId || !quizRandomize){
-		return res.send(500, 'Must specify quiz and availability')
+		return res.send(500, 'Must specify quiz and attribute state')
 	}
 
 	Quiz.update({ _id: quizId }, { $set: { randomize: quizRandomize } }, function(err){
 		if (err){ return res.send(500, err) }
 
-		//console.log('Quiz randomization updated: ', quizId, quizRandomize)
+		info('Quiz randomization updated: ', quizId, quizRandomize)
 		res.send(200, 'Quiz randomization updated')
+	})
+}
+
+exports.addAssignment = function(req, res, next){
+
+	var quizId = req.params.quizId,
+		label = req.body.label,
+		attempts = req.body.attempts
+	
+	//return res.send(500, 'test error')
+	
+	if (!quizId){
+		return res.send(500, 'Must specify quiz')
+	}
+
+	Quiz.findOne({ _id: quizId }, function(err, quiz){
+		if (err){ return next(err) }
+		if (!quiz){ 
+			req.flash('error', {msg: 'No finished quizzes found with this id'})
+			return res.render('404')
+		}
+		
+		if (!quiz.assignments){
+			quiz.assignments = []
+		}
+		
+		quiz.assignments.push({
+			label: label,
+			attempts: attempts,
+			accessCode: ("000000" + (Math.random()*Math.pow(36,6) << 0).toString(36)).slice(-6)
+		})
+		
+		quiz.save(function(err){
+			if (err){ return next(err) }
+			
+			return res.redirect('/quizzes')
+		})
 	})
 }
 

@@ -4,6 +4,7 @@ var mongoose = require('mongoose'),
 var quizResultSchema = new mongoose.Schema({
 	user: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User'},
 	quiz: {type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Quiz'},
+	accessCode: String,
 
 	timed: Boolean,
 	

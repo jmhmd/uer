@@ -20,35 +20,73 @@
 			{{#if ../user.isAdmin}}
 				<th>Report</th>
 				<th>Available</th>
-				<th>Randomize</th>
-				<th>Edit</th>
+				<th>Restricted</th>
+				<!--<th>Randomize</th>-->
+				<!--<th>Edit</th>-->
 				<th>Delete</th>
 			{{/if}}
 		</tr>
-	{{#each quizzes}}
+	{{#quizzes}}
 		<tr>
 			<td>
-				<a href="/quiz/{{this._id}}">{{this.title}}</a>
+				<a href="/quiz/{{this._id}}">{{title}}</a>
 			</td>
-			{{#if ../user.isAdmin}}
-				<td>
-					<a href="/quiz/report/{{this._id}}">Report</a>
-				</td>
-				<td>
-					<input type="checkbox" class="availableCheck" value="{{this._id}}" {{checked this.enabled}}>
-				</td>
-				<td>
-					<input type="checkbox" class="randomCheck" value="{{this._id}}" {{checked this.randomize}}>
-				</td>
-				<td>
-					<a href="/quiz/edit/{{this._id}}">edit</a>
-				</td>
-				<td>
-					<a href="/quiz/delete/{{this._id}}" onclick="return confirm('Are you sure?')">delete</a>
-				</td>
-			{{/if}}
+		{{#if ../user.isAdmin}}
+			<td>
+				<a href="/quiz/report/{{_id}}">Report</a>
+			</td>
+			<td>
+				<input type="checkbox" class="availableCheck" value="{{_id}}" {{checked enabled}}>
+			</td>
+			<td>
+				<input type="checkbox" class="restrictedCheck" value="{{_id}}" {{checked restricted}}>
+			</td>
+			<!--<td>-->
+			<!--	<input type="checkbox" class="randomCheck" value="{{this._id}}" {{checked this.randomize}}>-->
+			<!--</td>-->
+			<!--<td>-->
+			<!--	<a href="/quiz/edit/{{this._id}}">edit</a>-->
+			<!--</td>-->
+			<td>
+				<a href="/quiz/delete/{{_id}}" onclick="return confirm('Are you sure?')">delete</a>
+			</td>
 		</tr>
-	{{/each}}
+		<tr>
+			<td></td>
+			<td>
+				<table>
+				{{#assignments}}
+					<tr>
+						<td>{{label}} ({{accessCode}})</td>
+						<td>Report</td>
+					</tr>
+				{{/assignments}}
+					<tr>
+						<td colspan="2">
+							<a class="form-toggle" data-form-id="{{../_id}}">Add assignment</a>
+							<br>
+							<form id="form-{{../_id}}" style="display:none" method="post" action="/quiz/{{../_id}}/addAssignment">
+								<div class="form-group">
+									<label for="label">Label</label>
+									<input name="label" type="text" class="form-control" placeholder="Label">
+								</div>
+								<div class="form-group">
+									<label for="attempts">Attempts</label>
+									<input name="attempts" type="text" class="form-control" placeholder="Number of attempts">
+								</div>
+								<div class="form-group">
+									<button type="submit" class="btn btn-default">Add</button>
+								</div>
+							</form>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+		{{else}}
+		</tr>
+		{{/if}}
+	{{/quizzes}}
 	</table>
 {{else}}
 	<p>No quizzes found</p>
@@ -79,6 +117,23 @@ $(document).ready(function(){
 
 		
 	})
+	
+	$('.restrictedCheck').on('change', function(){
+
+		var checkbox = $(this),
+			state = checkbox.is(':checked'),
+			quizId = checkbox.val()
+
+		$.post('/api/quiz/'+quizId+'/setRestricted', {restricted: state})
+			.done(function(){
+				console.log('Quiz ', quizId, 'restricted: ', state)
+			})
+			.fail(function(err){
+				console.error(err)
+				// reset checkbox
+				checkbox.attr('checked', !state)
+			})
+	})
 
 	$('.randomCheck').on('change', function(){
 
@@ -95,6 +150,14 @@ $(document).ready(function(){
 				// reset checkbox
 				checkbox.attr('checked', !state)
 			})
+	})
+	
+	$('.form-toggle').on('click', function(e){
+		
+		var quizId = $(this).attr('data-form-id')
+		console.log(quizId)
+		
+		$('#form-'+quizId).toggle()
 	})
 })
 </script>
