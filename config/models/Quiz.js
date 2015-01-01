@@ -29,6 +29,7 @@ var quizSchema = new mongoose.Schema({
 	assignments: [
 		{
 			label: {type: String, default: 'New Assignment'},
+			timed: Boolean,
 			accessCode: String,
 			attempts: {type: Number, default: -1}
 		}

@@ -153,8 +153,9 @@ app.get('/quiz/edit/:prepost/:quizId', passportConf.isAuthenticated, passportCon
 app.get('/quiz/delete/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.isQuizOwner, quizCtrl.removeQuiz)
 app.get('/quiz/report/:quizId', passportConf.isAuthenticated, passportConf.isAdmin, quizCtrl.isQuizOwner, quizCtrl.showQuizReport)
 
-app.get('/quiz/go/:quizId/timed', passportConf.isAuthenticated, quizCtrl.startTimedQuiz)
-app.get('/quiz/go/:quizId', passportConf.isAuthenticated, quizCtrl.startQuiz)
+app.get('/quiz/go/:quizId/timed', passportConf.isAuthenticated, quizCtrl.checkRestricted, quizCtrl.startTimedQuiz)
+app.post('/quiz/go/:quizId/accessCode', passportConf.isAuthenticated, quizCtrl.checkRestricted, quizCtrl.startQuiz)
+app.get('/quiz/go/:quizId', passportConf.isAuthenticated, quizCtrl.checkRestricted, quizCtrl.startQuiz)
 app.get('/quiz/result/:quizResultId', passportConf.isAuthenticated, quizCtrl.quizResult)
 app.get('/quiz/:quizId', passportConf.isAuthenticated, quizCtrl.showQuiz)
 //app.get('/quiz/results/:quizId', passportConf.isAuthenticated, quizCtrl.showResults)
@@ -189,7 +190,7 @@ app.post('/api/quiz/:quizId/setAvailability', passportConf.isAuthenticatedAPI, p
 app.post('/api/quiz/:quizId/setRestricted', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.setRestricted)
 app.post('/api/quiz/:quizId/setRandomize', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.setRandomize)
 app.post('/quiz/:quizId/addAssignment', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.addAssignment)
-// app.post('/api/quiz/:quizId/deleteAssignment', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.deleteAssignment)
+app.get('/quiz/:quizId/deleteAssignment/:accessCode', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.deleteAssignment)
 //app.post('/api/removeQuiz', passportConf.isAuthenticatedAPI, passportConf.isAdmin, quizCtrl.removeQuiz)
 
 /*

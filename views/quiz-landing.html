@@ -1,9 +1,20 @@
 {{!< ./default_layout}}
 <h1> {{quiz.title}} </h1>
 
-<a class="btn btn-lg btn-default" href="/quiz/go/{{quiz._id}}/timed"><span class="glyphicon glyphicon-time"></span> Start Timed Quiz</a>
+{{#unless quiz.restricted}}
+	<a class="btn btn-lg btn-default" href="/quiz/go/{{quiz._id}}/timed"><span class="glyphicon glyphicon-time"></span> Start Timed Quiz</a>
 
-<a class="btn btn-lg btn-default" href="/quiz/go/{{quiz._id}}"><span class="glyphicon glyphicon-ok"></span> Start Untimed Quiz</a>
+	<a class="btn btn-lg btn-default" href="/quiz/go/{{quiz._id}}"><span class="glyphicon glyphicon-ok"></span> Start Untimed Quiz</a>
+{{/unless}}
+
+Access code:
+<form class="form-inline" method="post" action="/quiz/go/{{quiz._id}}/accessCode">
+  <div class="form-group">
+    <label class="sr-only" for="access-code">Access Code</label>
+    <input type="text" class="form-control" id="access-code" name="accessCode" placeholder="Access Code">
+  </div>
+  <button type="submit" class="btn btn-default">Start quiz</button>
+</form>
 
 <br><br>
 

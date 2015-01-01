@@ -13,7 +13,10 @@ var util = require('util'),
 	casefiles = secrets.casefiles,
 	async = require('async'),
 	math = require('mathjs')(),
-	info = require('debug')('info')
+	info = require('debug')('info'),
+	tools = require('./quiz-tools')
+
+exports.checkRestricted = tools.checkRestricted
 
 exports.isQuizOwner = function(req, res, next) {
 	var quizId = req.params.quizId,
@@ -158,7 +161,8 @@ exports.startTimedQuiz = function(req, res, next){
 
 exports.startQuiz = function(req, res, next){
 	
-	var quizId = req.params.quizId
+	var quizId = req.params.quizId,
+		accessCode = req.body.accessCode || req.params.accessCode || req.query.accessCode
 
 	_getLeanQuizObject(quizId, function(err, quiz){
 		if (err){ return next(err) }
@@ -174,16 +178,20 @@ exports.startQuiz = function(req, res, next){
 
 			if (!quizResult){
 
-				console.log('generate new quiz')
+				info('Generate new quiz')
 
 				quizResult = new QuizResult()
-
 
 				quizResult.user = req.user._id
 				quizResult.quiz = quiz._id
 				quizResult.startDate = new Date()
 				quizResult.totalQuizTime = 0
-				quizResult.timed = req.params.timed ? true : false
+				if (accessCode){
+					quizResult.accessCode = accessCode
+					quizResult.timed = _.find(quiz.assignments, {accessCode: accessCode}).timed
+				} else {
+					quizResult.timed = req.params.timed ? true : false
+				}
 
 				// get number of available questions
 				var numNormal,
@@ -204,7 +212,6 @@ exports.startQuiz = function(req, res, next){
 						// how many of each type requested by quiz?
 						var requestedNormals = _.find(quiz.questionTypes, {questionType: 'normal'}).number
 						var requestedAbnormals = _.find(quiz.questionTypes, {questionType: 'abnormal'}).number
-						console.log('requested:', requestedNormals, numNormal, requestedAbnormals, numAbnormal)
 
 						var getRandomIndices = function (num, max){
 							if (num > max + 1){
@@ -334,13 +341,13 @@ exports.quizResult = function(req, res, next){
 		if (!quizResult){
 		// no quiz found matching given id
 		
-			console.log('requested quiz not found')
+			info('requested quiz not found')
 			return res.render('404')
 		}
 		else if (!quizResult.completed){
 		// quiz not finished yet
 
-			console.log('quiz not completed')
+			info('quiz not completed')
 
 			// req.flash('error', 'The selected quiz has not been completed. <a href="/quiz/go/'+quizResultId+'">Click here to resume the quiz</a>')
 			//req.flash('error', 'The selected quiz has not been completed.')
@@ -352,7 +359,7 @@ exports.quizResult = function(req, res, next){
 			// mark end time
 			quizResult.endDate = new Date()
 
-			console.log('compute result')
+			info('Quiz completed, compute result')
 
 			var numberCorrect = 0,
 				totalQuizTime = 0
@@ -851,18 +858,19 @@ exports.addAssignment = function(req, res, next){
 
 	var quizId = req.params.quizId,
 		label = req.body.label,
-		attempts = req.body.attempts
-	
+		attempts = req.body.attempts,
+		timed = req.body.timed ? true : false
+
 	//return res.send(500, 'test error')
 	
 	if (!quizId){
-		return res.send(500, 'Must specify quiz')
+		return next(new Error('Must specify quiz'))
 	}
 
 	Quiz.findOne({ _id: quizId }, function(err, quiz){
 		if (err){ return next(err) }
 		if (!quiz){ 
-			req.flash('error', {msg: 'No finished quizzes found with this id'})
+			req.flash('error', {msg: 'No quiz found with that id'})
 			return res.render('404')
 		}
 		
@@ -873,6 +881,7 @@ exports.addAssignment = function(req, res, next){
 		quiz.assignments.push({
 			label: label,
 			attempts: attempts,
+			timed: timed,
 			accessCode: ("000000" + (Math.random()*Math.pow(36,6) << 0).toString(36)).slice(-6)
 		})
 		
@@ -881,6 +890,24 @@ exports.addAssignment = function(req, res, next){
 			
 			return res.redirect('/quizzes')
 		})
+	})
+}
+
+exports.deleteAssignment = function(req, res, next){
+
+	var quizId = req.params.quizId,
+		accessCode = req.params.accessCode
+
+	//return res.send(500, 'test error')
+	
+	if (!quizId || !accessCode){
+		return next(new Error('Must specify quiz and accessCode'))
+	}
+
+	Quiz.update({ _id: quizId }, { $pull: {'assignments': { 'accessCode': accessCode }}}, function(err){
+		if (err){ return next(err) }
+		
+		return res.redirect('/quizzes')
 	})
 }
 

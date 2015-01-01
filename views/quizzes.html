@@ -18,6 +18,9 @@
 		<tr>
 			<th>Quiz</th>
 			{{#if ../user.isAdmin}}
+				<th></th>
+				<th></th>
+				<th></th>
 				<th>Report</th>
 				<th>Available</th>
 				<th>Restricted</th>
@@ -32,6 +35,9 @@
 				<a href="/quiz/{{this._id}}">{{title}}</a>
 			</td>
 		{{#if ../user.isAdmin}}
+			<td></td>
+			<td></td>
+			<td></td>
 			<td>
 				<a href="/quiz/report/{{_id}}">Report</a>
 			</td>
@@ -51,39 +57,53 @@
 				<a href="/quiz/delete/{{_id}}" onclick="return confirm('Are you sure?')">delete</a>
 			</td>
 		</tr>
-		<tr>
-			<td></td>
-			<td>
-				<table>
-				{{#assignments}}
-					<tr>
-						<td>{{label}} ({{accessCode}})</td>
-						<td>Report</td>
-					</tr>
-				{{/assignments}}
-					<tr>
-						<td colspan="2">
-							<a class="form-toggle" data-form-id="{{../_id}}">Add assignment</a>
-							<br>
-							<form id="form-{{../_id}}" style="display:none" method="post" action="/quiz/{{../_id}}/addAssignment">
-								<div class="form-group">
-									<label for="label">Label</label>
-									<input name="label" type="text" class="form-control" placeholder="Label">
-								</div>
-								<div class="form-group">
-									<label for="attempts">Attempts</label>
-									<input name="attempts" type="text" class="form-control" placeholder="Number of attempts">
-								</div>
-								<div class="form-group">
-									<button type="submit" class="btn btn-default">Add</button>
-								</div>
-							</form>
-						</td>
-					</tr>
-				</table>
-			</td>
+				<!-- <table style="width:100%"> -->
+		{{#if assignments.length}}
+			<tr>
+				<td>Assignments</td>
+				<th>Label</th>
+				<th>Access code</th>
+				<th>Timed</th>
+				<td></td>
+			</tr>
+			{{#assignments}}
+			<tr>
+				<td></td>
+				<td>{{label}} - <a href="/quiz/{{../_id}}/deleteAssignment/{{accessCode}}">delete</a></td>
+				<td>{{accessCode}}</td>
+				<td>{{timed}}</td>
+				<td><a href="#">Report</a></td>
+			</tr>
+			{{/assignments}}
+		{{/if}}
+			<tr>
+				<td></td>
+				<td colspan="4">
+					<a class="form-toggle" data-form-id="{{../_id}}">Add assignment</a>
+					<br>
+					<form id="form-{{../_id}}" style="display:none" method="post" action="/quiz/{{../_id}}/addAssignment">
+						<div class="form-group">
+							<label for="label">Label</label>
+							<input name="label" type="text" class="form-control" placeholder="Label">
+						</div>
+						<div class="form-group">
+							<label for="attempts">Attempts</label>
+							<input name="attempts" type="text" class="form-control" placeholder="Number of attempts">
+						</div>
+						<div class="checkbox">
+						    <label>
+						      <input type="checkbox" name="timed"> Timed
+						    </label>
+						  </div>
+						<div class="form-group">
+							<button type="submit" class="btn btn-default">Add</button>
+						</div>
+					</form>
+				</td>
+			</tr>
+				<!-- </table> -->
 		</tr>
-		{{else}}
+		{{else}} <!-- else if not admin -->
 		</tr>
 		{{/if}}
 	{{/quizzes}}
